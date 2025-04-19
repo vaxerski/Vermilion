@@ -57,7 +57,7 @@
         active={currentPage.page == "/mpd" ? true : false}
     />
     <Button
-        icon="fa-solid fa-cloud"
+        icon="tidal"
         text="Tidal"
         href="/tidal"
         active={currentPage.page == "/tidal" ? true : false}

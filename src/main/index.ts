@@ -65,7 +65,7 @@ app.whenReady().then(async () => {
     () => {
       player.getCurrentSong().then((msg) => {
         mainWindow.webContents.send('updateCurrentSong', msg);
-      });
+      }).catch((e) => {});
     }
     , 500);
 

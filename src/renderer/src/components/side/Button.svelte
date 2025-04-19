@@ -9,7 +9,15 @@
 </script>
 
 <a class="button-container {active ? 'button-container-active' : ''}" on:click="{changePage}" href="#">
-    <div class="button-icon-container"><i class="button-icon {icon}"></i></div>
+    
+    <div class="button-icon-container">
+        {#if icon != "tidal" }
+        <i class="button-icon {icon}"></i>
+        {/if}
+        {#if icon == "tidal" }
+        <img class="button-icon" style="width: 1.3rem; transform: translateX(-45%) translateY(-50%);" src="../../resources/tidal.svg?asset"/>
+        {/if}
+    </div>
     <p class="button-text {active ? 'button-text-active' : ''}">{text}</p>
 </a>
 

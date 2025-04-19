@@ -7,10 +7,7 @@ Vermilion is a clean, minimal and simple music player for MPD and Tidal.
 > Bugs are to be expected.
 
 
-![](./assets/ui1.png)
-
-<br/>
-
+![](./assets/ui1.png) <br/>
 ![](./assets/ui2.png)
 
 

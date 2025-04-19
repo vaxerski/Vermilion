@@ -21,7 +21,9 @@ Vermilion is a clean, minimal and simple music player for MPD and Tidal.
 
 - Favorites
 - Playlists
-
+- arrpc integration
+- listenbrainz integration
+- A damn icon :P
 
 ## Integrations
 
@@ -46,10 +48,7 @@ Go to settings and input your mpd server's address and port. That's it.
 > Tidal playback is supported via widevine and a custom electron version from [castlabs](https://github.com/castlabs/electron-releases).
 > This does mean that Digital Rights Management is used to play Tidal content.
 
-> [!IMPORTANT]
-> Vermilion runs off of your user token. ***DO NOT*** share it with anyone, as it grants anyone with it access to your account.
->
-> It is also not 100% certain that you won't get banned for this, although I haven't heard of anyone getting banned for a 3rd party client on Tidal yet.
+Check the [docs](./docs/Tidal.md) for how to connect Vermilion to Tidal.
 
 #### Supported
 
@@ -62,3 +61,10 @@ Go to settings and input your mpd server's address and port. That's it.
 - Searching for albums / artists
 - Browsing artist / album pages
 
+## Building
+
+See [building.md](./docs/Building.md).
+
+## Disclaimer
+
+Vermilion is in no way associated with Tidal or TIDAL Music AS.

@@ -1,0 +1,78 @@
+<script>
+    import InputBox from "./settings/InputBox.svelte";
+    import PageTitle from "./shared/PageTitle.svelte";
+</script>
+
+<PageTitle text="Settings" subtext="Just what you need" />
+
+<div class="settings-content">
+    <p class="settings-section-text">MPD</p>
+
+    <div class="settings-options-box">
+        <InputBox
+            placeholder={"127.0.0.1"}
+            valueName={"mpdAddress"}
+            text={"Server Address"}
+        />
+        <InputBox
+            placeholder={"6600"}
+            valueName={"mpdPort"}
+            text={"Server Port"}
+        />
+    </div>
+
+    <p class="settings-section-text">Tidal</p>
+
+    <div class="settings-options-box">
+        <InputBox
+            placeholder={"..."}
+            valueName={"tidalToken"}
+            text={"Tidal Token"}
+            secret={true}
+        />
+        <InputBox
+            placeholder={"50"}
+            valueName={"tidalSearchNumber"}
+            text={"Max results per query (0-100)"}
+        />
+    </div>
+</div>
+
+<style>
+    .settings-options-box {
+        display: flex;
+        position: relative;
+        width: 100%;
+        height: auto;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .settings-content {
+        display: flex;
+        position: relative;
+        border-radius: 1rem;
+        padding: 1rem 1rem;
+        border: solid var(--vm-panel-border) 1px;
+        background: var(--vm-panel-background);
+        height: auto;
+        margin-top: 1.5rem;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .settings-section-text {
+        font-family: var(--vm-panel-font-regular);
+        font-size: 0.9rem;
+        color: var(--vm-panel-font-base);
+        user-select: none;
+        font-size: 1.4rem;
+        margin-bottom: -1rem;
+    }
+
+    .vermilion-grad {
+        background: linear-gradient(50deg, rgb(255, 167, 167) 0%, #ff5647 100%);
+        background-clip: text;
+        color: transparent;
+    }
+</style>

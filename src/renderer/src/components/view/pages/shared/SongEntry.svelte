@@ -1,0 +1,233 @@
+<script lang="ts">
+    import type { SongDataShort } from "../../../../../../main/types/songData";
+    import SongEntryMenu from "./SongEntryMenu.svelte";
+
+    let {
+        title = "",
+        artist = "",
+        album = "",
+        duration = 0,
+        alternate = false,
+        identifier = "",
+        source = "",
+        index = 0,
+        queue = false,
+    } = $props();
+
+    function prettyTime(time: number) {
+        if (time <= 0) return "0:00";
+        let mins: number = Math.floor(time / 60);
+        let secs: number = Math.floor(time - mins * 60);
+        return secs > 9 ? mins + ":" + secs : mins + ":0" + secs;
+    }
+
+    function onPlay() {
+        if (currentlyPlaying) {
+            if (currentStatePlaying)
+                window.electron.ipcRenderer.send("pausePlayback");
+            else window.electron.ipcRenderer.send("resumePlayback");
+            return;
+        }
+
+        if (identifier == "" || source == "") {
+            console.log("Cannot play, invalid song?");
+            return;
+        }
+        window.electron.ipcRenderer.send("playSong", {
+            identifier: identifier,
+            source: source,
+            index: index - 1, /* index for queue is 0 based, while here it's 1 based for the user. */
+            queue: queue,
+        });
+    }
+
+    let currentlyPlaying = $state(false);
+    let currentStatePlaying = $state(false);
+    let contextMenuOpen = $state(false);
+    let contextMenuOpacity = $state(0);
+
+    const songInfo: SongDataShort = {
+        title: title,
+        artist: artist,
+        album: album,
+        identifier: identifier,
+        source: source,
+        duration: duration,
+    };
+
+    window.electronAPI.updateCurrentSong((res) => {
+        currentlyPlaying =
+            title == res.title && album == res.album && artist == res.artist;
+        currentStatePlaying = res.playing;
+    });
+
+    function openMenu() {
+        if (contextMenuOpen) {
+            closeMenu();
+            return;
+        }
+        contextMenuOpen = true;
+        setTimeout( () => {
+            contextMenuOpacity = 1;
+        }, 1);
+    }
+
+    function closeMenu() {
+        contextMenuOpacity = 0;
+        setTimeout( () => {
+            contextMenuOpen = false;
+        }, 150);
+    }
+</script>
+
+<div
+    class="song-entry-container {alternate ? 'song-entry-container-alt' : ''}"
+    id="songEntryContainer"
+>
+    <i
+        class="song-entry-text song-entry-icon fa-solid {currentlyPlaying &&
+        currentStatePlaying
+            ? 'fa-pause'
+            : 'fa-play'}"
+        on:click={onPlay}
+        style={currentlyPlaying ? "opacity:1;" : ""}
+    >
+    </i>
+    <p
+        class="song-entry-text song-entry-index"
+        style={currentlyPlaying ? "opacity:0;" : ""}
+    >
+        {index}
+    </p>
+    <p
+        class="song-entry-text song-entry-title {currentlyPlaying
+            ? 'song-entry-playing'
+            : ''}"
+    >
+        {title}
+    </p>
+    <p class="song-entry-text song-entry-artist">
+        {artist}
+    </p>
+    <p class="song-entry-text song-entry-album">
+        {album}
+    </p>
+    <p class="song-entry-text song-entry-duration">
+        {prettyTime(duration)}
+    </p>
+    <i
+        class="song-entry-text song-entry-options fa-solid fa-ellipsis"
+        id="songEntryIcon"
+        on:click={openMenu}
+    >
+    </i>
+    {#if contextMenuOpen}
+        <SongEntryMenu songData={songInfo} closeCallback={closeMenu} opacity={contextMenuOpacity} />
+    {/if}
+</div>
+
+<style>
+    .song-entry-container {
+        display: block;
+        position: relative;
+        width: 100%;
+        height: 2rem;
+        padding: 0;
+        margin: 0;
+    }
+
+    .song-entry-container-alt {
+        background: linear-gradient(
+            90deg,
+            rgba(68, 68, 68, 0) 0%,
+            rgba(68, 68, 68, 0.13) 10%,
+            rgba(68, 68, 68, 0.13) 90%,
+            rgba(68, 68, 68, 0) 100%
+        );
+    }
+
+    .song-entry-text {
+        display: block;
+        position: absolute;
+        color: var(--vm-panel-font-base);
+        font-size: 0.8rem;
+        opacity: 0.9;
+        top: 50%;
+        transform: translateY(-50%);
+        text-overflow: ellipsis;
+        overflow: hidden;
+        text-wrap: nowrap;
+        user-select: none;
+        transition: 0.1s ease-in-out;
+    }
+
+    .song-entry-playing {
+        color: var(--vm-panel-font-highlight-mid);
+    }
+
+    .song-entry-icon {
+        right: 96.2%;
+        transition: 0.07s ease-in;
+        cursor: pointer;
+        opacity: 0;
+        z-index: 11;
+        width: 2.4%;
+        text-align: center;
+        text-overflow: clip;
+    }
+
+    .song-entry-index {
+        right: 96.2%;
+        transition: 0.07s ease-in;
+        color: var(--vm-panel-font-base);
+        width: 2.4%;
+        text-align: center;
+        text-overflow: clip;
+        opacity: 0.5;
+    }
+
+    .song-entry-container:hover > .song-entry-icon {
+        opacity: 1;
+    }
+
+    .song-entry-container:hover > .song-entry-index {
+        opacity: 0;
+    }
+
+    .song-entry-icon:hover {
+        color: var(--vm-panel-font-highlight-mid);
+    }
+
+    .song-entry-options {
+        right: 1%;
+        transition: 0.07s ease-in;
+        cursor: pointer;
+        z-index: 11;
+        width: 2.4%;
+        text-align: center;
+        text-overflow: clip;
+    }
+
+    .song-entry-options:hover {
+        color: var(--vm-panel-font-highlight-mid);
+    }
+
+    .song-entry-title {
+        left: calc(2.5% + 1rem);
+        max-width: 43%;
+    }
+
+    .song-entry-artist {
+        left: 50%;
+        max-width: 14%;
+    }
+
+    .song-entry-album {
+        left: 65%;
+        max-width: 22%;
+    }
+
+    .song-entry-duration {
+        right: 5%;
+    }
+</style>

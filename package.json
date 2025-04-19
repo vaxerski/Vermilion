@@ -1,0 +1,59 @@
+{
+  "name": "vermilion",
+  "version": "1.0.0",
+  "description": "A simple, modern music player.",
+  "main": "./out/main/index.js",
+  "author": "vaxry",
+  "homepage": "https://github.com/vaxerski/vermilion",
+  "scripts": {
+    "format": "prettier --plugin prettier-plugin-svelte --write .",
+    "lint": "eslint --cache .",
+    "typecheck:node": "",
+    "svelte-check": "svelte-check --tsconfig ./tsconfig.json",
+    "typecheck": "npm run typecheck:node && npm run svelte-check",
+    "start": "electron-vite preview",
+    "dev": "electron-vite dev",
+    "build": "npm run typecheck && electron-vite build",
+    "postinstall": "electron-builder install-app-deps",
+    "build:unpack": "npm run build && electron-builder --dir",
+    "build:win": "npm run build && electron-builder --win",
+    "build:mac": "npm run build && electron-builder --mac",
+    "build:linux": "npm run build && electron-builder --linux"
+  },
+  "dependencies": {
+    "@electron-toolkit/preload": "^3.0.1",
+    "@electron-toolkit/utils": "^4.0.0",
+    "@fortawesome/fontawesome-free": "^6.7.2",
+    "@sveltejs/kit": "^2.20.7",
+    "mpd-api": "^1.1.2",
+    "shaka-player": "^4.14.8"
+  },
+  "devDependencies": {
+    "@electron-toolkit/eslint-config-prettier": "^3.0.0",
+    "@electron-toolkit/eslint-config-ts": "^3.0.0",
+    "@electron-toolkit/tsconfig": "^1.0.1",
+    "@ptkdev/sveltekit-electron-adapter": "^0.3.0",
+    "@sveltejs/vite-plugin-svelte": "^5.0.3",
+    "@types/node": "^22.14.1",
+    "electron": "git+https://github.com/castlabs/electron-releases#v35.1.5+wvcus",
+    "electron-builder": "^25.1.8",
+    "electron-vite": "^3.1.0",
+    "eslint": "^9.24.0",
+    "eslint-plugin-svelte": "^3.5.1",
+    "prettier": "^3.5.3",
+    "prettier-plugin-svelte": "^3.3.3",
+    "svelte": "^5.26.1",
+    "svelte-check": "^4.1.5",
+    "typescript": "^5.8.3",
+    "vite": "^6.2.6"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron",
+      "esbuild"
+    ],
+    "ignoredBuiltDependencies": [
+      "@sveltejs/kit"
+    ]
+  }
+}

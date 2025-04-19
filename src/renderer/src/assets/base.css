@@ -1,0 +1,68 @@
+:root {
+  --vm-back: #111111;
+
+  --vm-panel-background: #33333355;
+  --vm-panel-border: #44444488;
+  --vm-panel-font-medium: "Inter Medium";
+  --vm-panel-font-regular: "Inter Regular";
+  --vm-panel-font-base: #d9d9d9;
+  --vm-panel-font-darker: #cecece;
+  --vm-panel-font-highlight-mid: #d89e9e;
+  --vm-panel-font-highlight-strong: #c36060;
+  --vm-panel-font-highlight-burning: rgb(255, 76, 76);
+  --vm-panel-font-hr: #88888888;
+
+  --vm-icon-deep: #e34234;
+  
+  --vm-miniplayer-progress: #af6262;
+  --vm-miniplayer-progress-background: #444444;
+  --vm-miniplayer-background: #11111166;
+  --vm-miniplayer-border: #444444;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
+
+ul {
+  list-style: none;
+}
+
+@font-face {
+  font-family: "Inter Medium";
+  src: url('./Inter_24pt-Medium.ttf');
+}
+@font-face {
+  font-family: "Inter Regular";
+  src: url('./Inter_24pt-Medium.ttf');
+}
+
+body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  background-color: #111111;
+  line-height: 1.6;
+  font-family:
+    "Inter Regular",
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    'Fira Sans',
+    'Droid Sans',
+    'Helvetica Neue',
+    sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

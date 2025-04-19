@@ -11,8 +11,7 @@
 <div class="home-content">
     <p class="home-text">
         <span class="vermilion-grad">Vermilion</span> is <i>just another music player</i>.<br />
-        It's aimed to be a simple and modern-looking music player for MPD and (in the future)
-        some streaming services, all in one.<br/><br/>
+        It's aimed to be a simple and modern-looking music player for MPD and Tidal, all in one.<br/><br/>
         Currently, <span class="vermilion-grad">Vermilion</span> is in <i>pre-alpha</i> stages. Please do expect bugs
         and issues.<br/><br/>
         <span class="vermilion-grad">Vermilion</span> is <i>not</i> aimed to be an all-powerful and do-it-all magic backflips and everything player.

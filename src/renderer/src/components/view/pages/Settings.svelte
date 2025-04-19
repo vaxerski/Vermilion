@@ -1,4 +1,5 @@
 <script>
+    import Checkbox from "./settings/Checkbox.svelte";
     import InputBox from "./settings/InputBox.svelte";
     import PageTitle from "./shared/PageTitle.svelte";
 </script>
@@ -7,6 +8,8 @@
 
 <div class="settings-content">
     <p class="settings-section-text">MPD</p>
+
+    <hr class="settings-section-hr"/>
 
     <div class="settings-options-box">
         <InputBox
@@ -23,6 +26,8 @@
 
     <p class="settings-section-text">Tidal</p>
 
+    <hr class="settings-section-hr"/>
+
     <div class="settings-options-box">
         <InputBox
             placeholder={"..."}
@@ -36,6 +41,17 @@
             text={"Max results per query (0-100)"}
         />
     </div>
+
+    <p class="settings-section-text">MPRIS</p>
+
+    <hr class="settings-section-hr"/>
+
+    <div class="settings-options-box">
+        <Checkbox
+            valueName={"mprisEnabled"}
+            text={"Enabled"}
+        />
+    </div>
 </div>
 
 <style>
@@ -46,6 +62,16 @@
         height: auto;
         flex-direction: column;
         gap: 0.5rem;
+    }
+
+    .settings-section-hr {
+        width: 30%;
+        height: 1px;
+        max-height: 1px;
+        background: var(--vm-panel-font-hr);
+        margin: 0rem;
+        margin-bottom: -0.5rem;
+        border: none;
     }
 
     .settings-content {

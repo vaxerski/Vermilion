@@ -3,20 +3,31 @@ import path from 'path';
 import os from 'os';
 
 interface Config {
+    // MPD
     mpdAddress?: string;
     mpdPort?: string;
+
+    // Tidal
     tidalToken?: string;
     tidalSearchNumber?: string;
+
+    // MPRIS
+    mprisEnabled?: boolean;
+
+    // other
     volume?: number;
 };
 
-let config: Config = {
+const defaultConfig: Config = {
     mpdAddress: "localhost",
     mpdPort: "6600",
     tidalToken: "",
     tidalSearchNumber: "50",
+    mprisEnabled: true,
     volume: 0.5,
 };
+
+let config: Config = defaultConfig;
 
 const CONFIG_DIR = path.resolve(os.homedir() + "/.config");
 
@@ -44,6 +55,9 @@ function writeConfig() {
 }
 
 function getConfigValue(member: string) {
+    if (config[member] == undefined)
+        return defaultConfig[member];
+
     return config[member];
 }
 

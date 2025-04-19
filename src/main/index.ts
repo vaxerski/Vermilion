@@ -8,6 +8,7 @@ import config from './config/config'
 import { SongDataShort } from './types/songData'
 import mpd from './player/mpd/mpd'
 import tidal from './player/tidal/tidal'
+import externalServices from './player/externalServices'
 
 export var mainWindow: BrowserWindow;
 
@@ -65,6 +66,7 @@ app.whenReady().then(async () => {
     () => {
       player.getCurrentSong().then((msg) => {
         mainWindow.webContents.send('updateCurrentSong', msg);
+        externalServices.updateSongInfo(msg);
       }).catch((e) => {});
     }
     , 500);

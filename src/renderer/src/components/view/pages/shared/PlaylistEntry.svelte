@@ -2,7 +2,7 @@
     import { type PlaylistDataShort } from "../../../../../../main/types/playlistDataShort";
     import { currentPage } from "../../../state/sharedState.svelte";
 
-    let { playlist, alternate, index } = $props();
+    let { playlist /* PlaylistDataShort */, alternate, index } = $props();
 
     function prettyTime(time: number) {
         if (time <= 0) return "0:00";
@@ -31,11 +31,31 @@
     });
 
     function onEnter() {
-        currentPage.page = "/playlists/playlist/" + playlist.source + "_" + playlist.identifier;
+        currentPage.page =
+            "/playlists/playlist/" +
+            playlist.source +
+            "_" +
+            playlist.identifier;
     }
 
-    function onPlay() {
+    let wantsToPlay = false;
 
+    window.electronAPI.playlistData((res) => {
+        if (res.name != playlist.name || !wantsToPlay) return;
+
+        window.electron.ipcRenderer.send("playSong", {
+            identifier: res.songs[0].identifier,
+            source: res.source,
+            index: 0,
+            playlist: res.source + "_" + res.identifier,
+        });
+
+        wantsToPlay = false;
+    });
+
+    function onPlay() {
+        window.electron.ipcRenderer.send("getPlaylistData", { ...playlist });
+        wantsToPlay = true;
     }
 </script>
 
@@ -72,10 +92,13 @@
     </p>
     <p class="playlist-entry-text playlist-entry-source">
         {#if playlist.source == "mpd"}
-            <i class="fa-solid fa-music"/>
+            <i class="fa-solid fa-music" />
         {/if}
         {#if playlist.source == "tidal"}
-            <img class="playlist-entry-text-svg" src="../../resources/tidalWhite.svg" />
+            <img
+                class="playlist-entry-text-svg"
+                src="../../resources/tidalWhite.svg"
+            />
         {/if}
     </p>
     <p class="playlist-entry-text playlist-entry-duration">

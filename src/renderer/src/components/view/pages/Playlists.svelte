@@ -29,35 +29,40 @@
         return secs > 9 ? mins + ":" + secs : mins + ":0" + secs;
     }
 
-    function getPlaylistFromState() {
+    function getPlaylistFromState() : PlaylistDataShort {
         const pl = currentPage.page.substring("/playlists/playlist/".length);
         for (let i = 0; i < playlists.length; ++i) {
             if (playlists[i].source + "_" + playlists[i].identifier == pl)
                 return playlists[i];
         }
-        return null;
+        return {
+            name: "",
+            duration: 0,
+            identifier: "",
+            source: "",
+            songsNumber: 0,
+        };
     }
 
     window.electron.ipcRenderer.send("gatherPlaylists");
 </script>
 
-{#if currentPage.page == "/playlists"}
+
+{#if currentPage.page.indexOf("/playlists/playlist/") == 0}
+
+{#key currentPage.page}
+<PageTitle text={getPlaylistFromState().name} subtext={getPlaylistFromState().songsNumber + " songs, " + prettyTime(getPlaylistFromState().duration)}/>
+
+<SongList playlist={getPlaylistFromState()} />
+{/key}
+
+{:else}
 
 <PageTitle text="Playlists" subtext="Your favorite jams"/>
 
 <PlaylistList playlists={playlists} />
 
 {/if}
-
-
-
-{#key currentPage.page}
-{#if currentPage.page.indexOf("/playlists/playlist/") == 0}
-<PageTitle text={getPlaylistFromState().name} subtext={getPlaylistFromState().songsNumber + " songs, " + prettyTime(getPlaylistFromState().duration)}/>
-
-<SongList playlist={getPlaylistFromState()} />
-{/if}
-{/key}
 
 
 <style>

@@ -15,15 +15,17 @@ Vermilion is a clean, minimal and simple music player for MPD and Tidal.
 
 - Play queue
 - Mini / fullscreen player with controls
-- Integrations
+- Tidal / MPD support
+- Listenbrainz integration
+- MPRIS integration
 
 ### Planned
 
 - Favorites
 - Playlists
 - arrpc integration
-- listenbrainz integration
 - A damn icon :P
+- Possibly a youtube music integration
 
 ## Integrations
 

@@ -91,7 +91,7 @@ async function performSearch(searchFor: string): Promise<SearchResults> {
                                     artistId: "" + e.artists[0].id,
                                     source: "tidal",
                                     identifier: "" + e.id,
-                                    albumCoverUrl: e.album && e.album.cover ? (TIDAL_RESOURCES_URL + "images/" + e.album.cover.replaceAll('-', '/') + "/1280x1280.jpg") : undefined,
+                                    albumCoverUrl: e.album && e.album.cover ? (TIDAL_RESOURCES_URL + "images/" + e.album.cover.replaceAll('-', '/') + "/750x750.jpg") : undefined,
                                 }
                             );
                         });
@@ -109,7 +109,7 @@ async function performSearch(searchFor: string): Promise<SearchResults> {
                                     name: e.name,
                                     source: "tidal",
                                     identifier: "" + e.id,
-                                    imageURL: COVER ? (TIDAL_RESOURCES_URL + "images/" + COVER.replaceAll('-', '/') + "/1280x1280.jpg") : undefined,
+                                    imageURL: COVER ? (TIDAL_RESOURCES_URL + "images/" + COVER.replaceAll('-', '/') + "/750x750.jpg") : undefined,
                                     topSongs: [],
                                     relatedArtists: [],
                                     newAlbums: [],
@@ -130,7 +130,7 @@ async function performSearch(searchFor: string): Promise<SearchResults> {
                                     name: e.title,
                                     source: "tidal",
                                     identifier: "" + e.id,
-                                    coverUrl: COVER ? (TIDAL_RESOURCES_URL + "images/" + COVER.replaceAll('-', '/') + "/1280x1280.jpg") : undefined,
+                                    coverUrl: COVER ? (TIDAL_RESOURCES_URL + "images/" + COVER.replaceAll('-', '/') + "/750x750.jpg") : undefined,
                                     songsNumber: e.numberOfTracks + e.numberOfVideos,
                                     duration: e.duration,
                                     artist: e.artists[0].name,
@@ -261,7 +261,7 @@ async function play(identifier: string) {
 
                 response2.json().then((data2) => {
                     if (data2.album && data2.album.cover) {
-                        playbackData.albumCover = (TIDAL_RESOURCES_URL + "images/" + data2.album.cover.replaceAll('-', '/') + "/1280x1280.jpg");
+                        playbackData.albumCover = (TIDAL_RESOURCES_URL + "images/" + data2.album.cover.replaceAll('-', '/') + "/750x750.jpg");
                         playbackData.albumCoverUpdated = true;
                     } else {
                         console.log("Tidal backend: No cover for album?");
@@ -441,7 +441,7 @@ async function getPlaylistData(data: PlaylistDataShort): Promise<PlaylistData> {
                                     duration: song.item.duration,
                                     album: song.item.album ? song.item.album.title : "unknown",
                                     artist: song.item.artist ? song.item.artist.name : song.item.artists[0].name,
-                                    albumCoverUrl: song.item.album ? TIDAL_RESOURCES_URL + "images/" + song.item.album.cover.replaceAll('-', '/') + "/1280x1280.jpg" : undefined,
+                                    albumCoverUrl: song.item.album ? TIDAL_RESOURCES_URL + "images/" + song.item.album.cover.replaceAll('-', '/') + "/750x750.jpg" : undefined,
                                     playlist: "tidal_" + data.identifier,
                                     index: i,
                                 }
@@ -566,7 +566,7 @@ async function getArtistData(identifier: string): Promise<ArtistData> {
 
                 if (e.modules[0].type == "ARTIST_HEADER") {
                     const PICTURE = e.modules[0].artist.picture ? e.modules[0].artist.picture : e.modules[0].artist.selectedAlbumCoverFallback;
-                    result.imageURL = PICTURE ? TIDAL_RESOURCES_URL + "images/" + PICTURE.replaceAll('-', '/') + "/1280x1280.jpg" : undefined
+                    result.imageURL = PICTURE ? TIDAL_RESOURCES_URL + "images/" + PICTURE.replaceAll('-', '/') + "/750x750.jpg" : undefined
                     return;
                 }
 
@@ -582,7 +582,7 @@ async function getArtistData(identifier: string): Promise<ArtistData> {
                                 albumId: song.album ? song.album.id + "" : undefined,
                                 artist: song.artist ? song.artist.name : song.artists[0].name,
                                 artistId: song.artist ? "" + song.artist.id : song.artists[0].id + "",
-                                albumCoverUrl: song.album ? TIDAL_RESOURCES_URL + "images/" + song.album.cover.replaceAll('-', '/') + "/1280x1280.jpg" : undefined,
+                                albumCoverUrl: song.album ? TIDAL_RESOURCES_URL + "images/" + song.album.cover.replaceAll('-', '/') + "/750x750.jpg" : undefined,
                             }
                         );
                     });
@@ -603,7 +603,7 @@ async function getArtistData(identifier: string): Promise<ArtistData> {
                                 topSongs: [],
                                 relatedArtists: [],
                                 newAlbums: [],
-                                imageURL: COVER ? TIDAL_RESOURCES_URL + "images/" + COVER.replaceAll('-', '/') + "/1280x1280.jpg" : undefined,
+                                imageURL: COVER ? TIDAL_RESOURCES_URL + "images/" + COVER.replaceAll('-', '/') + "/750x750.jpg" : undefined,
                             }
                         );
                     });
@@ -621,7 +621,7 @@ async function getArtistData(identifier: string): Promise<ArtistData> {
                                 source: "tidal",
                                 songsNumber: album.numberOfTracks + album.numberOfVideos,
                                 duration: album.duration,
-                                coverUrl: album.cover ? TIDAL_RESOURCES_URL + "images/" + album.cover.replaceAll('-', '/') + "/1280x1280.jpg" : undefined,
+                                coverUrl: album.cover ? TIDAL_RESOURCES_URL + "images/" + album.cover.replaceAll('-', '/') + "/750x750.jpg" : undefined,
                                 year: album.releaseDate ? (album.releaseDate.indexOf('-') != -1 ? album.releaseDate.substring(0, album.releaseDate.indexOf('-')) : album.releaseDate) : undefined,
                                 artist: album.artists[0].name,
                             }
@@ -687,7 +687,7 @@ async function getAlbumData(identifier: string): Promise<AlbumData> {
 
 
                 if (e.modules[0].type == "ALBUM_HEADER") {
-                    result.coverUrl = e.modules[0].album.cover ? TIDAL_RESOURCES_URL + "images/" + e.modules[0].album.cover.replaceAll('-', '/') + "/1280x1280.jpg" : undefined
+                    result.coverUrl = e.modules[0].album.cover ? TIDAL_RESOURCES_URL + "images/" + e.modules[0].album.cover.replaceAll('-', '/') + "/750x750.jpg" : undefined
                     result.artist = e.modules[0].album.artists[0].name;
                     artistId = e.modules[0].album.artists[0].id + "";
                     result.year = e.modules[0].album.releaseDate ? (e.modules[0].album.releaseDate.indexOf('-') != -1 ? e.modules[0].album.releaseDate.substring(0, e.modules[0].album.releaseDate.indexOf('-')) : e.modules[0].album.releaseDate) : undefined;

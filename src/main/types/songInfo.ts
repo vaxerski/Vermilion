@@ -11,4 +11,5 @@ export interface SongInfo {
     source: string;
     volume: number;
     quality?: string;
+    playlist?: string;
 };

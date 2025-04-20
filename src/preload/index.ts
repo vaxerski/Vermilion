@@ -35,6 +35,12 @@ if (process.contextIsolated) {
       ),
       tidalPlayEvent: (callback) => ipcRenderer.on('tidalPlayEvent',
         (_event, value) => callback(value)
+      ),
+      updatePlaylists: (callback) => ipcRenderer.on('updatePlaylists',
+        (_event, value) => callback(value)
+      ),
+      playlistData: (callback) => ipcRenderer.on('playlistData',
+        (_event, value) => callback(value)
       )
     })
   } catch (error) {

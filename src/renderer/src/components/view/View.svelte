@@ -7,6 +7,7 @@
     import Queue from "./pages/Queue.svelte";
     import Settings from "./pages/Settings.svelte";
     import Tidal from "./pages/Tidal.svelte";
+    import Playlists from "./pages/Playlists.svelte";
 </script>
 
 <div
@@ -36,6 +37,15 @@
         : 0}; visibility: {currentPage.page == '/queue' && !playerData.fullscreen ? 'visible' : 'hidden'}; "
 >
     <Queue />
+</div>
+
+<div
+    class="view-container"
+    style="opacity: {currentPage.page.indexOf('/playlists') == 0 && !playerData.fullscreen
+        ? 1
+        : 0}; visibility: {currentPage.page.indexOf('/playlists') == 0 && !playerData.fullscreen ? 'visible' : 'hidden'}; "
+>
+    <Playlists />
 </div>
 
 <div

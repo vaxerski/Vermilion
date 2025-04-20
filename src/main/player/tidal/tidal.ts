@@ -1,5 +1,7 @@
 import { mainWindow } from "../..";
 import config from "../../config/config";
+import { PlaylistDataShort } from "../../types/playlistDataShort";
+import { PlaylistData } from "../../types/playlistData";
 import { SongDataShort } from "../../types/songData";
 import { SongInfo } from "../../types/songInfo";
 
@@ -13,6 +15,8 @@ const TIDAL_SEARCH_API_ENDPOINT = "v2/search/"
 const TIDAL_TRACK_API_ENDPOINT = "v1/tracks/"
 const TIDAL_PLAYBACKINFO_ENDPOINT_AFTER = "/playbackinfo"
 const TIDAL_SESSION_API_ENDPOINT = "v1/sessions"
+const TIDAL_FOLDERS_API_ENDPOINT = "v2/my-collection/playlists/folders"
+const TIDAL_PLAYLISTS_API_ENDPOINT = "v1/playlists"
 
 let TIDAL_SESSION_ID = "";
 let TIDAL_COUNTRY_CODE = "US";
@@ -107,6 +111,8 @@ async function login(): Promise<boolean> {
             }
 
             try {
+                console.log("LOGGING IN");
+
                 const response =
                     await fetch(
                         TIDAL_URL + TIDAL_SESSION_API_ENDPOINT,
@@ -121,6 +127,12 @@ async function login(): Promise<boolean> {
                     );
 
                 response.json().then((data) => {
+                    if (data.code != 200) {
+                        console.log("Tidal login failed, got code " + data.status + ": " + data.statusText);
+                        res(false);
+                        return;
+                    }
+
                     if (!data.sessionId || !data.countryCode) {
                         res(false);
                         return;
@@ -132,7 +144,10 @@ async function login(): Promise<boolean> {
                     console.log("Got tidal session for country " + TIDAL_COUNTRY_CODE);
 
                     res(true);
-                });
+                }).catch((e) => {
+                    console.error("Tidal didn't log in");
+                    console.error(e);
+                })
 
 
             } catch (e) {
@@ -323,6 +338,134 @@ async function songFromID(identifier: string): Promise<SongDataShort> {
     });
 }
 
+async function getPlaylistData(data: PlaylistDataShort): Promise<PlaylistData> {
+    return new Promise<PlaylistData>(async (res) => {
+        const TOKEN = getToken();
+
+        let pd: PlaylistData = {
+            name: data.name,
+            songs: [],
+            source: "tidal",
+            identifier: data.identifier
+        };
+
+        if (TOKEN == "") {
+            res(pd);
+            return;
+        }
+
+        console.log("Requesting data for playlist " + data.name + " with uuid of " + data.identifier + ".");
+
+        let loaded = 0;
+
+        console.log("Playlist " + data.name + " has " + data.songsNumber + " items.");
+
+        async function getChunk(): Promise<void> {
+            return new Promise<void>((res) => {
+                const response2 = fetch(
+                    TIDAL_URL + TIDAL_PLAYLISTS_API_ENDPOINT + "/" + data.identifier + "/items?offset=" + loaded + "&limit=50&countryCode=" + TIDAL_COUNTRY_CODE + "&locale=en_US",
+                    {
+                        method: 'GET',
+                        headers: {
+                            "Accept": "application/json",
+                            "authorization": "Bearer " + TOKEN,
+                            "Host": "listen.tidal.com"
+                        }
+                    }
+                );
+
+                response2.then((x) => {
+                    x.json().then((itemJson) => {
+                        if (!itemJson.items)
+                            return;
+
+                        let i = 0;
+
+                        itemJson.items.forEach((song) => {
+                            pd.songs.push(
+                                {
+                                    title: song.item.title,
+                                    identifier: "" + song.item.id,
+                                    source: "tidal",
+                                    duration: song.item.duration,
+                                    album: song.item.album ? song.item.album.title : "unknown",
+                                    artist: song.item.artist ? song.item.artist.name : song.item.artists[0].name,
+                                    albumCoverUrl: song.item.album ? TIDAL_RESOURCES_URL + "images/" + song.item.album.cover.replaceAll('-', '/') + "/1280x1280.jpg" : undefined,
+                                    playlist: "tidal_" + data.identifier,
+                                    index: i,
+                                }
+                            )
+
+                            i++;
+                        });
+
+                        loaded += 50;
+                        res();
+                    });
+                }).catch((e) => {
+                    console.error("Tidal said no:");
+                    console.error(e);
+                });
+            });
+        }
+
+        while (loaded < data.songsNumber) {
+            await getChunk();
+        }
+
+        res(pd);
+    });
+}
+
+async function getPlaylists(): Promise<Array<PlaylistDataShort>> {
+    return new Promise<Array<PlaylistDataShort>>(async (res) => {
+        let pd: Array<PlaylistDataShort> = [];
+
+        const TOKEN = getToken();
+
+        if (TOKEN == "") {
+            res(pd);
+            return;
+        }
+
+        const response = await fetch(
+            TIDAL_URL + TIDAL_FOLDERS_API_ENDPOINT + "?folderId=root&includeOnly=PLAYLIST&offset=0&limit=50&order=DATE&orderDirection=DESC&countryCode=" + TIDAL_COUNTRY_CODE + "&locale=en_US",
+            {
+                method: 'GET',
+                headers: {
+                    "Accept": "application/json",
+                    "authorization": "Bearer " + TOKEN,
+                    "Host": "listen.tidal.com"
+                }
+            }
+        );
+
+        response.json().then((json) => {
+
+            if (!json.items) {
+                res(pd);
+                return;
+            }
+
+            console.log("Tidal returned " + json.items.length + " playlists.");
+
+            json.items.forEach((item) => {
+                let data: PlaylistDataShort = {
+                    name: item.name,
+                    identifier: item.data.uuid,
+                    duration: item.data.duration,
+                    source: "tidal",
+                    songsNumber: item.data.numberOfTracks + item.data.numberOfVideos,
+                }
+
+                pd.push(data);
+            });
+
+            res(pd);
+        });
+    });
+}
+
 export default {
     listSongs,
     play,
@@ -332,5 +475,7 @@ export default {
     getPlayState,
     pausePlay,
     elapsed,
-    songFromID
+    songFromID,
+    getPlaylists,
+    getPlaylistData,
 }

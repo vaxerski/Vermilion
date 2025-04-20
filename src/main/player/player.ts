@@ -6,8 +6,11 @@ import mpd, { MPD_ALBUM_CLIENT, MPD_CLIENT, MPD_CONNECTED } from "./mpd/mpd";
 import { mainWindow } from "..";
 import tidal from "./tidal/tidal";
 import config from "../config/config";
+import { PlaylistData, PlaylistDataShort } from "../types/playlistDataShort";
 
 let lastSongChange: number = Date.now();
+let playlistList: Array<PlaylistDataShort> = [];
+let playlistDatas: Map<string, PlaylistData> = new Map();
 
 export interface PlayerState {
     playing: boolean;
@@ -174,8 +177,8 @@ async function setVolume(vol: number): Promise<boolean> {
                 mpd.setVolume(vol).then((e) => { res(e) });
             else if (playerState.playSource == "tidal")
                 tidal.setVolume(vol).then((e) => { res(e) }).catch((e) => { res(false); });
-
-            res(false);
+            else
+                res({});
         }
     );
 }
@@ -198,6 +201,35 @@ async function initPlayer() {
     lastSongChange = Date.now();
 }
 
+async function updatePlaylists() {
+    tidal.getPlaylists().then((res) => {
+        playlistList = res;
+        console.log(res);
+        mainWindow.webContents.send('updatePlaylists', res);
+    });
+}
+
+async function getPlaylistData(playlist: PlaylistDataShort): Promise<PlaylistData> {
+    return new Promise<PlaylistData>(
+        async (res) => {
+            if (playlistDatas.has(playlist.source + "_" + playlist.identifier)) {
+                res(playlistDatas.get(playlist.source + "_" + playlist.identifier));
+                return;
+            }
+
+            if (playlist.source == "mpd")
+                res({}); // TODO:
+            else if (playlist.source == "tidal")
+                tidal.getPlaylistData(playlist).then((e) => {
+                    playlistDatas.set(playlist.source + "_" + playlist.identifier, e);
+                    res(e);
+                }).catch((e) => { res({}); });
+            else
+                res({});
+        }
+    );
+}
+
 export default {
     getPlayerState,
     getCurrentSong,
@@ -209,4 +241,6 @@ export default {
     setVolume,
     onSongEnded,
     initPlayer,
+    updatePlaylists,
+    getPlaylistData,
 };

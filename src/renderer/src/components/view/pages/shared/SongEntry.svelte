@@ -12,6 +12,7 @@
         source = "",
         index = 0,
         queue = false,
+        playlist = "",
     } = $props();
 
     function prettyTime(time: number) {
@@ -40,6 +41,7 @@
                 index -
                 1 /* index for queue is 0 based, while here it's 1 based for the user. */,
             queue: queue,
+            playlist: playlist == "" ? undefined : playlist,
         });
     }
 

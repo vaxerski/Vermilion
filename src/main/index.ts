@@ -9,6 +9,8 @@ import { SongDataShort } from './types/songData'
 import mpd from './player/mpd/mpd'
 import tidal from './player/tidal/tidal'
 import externalServices from './player/externalServices'
+import { PlaylistData } from './types/playlistData'
+import { PlaylistDataShort } from './types/playlistDataShort'
 
 export var mainWindow: BrowserWindow;
 
@@ -104,6 +106,7 @@ app.whenReady().then(async () => {
 
   ipcMain.on('playSong', (ev, data) => {
     if (data.queue == true) {
+      // if we are in a queue, we're just skipping in the queue.
       const QUEUE = queue.get();
 
       if (QUEUE.length > data.index) {
@@ -115,15 +118,38 @@ app.whenReady().then(async () => {
         });
       }
     } else {
+      // if we aren't, we are overriding the queue.
+      // play the song immediately, figure out the queue next.
       player.playSong(data.identifier, data.source).then(() => {
         player.getCurrentSong().then((msg) => {
           mainWindow.webContents.send('updateCurrentSong', msg);
         });
-      })
-      player.songFromID(data.identifier, data.source).then((song: SongDataShort) => {
-        queue.replaceWith([song]);
-        mainWindow.webContents.send('updateQueue', queue.getData());
-      })
+      });
+
+      if (data.playlist && data.playlist != "") {
+        // if we are playing a song from a playlist, override the queue with the playlist
+        const SOURCE = data.playlist.substring(0, data.playlist.indexOf("_"));
+        const ID = data.playlist.substring(data.playlist.indexOf("_") + 1);
+        let pl: PlaylistDataShort = {
+          name: "",
+          source: SOURCE,
+          identifier: ID,
+          songsNumber: 0,
+          duration: 0
+        };
+
+        player.getPlaylistData(pl).then((PLAYLIST: PlaylistData) => {
+          queue.replaceWith(PLAYLIST.songs);
+          queue.setCurrentIdx(data.index);
+          mainWindow.webContents.send('updateQueue', queue.getData());
+        });
+      } else {
+        // otherwise just make the song the current queue
+        player.songFromID(data.identifier, data.source).then((song: SongDataShort) => {
+          queue.replaceWith([song]);
+          mainWindow.webContents.send('updateQueue', queue.getData());
+        });
+      }
     }
   });
 
@@ -201,6 +227,16 @@ app.whenReady().then(async () => {
   ipcMain.on('setVolume', (ev, data) => {
     config.setConfigValue("volume", parseInt(data));
     player.setVolume(data);
+  });
+
+  ipcMain.on('gatherPlaylists', (ev, data) => {
+    player.updatePlaylists();
+  });
+
+  ipcMain.on('getPlaylistData', (ev, data) => {
+    player.getPlaylistData(data).then((res) => {
+      mainWindow.webContents.send('playlistData', res);
+    })
   });
 
   ipcMain.on('openRepo', (ev) => {

@@ -1,3 +1,5 @@
+import { PlaylistData } from "./playlistData";
+
 export interface SongDataShort {
     identifier: string,
     source: string,
@@ -7,4 +9,5 @@ export interface SongDataShort {
     duration: number;
     albumCoverUrl?: string;
     index?: number;
+    playlist?: string;
 };

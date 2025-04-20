@@ -1,4 +1,4 @@
-appId: com.vaxry.vermilion
+appId: net.vaxry.vermilion
 productName: vermilion
 directories:
   buildResources: build

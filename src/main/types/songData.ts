@@ -6,4 +6,5 @@ export interface SongDataShort {
     album: string;
     duration: number;
     albumCoverUrl?: string;
+    index?: number;
 };

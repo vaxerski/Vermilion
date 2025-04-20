@@ -14,6 +14,10 @@ interface Config {
     // MPRIS
     mprisEnabled?: boolean;
 
+    // Listenbrainz
+    lbEnabled?: boolean;
+    lbToken?: string;
+
     // other
     volume?: number;
 };
@@ -24,6 +28,8 @@ const defaultConfig: Config = {
     tidalToken: "",
     tidalSearchNumber: "50",
     mprisEnabled: true,
+    lbEnabled: true,
+    lbToken: "",
     volume: 0.5,
 };
 

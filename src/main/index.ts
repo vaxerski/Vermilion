@@ -67,7 +67,7 @@ app.whenReady().then(async () => {
       player.getCurrentSong().then((msg) => {
         mainWindow.webContents.send('updateCurrentSong', msg);
         externalServices.updateSongInfo(msg);
-      }).catch((e) => {});
+      }).catch((e) => { });
     }
     , 500);
 
@@ -148,6 +148,36 @@ app.whenReady().then(async () => {
         });
       }
     });
+  });
+
+  ipcMain.on('removeFromQueue', (ev, data) => {
+    if (queue.getCurrentIdx() != data.index) {
+      // if we aren't playing the current idx, it's simple, just remove it and update current idx
+      queue.removeIndex(data.index);
+      queue.setCurrentIdx(queue.getCurrentIdx() - (data.index > queue.getCurrentIdx() ? 0 : 1));
+      mainWindow.webContents.send('updateQueue', queue.getData());
+    } else {
+      // if we are playing the song we want to remove, play the next if possible
+      if (queue.getCurrentIdx() + 1 < queue.length()) {
+        // we can play the next song
+        const next = queue.getAt(queue.getCurrentIdx() + 1);
+        queue.removeIndex(queue.getCurrentIdx());
+        player.playSong(next.identifier, next.source).then(() => {
+          player.getCurrentSong().then((msg) => {
+            mainWindow.webContents.send('updateCurrentSong', msg);
+          });
+          mainWindow.webContents.send('updateQueue', queue.getData());
+        });
+      } else {
+        // nothing to play after this. Just stop and bail
+        player.pausePlay(false);
+        queue.removeIndex(queue.getCurrentIdx());
+        mainWindow.webContents.send('updateQueue', queue.getData());
+        player.getCurrentSong().then((msg) => {
+          mainWindow.webContents.send('updateCurrentSong', msg);
+        });
+      }
+    }
   });
 
   ipcMain.on('mpdGetSongs', (ev, data) => {

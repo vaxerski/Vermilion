@@ -52,6 +52,23 @@
             text={"Enabled"}
         />
     </div>
+
+    <p class="settings-section-text">Listenbrainz</p>
+
+    <hr class="settings-section-hr"/>
+
+    <div class="settings-options-box">
+        <Checkbox
+            valueName={"lbEnabled"}
+            text={"Enabled"}
+        />
+        <InputBox
+            placeholder={"..."}
+            valueName={"lbToken"}
+            text={"API Token"}
+            secret={true}
+        />
+    </div>
 </div>
 
 <style>

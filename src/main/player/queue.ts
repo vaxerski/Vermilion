@@ -8,6 +8,10 @@ function get(): Array<SongDataShort> {
     return queueContents;
 }
 
+function getAt(idx: number): SongDataShort {
+    return queueContents[idx];
+}
+
 function replaceWith(songs: Array<SongDataShort>): void {
     queueContents = songs;
 }
@@ -24,6 +28,10 @@ function setCurrentIdx(idx: number) {
     queueCurrentPlaying = idx;
 }
 
+function removeIndex(idx: number ) {
+    queueContents.splice(idx, 1);
+}
+
 function getData(): QueueData {
     return {
         queue: queueContents,
@@ -31,13 +39,20 @@ function getData(): QueueData {
     };
 }
 
+function length(): number {
+    return queueContents.length;
+}
+
 export default {
     get,
+    getAt,
     replaceWith,
     add,
     getCurrentIdx,
     setCurrentIdx,
     getData,
+    removeIndex,
+    length,
 };
 
 

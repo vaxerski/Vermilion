@@ -1,12 +1,18 @@
 <script lang="ts">
-    import { type SongDataShort } from "../../../../../../main/types/songData";
-    let { songData /* SongDataShort */, closeCallback, opacity = 0, left=true, top = false } = $props();
+    let {
+        closeCallback,
+        addToQueueCallback,
+        removeFromQueueCallback,
+        opacity = 0,
+        left = true,
+        top = false,
+        queue = false,
+    } = $props();
 
     addEventListener("mousedown", (e) => {
         const CONTAINER = document.getElementById("contextMenuContainer");
 
-        if (CONTAINER == null)
-            return;
+        if (CONTAINER == null) return;
 
         const BB = CONTAINER.getBoundingClientRect();
 
@@ -23,36 +29,43 @@
         if (e.key == "Escape") closeCallback();
     });
 
-    function addToQueue() {
-        window.electron.ipcRenderer.send("addToQueue", songData);
-        closeCallback();
-    }
+    // THIS DOESN'T WORK BECAUSE SONGDATA IS NOT UPDATED PROPERLY AS THE LIST CHANGES AAAAAAAAAAAAAAAAAAAA
+    // function addToQueue() {
+    //     window.electron.ipcRenderer.send("addToQueue", $state.snapshot(songData));
+    //     closeCallback();
+    // }
 </script>
 
-<div class="song-context-menu-container" id="contextMenuContainer" style="opacity: {opacity}; {top ? "bottom" : "top"}: 1rem; {left ? "right" : "left"}: 1.5rem;">
-    <div class="song-context-menu-option" on:click={addToQueue}>
-        <i class="song-context-menu-icon fa-solid fa-plus"></i>
-        <p class="song-context-menu-text">
-            Add to queue
-        </p>
-    </div>
+<div
+    class="song-context-menu-container"
+    id="contextMenuContainer"
+    style="opacity: {opacity}; {top ? 'bottom' : 'top'}: 1rem; {left
+        ? 'right'
+        : 'left'}: 1.5rem;"
+>
+    {#if queue}
+        <div class="song-context-menu-option" on:click={removeFromQueueCallback}>
+            <i class="song-context-menu-icon fa-solid fa-xmark"></i>
+            <p class="song-context-menu-text">Remove from queue</p>
+        </div>
+    {/if}
+    {#if !queue}
+        <div class="song-context-menu-option" on:click={addToQueueCallback}>
+            <i class="song-context-menu-icon fa-solid fa-plus"></i>
+            <p class="song-context-menu-text">Add to queue</p>
+        </div>
+    {/if}
     <div class="song-context-menu-option">
         <i class="song-context-menu-icon fa-solid fa-music"></i>
-        <p class="song-context-menu-text">
-            Play now
-        </p>
+        <p class="song-context-menu-text">Play now</p>
     </div>
     <div class="song-context-menu-option">
         <i class="song-context-menu-icon fa-solid fa-bars"></i>
-        <p class="song-context-menu-text">
-            Add to playlist
-        </p>
+        <p class="song-context-menu-text">Add to playlist</p>
     </div>
     <div class="song-context-menu-option">
         <i class="song-context-menu-icon fa-solid fa-star"></i>
-        <p class="song-context-menu-text">
-            Add to favorites
-        </p>
+        <p class="song-context-menu-text">Add to favorites</p>
     </div>
 </div>
 
@@ -95,7 +108,7 @@
         color: #e9e9e9;
         font-size: 0.8rem;
         position: absolute;
-        top:50%;
+        top: 50%;
         left: 1.7rem;
         transform: translateY(-50%);
     }
@@ -104,9 +117,8 @@
         color: #e9e9e9;
         font-size: 0.8rem;
         position: absolute;
-        top:50%;
+        top: 50%;
         left: 0.5rem;
         transform: translateY(-50%);
     }
 </style>
-

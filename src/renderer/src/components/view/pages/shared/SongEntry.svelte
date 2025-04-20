@@ -36,7 +36,9 @@
         window.electron.ipcRenderer.send("playSong", {
             identifier: identifier,
             source: source,
-            index: index - 1, /* index for queue is 0 based, while here it's 1 based for the user. */
+            index:
+                index -
+                1 /* index for queue is 0 based, while here it's 1 based for the user. */,
             queue: queue,
         });
     }
@@ -45,15 +47,6 @@
     let currentStatePlaying = $state(false);
     let contextMenuOpen = $state(false);
     let contextMenuOpacity = $state(0);
-
-    const songInfo: SongDataShort = {
-        title: title,
-        artist: artist,
-        album: album,
-        identifier: identifier,
-        source: source,
-        duration: duration,
-    };
 
     window.electronAPI.updateCurrentSong((res) => {
         currentlyPlaying =
@@ -67,16 +60,45 @@
             return;
         }
         contextMenuOpen = true;
-        setTimeout( () => {
+        setTimeout(() => {
             contextMenuOpacity = 1;
         }, 1);
     }
 
     function closeMenu() {
         contextMenuOpacity = 0;
-        setTimeout( () => {
+        setTimeout(() => {
             contextMenuOpen = false;
         }, 150);
+    }
+
+    function addToQueue() {
+        const songInfo: SongDataShort = {
+            title: title,
+            artist: artist,
+            album: album,
+            identifier: identifier,
+            source: source,
+            duration: duration,
+        };
+        window.electron.ipcRenderer.send("addToQueue", songInfo);
+        closeMenu();
+    }
+
+    function removeFromQueue() {
+        const songInfo: SongDataShort = {
+            title: title,
+            artist: artist,
+            album: album,
+            identifier: identifier,
+            source: source,
+            duration: duration,
+            index:
+                index -
+                1 /* index for queue is 0 based, while here it's 1 based for the user. */,
+        };
+        window.electron.ipcRenderer.send("removeFromQueue", songInfo);
+        closeMenu();
     }
 </script>
 
@@ -122,7 +144,13 @@
     >
     </i>
     {#if contextMenuOpen}
-        <SongEntryMenu songData={songInfo} closeCallback={closeMenu} opacity={contextMenuOpacity} />
+        <SongEntryMenu
+            addToQueueCallback={addToQueue}
+            closeCallback={closeMenu}
+            opacity={contextMenuOpacity}
+            removeFromQueueCallback={removeFromQueue}
+            {queue}
+        />
     {/if}
 </div>
 

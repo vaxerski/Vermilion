@@ -127,7 +127,7 @@ app.whenReady().then(async () => {
       });
 
       if (data.playlist && data.playlist != "") {
-        // if we are playing a song from a playlist, override the queue with the playlist
+        // if we are playing a song from a playlist, override the queue with the playlist sliced from the current song
         const SOURCE = data.playlist.substring(0, data.playlist.indexOf("_"));
         const ID = data.playlist.substring(data.playlist.indexOf("_") + 1);
         let pl: PlaylistDataShort = {
@@ -139,8 +139,8 @@ app.whenReady().then(async () => {
         };
 
         player.getPlaylistData(pl).then((PLAYLIST: PlaylistData) => {
-          queue.replaceWith(PLAYLIST.songs);
-          queue.setCurrentIdx(data.index);
+          queue.replaceWith(PLAYLIST.songs.slice(data.index));
+          queue.setCurrentIdx(0);
           mainWindow.webContents.send('updateQueue', queue.getData());
         });
       } else {

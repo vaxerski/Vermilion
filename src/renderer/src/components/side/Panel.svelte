@@ -40,7 +40,7 @@
         icon="fa-solid fa-record-vinyl"
         text="Playlists"
         href="/playlists"
-        active={currentPage.page == "/playlists" ? true : false}
+        active={currentPage.page.indexOf("/playlists") == 0 ? true : false}
     />
     <Button
         icon="fa-solid fa-heart"

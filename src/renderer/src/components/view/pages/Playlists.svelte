@@ -53,7 +53,7 @@
 {#key currentPage.page}
 <PageTitle text={getPlaylistFromState().name} subtext={getPlaylistFromState().songsNumber + " songs, " + prettyTime(getPlaylistFromState().duration)}/>
 
-<SongList playlist={getPlaylistFromState()} />
+<SongList playlist={getPlaylistFromState()} placeholder={"Loading..."} />
 {/key}
 
 {:else}

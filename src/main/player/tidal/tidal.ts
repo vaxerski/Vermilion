@@ -111,7 +111,7 @@ async function login(): Promise<boolean> {
             }
 
             try {
-                console.log("LOGGING IN");
+                console.log("Tidal: Logging in");
 
                 const response =
                     await fetch(

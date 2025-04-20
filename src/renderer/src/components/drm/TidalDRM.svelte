@@ -24,8 +24,6 @@
     async function setupShaka() {
         const VIDEO = document.getElementById("shaka-player-output");
 
-        console.log(VIDEO);
-
         shaka.polyfill.installAll();
 
         shakaPlayer = new shaka.Player();

@@ -204,7 +204,6 @@ async function initPlayer() {
 async function updatePlaylists() {
     tidal.getPlaylists().then((res) => {
         playlistList = res;
-        console.log(res);
         mainWindow.webContents.send('updatePlaylists', res);
     });
 }

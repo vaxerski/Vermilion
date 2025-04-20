@@ -205,6 +205,6 @@
 
     .playlist-entry-text-svg {
         width: 1.2rem;
-        transform: translateY(8.5%);
+        transform: translateY(13%);
     }
 </style>

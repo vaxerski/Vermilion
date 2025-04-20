@@ -14,7 +14,9 @@
     class="view-container"
     style="opacity: {currentPage.page == '/' && !playerData.fullscreen
         ? 1
-        : 0}; visibility: {currentPage.page == '/' && !playerData.fullscreen ? 'visible' : 'hidden'};"
+        : 0}; visibility: {currentPage.page == '/' && !playerData.fullscreen
+        ? 'visible'
+        : 'hidden'};"
 >
     <Home />
 </div>
@@ -34,16 +36,23 @@
     class="view-container"
     style="opacity: {currentPage.page == '/queue' && !playerData.fullscreen
         ? 1
-        : 0}; visibility: {currentPage.page == '/queue' && !playerData.fullscreen ? 'visible' : 'hidden'}; "
+        : 0}; visibility: {currentPage.page == '/queue' &&
+    !playerData.fullscreen
+        ? 'visible'
+        : 'hidden'}; "
 >
     <Queue />
 </div>
 
 <div
     class="view-container"
-    style="opacity: {currentPage.page.indexOf('/playlists') == 0 && !playerData.fullscreen
+    style="opacity: {currentPage.page.indexOf('/playlists') == 0 &&
+    !playerData.fullscreen
         ? 1
-        : 0}; visibility: {currentPage.page.indexOf('/playlists') == 0 && !playerData.fullscreen ? 'visible' : 'hidden'}; "
+        : 0}; visibility: {currentPage.page.indexOf('/playlists') == 0 &&
+    !playerData.fullscreen
+        ? 'visible'
+        : 'hidden'}; "
 >
     <Playlists />
 </div>
@@ -52,16 +61,22 @@
     class="view-container"
     style="opacity: {currentPage.page == '/mpd' && !playerData.fullscreen
         ? 1
-        : 0}; visibility: {currentPage.page == '/mpd' && !playerData.fullscreen ? 'visible' : 'hidden'}; "
+        : 0}; visibility: {currentPage.page == '/mpd' && !playerData.fullscreen
+        ? 'visible'
+        : 'hidden'}; "
 >
     <Mpd />
 </div>
 
 <div
     class="view-container"
-    style="opacity: {currentPage.page == '/tidal' && !playerData.fullscreen
+    style="opacity: {currentPage.page.indexOf('/tidal') == 0 &&
+    !playerData.fullscreen
         ? 1
-        : 0}; visibility: {currentPage.page == '/tidal' && !playerData.fullscreen ? 'visible' : 'hidden'}; "
+        : 0}; visibility: {currentPage.page.indexOf('/tidal') == 0 &&
+    !playerData.fullscreen
+        ? 'visible'
+        : 'hidden'}; "
 >
     <Tidal />
 </div>
@@ -70,30 +85,34 @@
     class="view-container"
     style="opacity: {currentPage.page == '/settings' && !playerData.fullscreen
         ? 1
-        : 0}; visibility: {currentPage.page == '/settings' && !playerData.fullscreen ? 'visible' : 'hidden'}; "
+        : 0}; visibility: {currentPage.page == '/settings' &&
+    !playerData.fullscreen
+        ? 'visible'
+        : 'hidden'}; "
 >
     <Settings />
 </div>
 
 {#if playerData.fullscreen}
-<style>
-    .view-container {
-        transition: 0.5s ease-out;
-    }
-</style>
+    <style>
+        .view-container {
+            transition: 0.5s ease-out;
+        }
+    </style>
 {/if}
 
 {#if !playerData.fullscreen}
-<style>
-    .view-container {
-        transition: 0.15s ease-in-out;
-    }
-</style>
+    <style>
+        .view-container {
+            transition: 0.15s ease-in-out;
+        }
+    </style>
 {/if}
 
 <style>
     .view-container {
-        display: block;
+        display: flex;
+        flex-direction: column;
         position: absolute;
         margin: 0;
         padding: 0;
@@ -102,6 +121,7 @@
         height: 100vh;
         left: 13.5rem;
         top: 0;
+        gap: 0rem;
         overflow-x: hidden;
         overflow-y: auto;
         scrollbar-width: auto;

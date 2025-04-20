@@ -5,7 +5,9 @@ export interface SongDataShort {
     source: string,
     title: string;
     artist: string;
+    artistId?: string;
     album: string;
+    albumId?: string;
     duration: number;
     albumCoverUrl?: string;
     index?: number;

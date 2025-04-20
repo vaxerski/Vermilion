@@ -4,6 +4,9 @@ import { PlaylistDataShort } from "../../types/playlistDataShort";
 import { PlaylistData } from "../../types/playlistData";
 import { SongDataShort } from "../../types/songData";
 import { SongInfo } from "../../types/songInfo";
+import { SearchResults } from "../../types/searchResults";
+import { ArtistData } from "../../types/artistData";
+import { AlbumData } from "../../types/albumData";
 
 function getToken() {
     return config.getConfigValue("tidalToken");
@@ -17,6 +20,8 @@ const TIDAL_PLAYBACKINFO_ENDPOINT_AFTER = "/playbackinfo"
 const TIDAL_SESSION_API_ENDPOINT = "v1/sessions"
 const TIDAL_FOLDERS_API_ENDPOINT = "v2/my-collection/playlists/folders"
 const TIDAL_PLAYLISTS_API_ENDPOINT = "v1/playlists"
+const TIDAL_ARTIST_API_ENDPOINT = "v1/pages/artist"
+const TIDAL_ALBUM_API_ENDPOINT = "v1/pages/album"
 
 let TIDAL_SESSION_ID = "";
 let TIDAL_COUNTRY_CODE = "US";
@@ -36,8 +41,8 @@ let playbackData: SongInfo = {
     volume: -1,
 };
 
-async function listSongs(searchFor: string): Promise<Array<SongDataShort>> {
-    return new Promise<Array<SongDataShort>>(
+async function performSearch(searchFor: string): Promise<SearchResults> {
+    return new Promise<SearchResults>(
         async (res, rej) => {
             const TOKEN = getToken();
 
@@ -46,19 +51,21 @@ async function listSongs(searchFor: string): Promise<Array<SongDataShort>> {
                 return;
             }
 
-            const SEARCHNO = Math.max(Math.min(parseInt(config.getConfigValue("tidalSearchNumber")), 100), 0);
-
             // rid of all bad chars
             searchFor = searchFor.replaceAll(/[^A-Za-z-0-9 ]/g, '');
 
             console.log("Searching Tidal for \"" + searchFor + "\"");
 
-            let songs: Array<SongDataShort> = [];
+            let result: SearchResults = {
+                songs: [],
+                artists: [],
+                albums: [],
+            };
 
             try {
                 const response =
                     await fetch(
-                        TIDAL_URL + TIDAL_SEARCH_API_ENDPOINT + "?includeContributors=true&includeDidYouMean=true&includeUserPlaylists=false&limit=" + SEARCHNO + "&types=TRACKS&countryCode=" + TIDAL_COUNTRY_CODE + "&locale=en_US&query=" + searchFor,
+                        TIDAL_URL + TIDAL_SEARCH_API_ENDPOINT + "?includeContributors=true&includeDidYouMean=true&includeUserPlaylists=false&limit=10&types=TRACKS,ARTISTS,ALBUMS&countryCode=" + TIDAL_COUNTRY_CODE + "&locale=en_US&query=" + searchFor,
                         {
                             method: 'GET',
                             headers: {
@@ -70,28 +77,70 @@ async function listSongs(searchFor: string): Promise<Array<SongDataShort>> {
                     );
 
                 response.json().then((data) => {
-                    if (data.tracks.items.length == 0) {
-                        rej("No tracks returned from Tidal");
-                        return;
-                    }
+                    if (data.tracks.items.length != 0) {
+                        console.log("Tidal returned " + data.tracks.items.length + " tracks.");
 
-                    console.log("Tidal returned " + data.tracks.items.length + " results.");
+                        data.tracks.items.forEach((e) => {
+                            result.songs.push(
+                                {
+                                    title: e.title,
+                                    album: e.album ? e.album.title : "unknown",
+                                    albumId: e.album ? "" + e.album.id : undefined,
+                                    duration: e.duration,
+                                    artist: e.artists[0].name,
+                                    artistId: "" + e.artists[0].id,
+                                    source: "tidal",
+                                    identifier: "" + e.id,
+                                    albumCoverUrl: e.album && e.album.cover ? (TIDAL_RESOURCES_URL + "images/" + e.album.cover.replaceAll('-', '/') + "/1280x1280.jpg") : undefined,
+                                }
+                            );
+                        });
+                    } else
+                        console.log("Tidal: no tracks for query");
 
-                    data.tracks.items.forEach((e) => {
-                        songs.push(
-                            {
-                                title: e.title,
-                                album: e.album ? e.album.title : "unknown",
-                                duration: e.duration,
-                                artist: e.artists[0].name,
-                                source: "tidal",
-                                identifier: "" + e.id,
-                                albumCoverUrl: e.album && e.album.cover ? (TIDAL_RESOURCES_URL + "images/" + e.album.cover.replaceAll('-', '/') + "/1280x1280.jpg") : undefined,
-                            }
-                        );
-                    });
+                    if (data.artists.items.length != 0) {
+                        console.log("Tidal returned " + data.artists.items.length + " artists.");
 
-                    res(songs);
+                        data.artists.items.forEach((e) => {
+                            const COVER = e.picture ? e.picture : (e.selectedAlbumCoverFallback ? e.selectedAlbumCoverFallback : undefined);
+
+                            result.artists.push(
+                                {
+                                    name: e.name,
+                                    source: "tidal",
+                                    identifier: "" + e.id,
+                                    imageURL: COVER ? (TIDAL_RESOURCES_URL + "images/" + COVER.replaceAll('-', '/') + "/1280x1280.jpg") : undefined,
+                                    topSongs: [],
+                                    relatedArtists: [],
+                                    newAlbums: [],
+                                }
+                            );
+                        });
+                    } else
+                        console.log("Tidal: no artists for query");
+
+                    if (data.albums.items.length != 0) {
+                        console.log("Tidal returned " + data.albums.items.length + " albums.");
+
+                        data.albums.items.forEach((e) => {
+                            const COVER = e.cover ? e.cover : undefined;
+
+                            result.albums.push(
+                                {
+                                    name: e.title,
+                                    source: "tidal",
+                                    identifier: "" + e.id,
+                                    coverUrl: COVER ? (TIDAL_RESOURCES_URL + "images/" + COVER.replaceAll('-', '/') + "/1280x1280.jpg") : undefined,
+                                    songsNumber: e.numberOfTracks + e.numberOfVideos,
+                                    duration: e.duration,
+                                    artist: e.artists[0].name,
+                                }
+                            );
+                        });
+                    } else
+                        console.log("Tidal: no artists for query");
+
+                    res(result);
                 });
             } catch (e) {
                 rej("API call failed: " + e);
@@ -188,7 +237,7 @@ async function play(identifier: string) {
                 const manifestBase64 = data.manifest;
                 const trackId = data.trackId;
 
-                console.log("Tidal returned " + parseInt(data.sampleRate / 100) / 10 + "kHz " + data.bitDepth + "b stream data.");
+                console.log("Tidal returned " + Math.floor(parseInt(data.sampleRate) / 100) / 10 + "kHz " + data.bitDepth + "b stream data.");
 
                 mainWindow.webContents.send('playTidal', {
                     manifest: manifestBase64,
@@ -329,6 +378,8 @@ async function songFromID(identifier: string): Promise<SongDataShort> {
             sd.artist = data2.artist ? data2.artist.name : data2.artists[0].name;
             sd.duration = data2.duration;
             sd.title = data2.title;
+            sd.albumId = data2.album ? "" + data2.id : undefined;
+            sd.artistId = data2.artist ? "" + data2.artist.id : "" + data2.artists[0].id;
 
             res(sd);
         }).catch((e) => {
@@ -466,8 +517,211 @@ async function getPlaylists(): Promise<Array<PlaylistDataShort>> {
     });
 }
 
+async function getArtistData(identifier: string): Promise<ArtistData> {
+    return new Promise<ArtistData>(async (res) => {
+        let result: ArtistData = {
+            name: "",
+            topSongs: [],
+            identifier: identifier,
+            source: "tidal",
+            relatedArtists: [],
+            newAlbums: [],
+        };
+
+        const TOKEN = getToken();
+
+        if (TOKEN == "") {
+            res(result);
+            return;
+        }
+
+        identifier = identifier.replaceAll(/[^A-Za-z-0-9 ]/g, '');
+
+        const response =
+            await fetch(
+                TIDAL_URL + TIDAL_ARTIST_API_ENDPOINT + "?artistId=" + identifier + "&countryCode=" + TIDAL_COUNTRY_CODE + "&locale=en_US&deviceType=BROWSER",
+                {
+                    method: 'GET',
+                    headers: {
+                        "Accept": "application/json",
+                        "authorization": "Bearer " + TOKEN,
+                        "Host": "listen.tidal.com"
+                    }
+                }
+            );
+
+        response.json().then((data) => {
+            if (!data.rows) {
+                console.log("Tidal: artist query error");
+                console.log(data);
+                res(result);
+                return;
+            }
+
+            result.name = data.title;
+
+            data.rows.forEach((e) => {
+                if (!e.modules)
+                    return;
+
+                if (e.modules[0].type == "ARTIST_HEADER") {
+                    const PICTURE = e.modules[0].artist.picture ? e.modules[0].artist.picture : e.modules[0].artist.selectedAlbumCoverFallback;
+                    result.imageURL = PICTURE ? TIDAL_RESOURCES_URL + "images/" + PICTURE.replaceAll('-', '/') + "/1280x1280.jpg" : undefined
+                    return;
+                }
+
+                if (e.modules[0].type == "TRACK_LIST") {
+                    e.modules[0].pagedList.items.forEach((song) => {
+                        result.topSongs.push(
+                            {
+                                title: song.title,
+                                identifier: "" + song.id,
+                                source: "tidal",
+                                duration: song.duration,
+                                album: song.album ? song.album.title : "unknown",
+                                albumId: song.album ? song.album.id + "" : undefined,
+                                artist: song.artist ? song.artist.name : song.artists[0].name,
+                                artistId: song.artist ? "" + song.artist.id : song.artists[0].id + "",
+                                albumCoverUrl: song.album ? TIDAL_RESOURCES_URL + "images/" + song.album.cover.replaceAll('-', '/') + "/1280x1280.jpg" : undefined,
+                            }
+                        );
+                    });
+
+                    return;
+                }
+
+                if (e.modules[0].type == "ARTIST_LIST") {
+                    e.modules[0].pagedList.items.forEach((artist) => {
+
+                        const COVER = artist.picture ? artist.picture : (artist.selectedAlbumCoverFallback ? artist.selectedAlbumCoverFallback : undefined);
+
+                        result.relatedArtists.push(
+                            {
+                                name: artist.name,
+                                identifier: "" + artist.id,
+                                source: "tidal",
+                                topSongs: [],
+                                relatedArtists: [],
+                                newAlbums: [],
+                                imageURL: COVER ? TIDAL_RESOURCES_URL + "images/" + COVER.replaceAll('-', '/') + "/1280x1280.jpg" : undefined,
+                            }
+                        );
+                    });
+
+                    return;
+                }
+
+                if (e.modules[0].type == "ALBUM_LIST" && e.modules[0].title == "Albums") {
+                    e.modules[0].pagedList.items.forEach((album) => {
+
+                        result.newAlbums.push(
+                            {
+                                name: album.title,
+                                identifier: "" + album.id,
+                                source: "tidal",
+                                songsNumber: album.numberOfTracks + album.numberOfVideos,
+                                duration: album.duration,
+                                coverUrl: album.cover ? TIDAL_RESOURCES_URL + "images/" + album.cover.replaceAll('-', '/') + "/1280x1280.jpg" : undefined,
+                                year: album.releaseDate ? (album.releaseDate.indexOf('-') != -1 ? album.releaseDate.substring(0, album.releaseDate.indexOf('-')) : album.releaseDate) : undefined,
+                                artist: album.artists[0].name,
+                            }
+                        );
+                    });
+
+                    return;
+                }
+            });
+
+            res(result);
+        });
+    });
+}
+
+async function getAlbumData(identifier: string): Promise<AlbumData> {
+    return new Promise<AlbumData>(async (res) => {
+        let result: AlbumData = {
+            name: "",
+            artist: "",
+            songs: [],
+            identifier: identifier,
+            source: "tidal",
+        };
+
+        const TOKEN = getToken();
+
+        if (TOKEN == "") {
+            res(result);
+            return;
+        }
+
+        identifier = identifier.replaceAll(/[^A-Za-z-0-9 ]/g, '');
+
+        let artistId: string = "";
+
+        const response =
+            await fetch(
+                TIDAL_URL + TIDAL_ALBUM_API_ENDPOINT + "?albumId=" + identifier + "&countryCode=" + TIDAL_COUNTRY_CODE + "&locale=en_US&deviceType=BROWSER",
+                {
+                    method: 'GET',
+                    headers: {
+                        "Accept": "application/json",
+                        "authorization": "Bearer " + TOKEN,
+                        "Host": "listen.tidal.com"
+                    }
+                }
+            );
+
+        response.json().then((data) => {
+            if (!data.rows) {
+                console.log("Tidal: artist query error");
+                console.log(data);
+                res(result);
+                return;
+            }
+
+            result.name = data.title;
+
+            data.rows.forEach((e) => {
+                if (!e.modules)
+                    return;
+
+
+                if (e.modules[0].type == "ALBUM_HEADER") {
+                    result.coverUrl = e.modules[0].album.cover ? TIDAL_RESOURCES_URL + "images/" + e.modules[0].album.cover.replaceAll('-', '/') + "/1280x1280.jpg" : undefined
+                    result.artist = e.modules[0].album.artists[0].name;
+                    artistId = e.modules[0].album.artists[0].id + "";
+                    result.year = e.modules[0].album.releaseDate ? (e.modules[0].album.releaseDate.indexOf('-') != -1 ? e.modules[0].album.releaseDate.substring(0, e.modules[0].album.releaseDate.indexOf('-')) : e.modules[0].album.releaseDate) : undefined;
+                    return;
+                }
+
+                if (e.modules[0].type == "ALBUM_ITEMS") {
+                    e.modules[0].pagedList.items.forEach((song) => {
+                        result.songs.push(
+                            {
+                                title: song.item.title,
+                                identifier: "" + song.item.id,
+                                source: "tidal",
+                                duration: song.item.duration,
+                                // HEADER is always first so we know these are good
+                                album: result.name,
+                                artist: result.artist,
+                                artistId: artistId,
+                                albumCoverUrl: result.coverUrl,
+                            }
+                        );
+                    });
+
+                    return;
+                }
+            });
+
+            res(result);
+        });
+    });
+}
+
 export default {
-    listSongs,
+    performSearch,
     play,
     login,
     seek,
@@ -478,4 +732,6 @@ export default {
     songFromID,
     getPlaylists,
     getPlaylistData,
+    getArtistData,
+    getAlbumData,
 }

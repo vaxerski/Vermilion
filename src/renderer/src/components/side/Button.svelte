@@ -1,10 +1,10 @@
 <script lang="ts">
     let { icon, text, href, active } = $props();
 
-    import { currentPage } from "../state/sharedState.svelte";
+    import { changePageTo } from "../state/sharedState.svelte";
 
     function changePage() {
-        currentPage.page = href;
+        changePageTo(href);
     }
 </script>
 

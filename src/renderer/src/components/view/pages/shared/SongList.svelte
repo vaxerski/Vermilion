@@ -7,10 +7,13 @@
         playlist /* PlaylistDataShort */ = null,
         placeholder = "Such empty...",
         queue = false,
+        propagateSongs = false,
     } = $props();
 
     if (playlist != null) {
         window.electron.ipcRenderer.send("getPlaylistData", {...playlist});
+
+        propagateSongs = true;
 
         window.electronAPI.playlistData((res) => {
 
@@ -36,12 +39,14 @@
             title={song.title}
             artist={song.artist}
             album={song.album}
+            artistId={song.artistId ? song.artistId : ""}
+            albumId={song.albumId ? song.albumId : ""}
             duration={song.duration}
             alternate={i % 2 == 1 ? true : false}
             identifier={song.identifier}
             source={song.source}
             index={i + 1}
-            playlist={playlist ? playlist.source + "_" + playlist.identifier : ""}
+            songs={propagateSongs ? songs : []}
             {queue}
         />
     {/each}
@@ -108,6 +113,7 @@
         padding: 0.5rem 0rem;
         border: solid var(--vm-panel-border) 1px;
         background: var(--vm-panel-background);
+        margin-bottom: 1rem;
     }
 
     .song-placeholder-container {

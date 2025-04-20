@@ -35,11 +35,6 @@
             text={"Tidal Token"}
             secret={true}
         />
-        <InputBox
-            placeholder={"50"}
-            valueName={"tidalSearchNumber"}
-            text={"Max results per query (0-100)"}
-        />
     </div>
 
     <p class="settings-section-text">MPRIS</p>

@@ -1,6 +1,6 @@
 <script lang="ts">
     import { type PlaylistDataShort } from "../../../../../../main/types/playlistDataShort";
-    import { currentPage } from "../../../state/sharedState.svelte";
+    import { changePageTo } from "../../../state/sharedState.svelte";
 
     let { playlist /* PlaylistDataShort */, alternate, index } = $props();
 
@@ -31,11 +31,11 @@
     });
 
     function onEnter() {
-        currentPage.page =
+        changePageTo(
             "/playlists/playlist/" +
             playlist.source +
             "_" +
-            playlist.identifier;
+            playlist.identifier);
     }
 
     let wantsToPlay = false;

@@ -18,7 +18,7 @@ if (process.contextIsolated) {
       updateMpdSongList: (callback) => ipcRenderer.on('updateMpdSongList',
         (_event, value) => callback(value)
       ),
-      updateTidalSongList: (callback) => ipcRenderer.on('updateTidalSongList',
+      updateTidalSearch: (callback) => ipcRenderer.on('updateTidalSearch',
         (_event, value) => callback(value)
       ),
       updateQueue: (callback) => ipcRenderer.on('updateQueue',
@@ -40,6 +40,15 @@ if (process.contextIsolated) {
         (_event, value) => callback(value)
       ),
       playlistData: (callback) => ipcRenderer.on('playlistData',
+        (_event, value) => callback(value)
+      ),
+      pageUpdated: (callback) => ipcRenderer.on('pageUpdated',
+        (_event, value) => callback(value)
+      ),
+      artistData: (callback) => ipcRenderer.on('artistData',
+        (_event, value) => callback(value)
+      ),
+      albumData: (callback) => ipcRenderer.on('albumData',
         (_event, value) => callback(value)
       )
     })

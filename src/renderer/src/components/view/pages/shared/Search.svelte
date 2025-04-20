@@ -30,6 +30,7 @@
         display: block;
         width: 16rem;
         height: 2.3rem;
+        min-height: 2.3rem;
         background-color: var(--vm-panel-background);
         border: 1px solid var(--vm-panel-border);
         border-radius: 0.7rem;

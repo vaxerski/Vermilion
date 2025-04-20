@@ -126,23 +126,11 @@ app.whenReady().then(async () => {
         });
       });
 
-      if (data.playlist && data.playlist != "") {
-        // if we are playing a song from a playlist, override the queue with the playlist sliced from the current song
-        const SOURCE = data.playlist.substring(0, data.playlist.indexOf("_"));
-        const ID = data.playlist.substring(data.playlist.indexOf("_") + 1);
-        let pl: PlaylistDataShort = {
-          name: "",
-          source: SOURCE,
-          identifier: ID,
-          songsNumber: 0,
-          duration: 0
-        };
-
-        player.getPlaylistData(pl).then((PLAYLIST: PlaylistData) => {
-          queue.replaceWith(PLAYLIST.songs.slice(data.index));
-          queue.setCurrentIdx(0);
-          mainWindow.webContents.send('updateQueue', queue.getData());
-        });
+      if (data.songs && data.songs.length > 0) {
+        // if we are playing a song from a playlist, album, or whatever, override the queue with the playlist sliced from the current song
+        queue.replaceWith(data.songs.slice(data.index));
+        queue.setCurrentIdx(0);
+        mainWindow.webContents.send('updateQueue', queue.getData());
       } else {
         // otherwise just make the song the current queue
         player.songFromID(data.identifier, data.source).then((song: SongDataShort) => {
@@ -213,8 +201,8 @@ app.whenReady().then(async () => {
   });
 
   ipcMain.on('tidalGetSongs', (ev, data) => {
-    tidal.listSongs(data).then((res) => {
-      mainWindow.webContents.send('updateTidalSongList', res);
+    tidal.performSearch(data).then((res) => {
+      mainWindow.webContents.send('updateTidalSearch', res);
     }).catch((e) => {
       mainWindow.webContents.send('newNotification', { color: "#b3000033", text: "Tidal query failed: " + e + "." });
     })
@@ -239,9 +227,27 @@ app.whenReady().then(async () => {
     })
   });
 
+  ipcMain.on('getArtistData', (ev, data) => {
+    // FIXME: route thru player? maybe make a new class for metadata
+    tidal.getArtistData(data.identifier).then((res) => {
+      mainWindow.webContents.send('artistData', res);
+    })
+  });
+
+  ipcMain.on('getAlbumData', (ev, data) => {
+    // FIXME: route thru player? maybe make a new class for metadata
+    tidal.getAlbumData(data.identifier).then((res) => {
+      mainWindow.webContents.send('albumData', res);
+    })
+  });
+
+  ipcMain.on('pageGotChanged', (ev, data) => {
+    mainWindow.webContents.send('pageChanged', data);
+  });
+
   ipcMain.on('openRepo', (ev) => {
     shell.openExternal('https://github.com/vaxerski/vermilion');
-  })
+  });
 
   ipcMain.on('setSetting', (ev, data) => {
     if (config.getConfigValue(data.setting) == data.value)

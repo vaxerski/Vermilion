@@ -1,18 +1,21 @@
 <script lang="ts">
     import type { SongDataShort } from "../../../../../../main/types/songData";
+    import { changePageTo } from "../../../state/sharedState.svelte";
     import SongEntryMenu from "./SongEntryMenu.svelte";
 
     let {
         title = "",
         artist = "",
+        artistId = "",
         album = "",
+        albumId = "",
         duration = 0,
         alternate = false,
         identifier = "",
         source = "",
         index = 0,
         queue = false,
-        playlist = "",
+        songs = [],
     } = $props();
 
     function prettyTime(time: number) {
@@ -41,7 +44,7 @@
                 index -
                 1 /* index for queue is 0 based, while here it's 1 based for the user. */,
             queue: queue,
-            playlist: playlist == "" ? undefined : playlist,
+            songs: songs.length == 0 ? undefined : $state.snapshot(songs),
         });
     }
 
@@ -102,6 +105,20 @@
         window.electron.ipcRenderer.send("removeFromQueue", songInfo);
         closeMenu();
     }
+
+    function clickedAlbum() {
+        if (!albumId || albumId == "") return;
+
+        console.log("/" + source + "/album/" + albumId)
+        changePageTo("/" + source + "/album/" + albumId);
+    }
+
+    function clickedArtist() {
+        if (!artistId || artistId == "") return;
+
+        console.log("/" + source + "/artist/" + artistId)
+        changePageTo("/" + source + "/artist/" + artistId);
+    }
 </script>
 
 <div
@@ -130,10 +147,20 @@
     >
         {title}
     </p>
-    <p class="song-entry-text song-entry-artist">
+    <p
+        class="song-entry-text song-entry-artist {artistId != ''
+            ? 'song-entry-clickable'
+            : ''}"
+        on:click={clickedArtist}
+    >
         {artist}
     </p>
-    <p class="song-entry-text song-entry-album">
+    <p
+        class="song-entry-text song-entry-album {albumId != ''
+            ? 'song-entry-clickable'
+            : ''}"
+        on:click={clickedAlbum}
+    >
         {album}
     </p>
     <p class="song-entry-text song-entry-duration">
@@ -259,5 +286,15 @@
 
     .song-entry-duration {
         right: 5%;
+    }
+
+    .song-entry-clickable {
+        transition: 0.15s ease-in;
+        cursor: pointer;
+    }
+
+    .song-entry-clickable:hover {
+        text-decoration: underline;
+        color: var(--vm-panel-font-highlight-mid);
     }
 </style>

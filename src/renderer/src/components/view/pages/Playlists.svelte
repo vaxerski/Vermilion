@@ -30,7 +30,7 @@
     }
 
     function getPlaylistFromState() : PlaylistDataShort {
-        const pl = currentPage.page.substring("/playlists/playlist/".length);
+        const pl = currentPage.pagePlaylists.substring("/playlists/playlist/".length);
         for (let i = 0; i < playlists.length; ++i) {
             if (playlists[i].source + "_" + playlists[i].identifier == pl)
                 return playlists[i];
@@ -48,9 +48,9 @@
 </script>
 
 
-{#if currentPage.page.indexOf("/playlists/playlist/") == 0}
+{#if currentPage.pagePlaylists.indexOf("/playlists/playlist/") == 0}
 
-{#key currentPage.page}
+{#key currentPage.pagePlaylists}
 <PageTitle text={getPlaylistFromState().name} subtext={getPlaylistFromState().songsNumber + " songs, " + prettyTime(getPlaylistFromState().duration)}/>
 
 <SongList playlist={getPlaylistFromState()} placeholder={"Loading..."} />

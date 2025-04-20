@@ -60,7 +60,7 @@
         icon="tidal"
         text="Tidal"
         href="/tidal"
-        active={currentPage.page == "/tidal" ? true : false}
+        active={currentPage.page.indexOf('/tidal') == 0 ? true : false}
     />
     <Divider />
     <SectionText text="Other" />

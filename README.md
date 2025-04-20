@@ -1,4 +1,6 @@
-## vermilion
+<img align="left" style="width: 64px" src="assets/logo256.png">
+
+## Vermilion
 
 Vermilion is a clean, minimal and simple music player for MPD and Tidal.
 
@@ -24,7 +26,6 @@ Vermilion is a clean, minimal and simple music player for MPD and Tidal.
 - Favorites
 - Playlists
 - arrpc integration
-- A damn icon :P
 - Possibly a youtube music integration
 
 ## Integrations

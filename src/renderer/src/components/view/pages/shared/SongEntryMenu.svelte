@@ -44,7 +44,10 @@
         : 'left'}: 1.5rem;"
 >
     {#if queue}
-        <div class="song-context-menu-option" on:click={removeFromQueueCallback}>
+        <div
+            class="song-context-menu-option"
+            on:click={removeFromQueueCallback}
+        >
             <i class="song-context-menu-icon fa-solid fa-xmark"></i>
             <p class="song-context-menu-text">Remove from queue</p>
         </div>
@@ -54,11 +57,11 @@
             <i class="song-context-menu-icon fa-solid fa-plus"></i>
             <p class="song-context-menu-text">Add to queue</p>
         </div>
+        <div class="song-context-menu-option">
+            <i class="song-context-menu-icon fa-solid fa-music"></i>
+            <p class="song-context-menu-text">Play now</p>
+        </div>
     {/if}
-    <div class="song-context-menu-option">
-        <i class="song-context-menu-icon fa-solid fa-music"></i>
-        <p class="song-context-menu-text">Play now</p>
-    </div>
     <div class="song-context-menu-option">
         <i class="song-context-menu-icon fa-solid fa-bars"></i>
         <p class="song-context-menu-text">Add to playlist</p>

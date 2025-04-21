@@ -50,6 +50,8 @@ Go to settings and input your mpd server's address and port. That's it.
 > [!NOTE]
 > Tidal playback is supported via widevine and a custom electron version from [castlabs](https://github.com/castlabs/electron-releases).
 > This does mean that Digital Rights Management is used to play Tidal content.
+>
+> Please also do note that Vermilion is not designed to bypass any of Tidal's content restrictions. You will need a paid account to use Tidal within Vermilion, and will be shown your account region's content offering, just like in the official app.
 
 Check the [docs](./docs/Tidal.md) for how to connect Vermilion to Tidal.
 

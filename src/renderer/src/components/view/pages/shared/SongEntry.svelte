@@ -56,7 +56,7 @@
 
     window.electronAPI.updateCurrentSong((res) => {
         currentlyPlaying =
-            title == res.title && album == res.album && artist == res.artist;
+            title == res.title && album == res.album && identifier == res.identifier;
         currentStatePlaying = res.playing;
     });
 

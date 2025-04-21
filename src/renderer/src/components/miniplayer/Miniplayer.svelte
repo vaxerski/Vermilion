@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { SongDataShort } from "../../../../main/types/songData";
+    import type { SongInfo } from "../../../../main/types/songInfo";
     import { playerData } from "../state/sharedState.svelte";
     import SongEntryMenu from "../view/pages/shared/SongEntryMenu.svelte";
     import PausePlay from "./parts/PausePlay.svelte";
@@ -19,18 +19,23 @@
     const playPrevious = (): void =>
         window.electron.ipcRenderer.send("playPrevious");
 
-    let playing = $state();
+    let currentSongData: SongInfo = $state({
+        title: "",
+        artist: "",
+        album: "",
+        elapsedSeconds: 0,
+        totalSeconds: 0,
+        playing: false,
+        albumCover: "",
+        albumCoverUpdated: false,
+        identifier: "",
+        source: "",
+        volume: 0,
+    });
 
     window.electronAPI.updateCurrentSong((res) => {
-        document.getElementById("title").innerHTML = res.title;
-        document.getElementById("album").innerHTML = res.album;
-        document.getElementById("artist").innerHTML = res.artist;
-        document.getElementById("elapsed").innerHTML = prettyTime(
-            res.elapsedSeconds,
-        );
-        document.getElementById("total").innerHTML = prettyTime(
-            res.totalSeconds,
-        );
+        currentSongData = res;
+
         if (
             res.albumCoverUpdated &&
             res.albumCover != document.getElementById("cover").src
@@ -41,7 +46,6 @@
             document.getElementById("progress-foreground").style.width =
                 (res.elapsedSeconds / res.totalSeconds) * 100 + "%";
 
-        playing = res.playing;
         if (res.albumCover == "" && res.albumCoverUpdated) {
             document.getElementById("cover").style.visibility = "hidden";
             document.getElementById("coverMissing").style.visibility =
@@ -50,10 +54,6 @@
             document.getElementById("coverMissing").style.visibility = "hidden";
             document.getElementById("cover").style.visibility = "visible";
         }
-
-        songInfo.identifier = res.identifier;
-        songInfo.source = res.source;
-        songInfo.title = res.title;
     });
 
     let lastMouseX = 0;
@@ -109,7 +109,7 @@
             seekValue * 100 + "%";
     });
 
-    addEventListener("mouseup", (e) => {
+    addEventListener("mouseup", () => {
         if (!seeking) return;
 
         window.electron.ipcRenderer.send("playbackSeek", seekValue);
@@ -122,7 +122,7 @@
     let volumeing = false;
     let reportedVolume = 50;
 
-    function onClickOnVolume(e) {
+    function onClickOnVolume() {
         volumeing = true;
 
         const VOLUMECONTAINER = document.getElementById("volume-container");
@@ -168,7 +168,7 @@
             volume + "%";
     });
 
-    addEventListener("mouseup", (e) => {
+    addEventListener("mouseup", () => {
         if (!volumeing) return;
 
         volumeing = false;
@@ -183,15 +183,6 @@
 
     let contextMenuOpen = $state(false);
     let contextMenuOpacity = $state(0);
-
-    let songInfo: SongDataShort = $state({
-        title: "",
-        artist: "",
-        album: "",
-        identifier: "",
-        source: "",
-        duration: 0,
-    });
 
     function openMenu() {
         if (contextMenuOpen) {
@@ -325,13 +316,13 @@
 
             <div class="miniplayer-song-info-container">
                 <p class="miniplayer-text miniplayer-song-title" id="title">
-                    Song Title
+                    {currentSongData.title}
                 </p>
                 <p class="miniplayer-text miniplayer-song-artist" id="artist">
-                    Artist
+                    {currentSongData.artist}
                 </p>
                 <p class="miniplayer-text miniplayer-song-album" id="album">
-                    Album
+                    {currentSongData.album}
                 </p>
             </div>
         </div>
@@ -346,10 +337,10 @@
                     class="miniplayer-time miniplayer-time-elapsed"
                     id="elapsed"
                 >
-                    0:00
+                    {prettyTime(currentSongData.elapsedSeconds)}
                 </div>
                 <div class="miniplayer-time miniplayer-time-total" id="total">
-                    0:00
+                    {prettyTime(currentSongData.totalSeconds)}
                 </div>
                 <div class="miniplayer-progress-input-container"></div>
                 <div
@@ -368,8 +359,12 @@
                 </div>
                 <div class="miniplayer-icon-container">
                     <PausePlay
-                        icon="fa-solid {playing ? 'fa-pause' : 'fa-play'}"
-                        callback={playing ? pausePlayback : resumePlayback}
+                        icon="fa-solid {currentSongData.playing
+                            ? 'fa-pause'
+                            : 'fa-play'}"
+                        callback={currentSongData.playing
+                            ? pausePlayback
+                            : resumePlayback}
                     />
                 </div>
                 <div class="miniplayer-icon-container" on:click={playNext}>

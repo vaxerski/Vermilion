@@ -31,5 +31,8 @@ To get your token:
 - Paste it into the Client ID setting.
 - You're done! Close the tidal web player (_do not_ log out!), restart Vermilion and you can listen to music from Tidal.
 
-
+> [!NOTE]
+> After 24 hours, the login token expires. When it does, if you open your web player before Vermilion, Vermilion
+> will no longer be able to log in. You will have to redo this process.
+> If you log into Vermilion first, your web player will get logged out.
 

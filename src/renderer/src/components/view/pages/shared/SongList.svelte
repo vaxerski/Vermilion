@@ -1,5 +1,4 @@
 <script lang="ts">
-    import type { PlaylistData } from "../../../../../../main/types/playlistData";
     import SongEntry from "./SongEntry.svelte";
 
     let {
@@ -37,9 +36,9 @@
     {#each songs as song, i}
         <SongEntry
             title={song.title}
-            artist={song.artist}
+            artistString={song.artistString}
             album={song.album}
-            artistId={song.artistId ? song.artistId : ""}
+            artistList={song.artists ? song.artists : []}
             albumId={song.albumId ? song.albumId : ""}
             duration={song.duration}
             alternate={i % 2 == 1 ? true : false}

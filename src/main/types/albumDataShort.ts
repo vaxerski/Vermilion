@@ -1,3 +1,4 @@
+import { ArtistDataShort } from "./artistDataShort";
 
 export interface AlbumDataShort {
     name: string;
@@ -5,7 +6,8 @@ export interface AlbumDataShort {
     duration: number;
     source: string;
     identifier: string;
-    artist: string;
+    artistString: string;
+    artists: Array<ArtistDataShort>;
     year?: string;
     coverUrl?: string;
 };

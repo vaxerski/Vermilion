@@ -7,5 +7,7 @@ export interface AlbumData {
     identifier: string;
     songs: Array<SongDataShort>;
     year?: string;
+    date?: string;
+    copyright?: string;
     coverUrl?: string;
 };

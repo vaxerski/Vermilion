@@ -1,12 +1,13 @@
 <script lang="ts">
     import type { SongDataShort } from "../../../../../../main/types/songData";
     import { changePageTo } from "../../../state/sharedState.svelte";
+    import ArtistEntry from "./songEntry/ArtistEntry.svelte";
     import SongEntryMenu from "./SongEntryMenu.svelte";
 
     let {
         title = "",
-        artist = "",
-        artistId = "",
+        artistString = "",
+        artistList = [],
         album = "",
         albumId = "",
         duration = 0,
@@ -80,7 +81,8 @@
     function addToQueue() {
         const songInfo: SongDataShort = {
             title: title,
-            artist: artist,
+            artistString: artistString,
+            artists: artistList,
             album: album,
             identifier: identifier,
             source: source,
@@ -93,7 +95,8 @@
     function removeFromQueue() {
         const songInfo: SongDataShort = {
             title: title,
-            artist: artist,
+            artistString: artistString,
+            artists: artistList,
             album: album,
             identifier: identifier,
             source: source,
@@ -109,15 +112,7 @@
     function clickedAlbum() {
         if (!albumId || albumId == "") return;
 
-        console.log("/" + source + "/album/" + albumId)
         changePageTo("/" + source + "/album/" + albumId);
-    }
-
-    function clickedArtist() {
-        if (!artistId || artistId == "") return;
-
-        console.log("/" + source + "/artist/" + artistId)
-        changePageTo("/" + source + "/artist/" + artistId);
     }
 </script>
 
@@ -147,14 +142,25 @@
     >
         {title}
     </p>
-    <p
-        class="song-entry-text song-entry-artist {artistId != ''
-            ? 'song-entry-clickable'
-            : ''}"
-        on:click={clickedArtist}
-    >
-        {artist}
-    </p>
+    
+        {#if artistList.length != 0}
+        <div class="song-entry-artist-multi-box">
+            {#each artistList as artist, i}
+                <ArtistEntry
+                    name={artist.name}
+                    identifier={artist.identifier}
+                    source={artist.source}
+                />
+                {#if i != artistList.length - 1},&nbsp;
+                {/if}
+            {/each}
+        </div>
+        {:else}
+        <p class="song-entry-text song-entry-artist">
+            {artistString}
+        </p>
+        {/if}
+    
     <p
         class="song-entry-text song-entry-album {albumId != ''
             ? 'song-entry-clickable'
@@ -277,6 +283,24 @@
     .song-entry-artist {
         left: 50%;
         max-width: 14%;
+    }
+
+    .song-entry-artist-multi-box {
+        display: block;
+        position: absolute;
+        color: var(--vm-panel-font-base);
+        font-size: 0.8rem;
+        opacity: 0.9;
+        top: 50%;
+        transform: translateY(-50%);
+        text-overflow: ellipsis;
+        overflow: hidden;
+        text-wrap: nowrap;
+        user-select: none;
+        transition: 0.1s ease-in-out;
+        left: 50%;
+        max-width: 14%;
+        width: 14%;
     }
 
     .song-entry-album {

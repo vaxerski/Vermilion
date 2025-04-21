@@ -7,6 +7,8 @@ import { SongInfo } from "../../types/songInfo";
 import { SearchResults } from "../../types/searchResults";
 import { ArtistData } from "../../types/artistData";
 import { AlbumData } from "../../types/albumData";
+import helpers from "../../helpers/helpers";
+import { ArtistDataShort } from "../../types/artistDataShort";
 
 function getToken() {
     return config.getConfigValue("tidalToken");
@@ -81,14 +83,25 @@ async function performSearch(searchFor: string): Promise<SearchResults> {
                         console.log("Tidal returned " + data.tracks.items.length + " tracks.");
 
                         data.tracks.items.forEach((e) => {
+                            let artists: Array<ArtistDataShort> = [];
+                            let artistString = "";
+                            e.artists.forEach((x) => {
+                                artistString += x.name + ", ";
+                                artists.push({
+                                    name: x.name,
+                                    identifier: "" + x.id,
+                                    source: "tidal",
+                                })
+                            });
+
                             result.songs.push(
                                 {
                                     title: e.title,
                                     album: e.album ? e.album.title : "unknown",
                                     albumId: e.album ? "" + e.album.id : undefined,
                                     duration: e.duration,
-                                    artist: e.artists[0].name,
-                                    artistId: "" + e.artists[0].id,
+                                    artistString: artistString.substring(0, artistString.length - 2),
+                                    artists: artists,
                                     source: "tidal",
                                     identifier: "" + e.id,
                                     albumCoverUrl: e.album && e.album.cover ? (TIDAL_RESOURCES_URL + "images/" + e.album.cover.replaceAll('-', '/') + "/750x750.jpg") : undefined,
@@ -125,6 +138,17 @@ async function performSearch(searchFor: string): Promise<SearchResults> {
                         data.albums.items.forEach((e) => {
                             const COVER = e.cover ? e.cover : undefined;
 
+                            let artists: Array<ArtistDataShort> = [];
+                            let artistString = "";
+                            e.artists.forEach((x) => {
+                                artistString += x.name + ", ";
+                                artists.push({
+                                    name: x.name,
+                                    identifier: "" + x.id,
+                                    source: "tidal",
+                                })
+                            });
+
                             result.albums.push(
                                 {
                                     name: e.title,
@@ -133,7 +157,8 @@ async function performSearch(searchFor: string): Promise<SearchResults> {
                                     coverUrl: COVER ? (TIDAL_RESOURCES_URL + "images/" + COVER.replaceAll('-', '/') + "/750x750.jpg") : undefined,
                                     songsNumber: e.numberOfTracks + e.numberOfVideos,
                                     duration: e.duration,
-                                    artist: e.artists[0].name,
+                                    artistString: artistString.substring(0, artistString.length - 2),
+                                    artists: artists,
                                 }
                             );
                         });
@@ -575,6 +600,17 @@ async function getArtistData(identifier: string): Promise<ArtistData> {
 
                 if (e.modules[0].type == "TRACK_LIST") {
                     e.modules[0].pagedList.items.forEach((song) => {
+                        let artists: Array<ArtistDataShort> = [];
+                        let artistString = "";
+                        song.artists.forEach((x) => {
+                            artistString += x.name + ", ";
+                            artists.push({
+                                name: x.name,
+                                identifier: "" + x.id,
+                                source: "tidal",
+                            })
+                        });
+
                         result.topSongs.push(
                             {
                                 title: song.title,
@@ -583,8 +619,8 @@ async function getArtistData(identifier: string): Promise<ArtistData> {
                                 duration: song.duration,
                                 album: song.album ? song.album.title : "unknown",
                                 albumId: song.album ? song.album.id + "" : undefined,
-                                artist: song.artist ? song.artist.name : song.artists[0].name,
-                                artistId: song.artist ? "" + song.artist.id : song.artists[0].id + "",
+                                artists: artists,
+                                artistString: artistString.substring(0, artistString.length - 2),
                                 albumCoverUrl: song.album ? TIDAL_RESOURCES_URL + "images/" + song.album.cover.replaceAll('-', '/') + "/750x750.jpg" : undefined,
                             }
                         );
@@ -617,6 +653,17 @@ async function getArtistData(identifier: string): Promise<ArtistData> {
                 if (e.modules[0].type == "ALBUM_LIST" && e.modules[0].title == "Albums") {
                     e.modules[0].pagedList.items.forEach((album) => {
 
+                        let artists: Array<ArtistDataShort> = [];
+                        let artistString = "";
+                        album.artists.forEach((x) => {
+                            artistString += x.name + ", ";
+                            artists.push({
+                                name: x.name,
+                                identifier: "" + x.id,
+                                source: "tidal",
+                            })
+                        });
+
                         result.newAlbums.push(
                             {
                                 name: album.title,
@@ -626,7 +673,8 @@ async function getArtistData(identifier: string): Promise<ArtistData> {
                                 duration: album.duration,
                                 coverUrl: album.cover ? TIDAL_RESOURCES_URL + "images/" + album.cover.replaceAll('-', '/') + "/750x750.jpg" : undefined,
                                 year: album.releaseDate ? (album.releaseDate.indexOf('-') != -1 ? album.releaseDate.substring(0, album.releaseDate.indexOf('-')) : album.releaseDate) : undefined,
-                                artist: album.artists[0].name,
+                                artists: artists,
+                                artistString: artistString.substring(0, artistString.length - 2),
                             }
                         );
                     });
@@ -691,24 +739,51 @@ async function getAlbumData(identifier: string): Promise<AlbumData> {
 
                 if (e.modules[0].type == "ALBUM_HEADER") {
                     result.coverUrl = e.modules[0].album.cover ? TIDAL_RESOURCES_URL + "images/" + e.modules[0].album.cover.replaceAll('-', '/') + "/750x750.jpg" : undefined
-                    result.artist = e.modules[0].album.artists[0].name;
-                    artistId = e.modules[0].album.artists[0].id + "";
-                    result.year = e.modules[0].album.releaseDate ? (e.modules[0].album.releaseDate.indexOf('-') != -1 ? e.modules[0].album.releaseDate.substring(0, e.modules[0].album.releaseDate.indexOf('-')) : e.modules[0].album.releaseDate) : undefined;
+                    // FIXME: allow passing multiple artists properly
+                    let artists = "";
+                    e.modules[0].album.artists.forEach((x) => {
+                        artists += x.name + ", ";
+                    });
+
+                    result.artist = artists.substring(0, artists.length - 2);
+                    // artistId = e.modules[0].album.artists[0].id + "";
+
+                    if (e.modules[0].album.releaseDate) {
+                        const SPLIT = e.modules[0].album.releaseDate.split('-');
+                        result.year = SPLIT[0];
+
+                        if (SPLIT.length == 3)
+                            result.date = helpers.prettyDate(SPLIT);
+                    }
+
+                    if (e.modules[0].album.copyright)
+                        result.copyright = e.modules[0].album.copyright;
                     return;
                 }
 
                 if (e.modules[0].type == "ALBUM_ITEMS") {
                     e.modules[0].pagedList.items.forEach((song) => {
+                        let artists: Array<ArtistDataShort> = [];
+                        let artistString = "";
+                        song.item.artists.forEach((x) => {
+                            artistString += x.name + ", ";
+                            artists.push({
+                                name: x.name,
+                                identifier: "" + x.id,
+                                source: "tidal",
+                            })
+                        });
+
                         result.songs.push(
                             {
                                 title: song.item.title,
                                 identifier: "" + song.item.id,
                                 source: "tidal",
                                 duration: song.item.duration,
+                                artistString: artistString.substring(0, artistString.length - 2),
+                                artists: artists,
                                 // HEADER is always first so we know these are good
                                 album: result.name,
-                                artist: result.artist,
-                                artistId: artistId,
                                 albumCoverUrl: result.coverUrl,
                             }
                         );

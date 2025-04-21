@@ -1,21 +1,42 @@
 <script>
-    let { text, subtext = "", infotext = "", imageURL = "", imageBig = false } = $props();
+    let {
+        text,
+        subtext = "",
+        infotext = "",
+        imageURL = "",
+        imageBig = false,
+        year = "",
+    } = $props();
 </script>
 
 <div class="page-image-title-container">
     <p class="page-image-title-infotext">{infotext}</p>
 
     {#if imageURL != ""}
-        <img class="page-image-title-image" src={imageURL} style="{imageBig ? "width: 20rem; height: 20rem; margin-bottom: 1rem;" : "border-radius: 2rem;"}" />
+        <img
+            class="page-image-title-image"
+            src={imageURL}
+            style={imageBig
+                ? "width: 20rem; height: 20rem; margin-bottom: 1rem;"
+                : "border-radius: 2rem;"}
+        />
     {:else}
         <div
             class="page-image-title-image page-image-title-image-missing"
-            style="{imageBig ? "width: 20rem; height: 20rem; margin-bottom: 1rem;" : "border-radius: 2rem;"}"
+            style={imageBig
+                ? "width: 20rem; height: 20rem; margin-bottom: 1rem;"
+                : "border-radius: 2rem;"}
         ></div>
     {/if}
     <p class="page-image-title-label">{text}</p>
-    <p class="page-image-title-sublabel">{subtext}</p>
-    <hr class="page-image-title-hr"/>
+    <p class="page-image-title-sublabel">
+        {subtext}
+
+        {#if year != ""}
+            <p class="page-image-title-year">{year}</p>
+        {/if}
+    </p>
+    <hr class="page-image-title-hr" />
 </div>
 
 <style>
@@ -65,6 +86,20 @@
         font-style: italic;
         margin-top: -0.5rem;
         opacity: 0.5;
+    }
+
+    .page-image-title-year {
+        display: inline-block;
+        font-family: var(--vm-panel-font-medium);
+        font-size: 0.7rem;
+        background: var(--vm-panel-font-base);
+        background-clip: text;
+        color: transparent;
+        font-style: italic;
+        margin-top: -0.3rem;
+        opacity: 0.8;
+        padding-right: 0.2rem; /* fix clipping */
+        padding-left: 0.2rem;
     }
 
     .page-image-title-infotext {

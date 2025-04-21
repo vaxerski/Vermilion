@@ -38,7 +38,43 @@
     imageBig={true}
     text={currentAlbumData.name}
     subtext={currentAlbumData.artist}
+    year={currentAlbumData.year ? currentAlbumData.year : ""}
     infotext="Vermilion is not associated with Tidal or Tidal Music AS."
 />
 
 <SongList songs={currentAlbumData.songs} placeholder="Loading..." propagateSongs={true} />
+
+<div class="album-page-bottom-data">
+{#if currentAlbumData.year || currentAlbumData.date}
+    <p class="album-page-bottom-text">
+        {currentAlbumData.date ? currentAlbumData.date : currentAlbumData.year}
+    </p>
+{/if}
+{#if currentAlbumData.copyright }
+    <p class="album-page-bottom-text">
+        {currentAlbumData.copyright}
+    </p>
+{/if}</div>
+
+<style>
+    .album-page-bottom-data {
+        display: flex;
+        position: relative;
+        width: 100%;
+        flex-direction: column
+    }
+
+    .album-page-bottom-text {
+        display: block;
+        position: relative;
+        font-family: var(--vm-panel-font-regular);
+        font-size: 0.7rem;
+        color: var(--vm-panel-font-base);
+        user-select: none;
+        opacity: 0.5;
+        margin: -0.1rem 0;
+        font-style: italic;
+
+    }
+</style>
+

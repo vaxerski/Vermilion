@@ -34,7 +34,8 @@
 </script>
 
 <PageImageTitle
-    imageURL={currentAlbumData.coverUrl ? currentAlbumData.coverUrl : ""}
+    imageURL={currentAlbumData.coverVideoUrl ? currentAlbumData.coverVideoUrl : (currentAlbumData.coverUrl ? currentAlbumData.coverUrl :"")}
+    imageIsVideo={!!currentAlbumData.coverVideoUrl}
     imageBig={true}
     text={currentAlbumData.name}
     subtext={currentAlbumData.artist}

@@ -6,6 +6,7 @@ export interface SongInfo {
     totalSeconds: number;
     playing: boolean;
     albumCover: string;
+    albumVideoCover?: string;
     albumCoverUpdated: boolean;
     identifier: string;
     source: string;

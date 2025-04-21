@@ -10,4 +10,5 @@ export interface AlbumDataShort {
     artists: Array<ArtistDataShort>;
     year?: string;
     coverUrl?: string;
+    coverVideoUrl?: string;
 };

@@ -4,6 +4,7 @@
         subtext = "",
         infotext = "",
         imageURL = "",
+        imageIsVideo = false,
         imageBig = false,
         year = "",
     } = $props();
@@ -13,13 +14,25 @@
     <p class="page-image-title-infotext">{infotext}</p>
 
     {#if imageURL != ""}
-        <img
-            class="page-image-title-image"
-            src={imageURL}
-            style={imageBig
-                ? "width: 20rem; height: 20rem; margin-bottom: 1rem;"
-                : "border-radius: 2rem;"}
-        />
+        {#if imageIsVideo}
+            <video
+                class="page-image-title-image"
+                src={imageURL}
+                style={imageBig
+                    ? "width: 20rem; height: 20rem; margin-bottom: 1rem;"
+                    : "border-radius: 2rem;"}
+                autoplay
+                muted
+            />
+        {:else}
+            <img
+                class="page-image-title-image"
+                src={imageURL}
+                style={imageBig
+                    ? "width: 20rem; height: 20rem; margin-bottom: 1rem;"
+                    : "border-radius: 2rem;"}
+            />
+        {/if}
     {:else}
         <div
             class="page-image-title-image page-image-title-image-missing"

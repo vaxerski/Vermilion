@@ -62,6 +62,7 @@ Check the [docs](./docs/Tidal.md) for how to connect Vermilion to Tidal.
 - Playlists (read-only)
 - Searching for songs / albums / artists
 - Browsing artist / album pages
+- Video album covers
 
 #### Planned
 

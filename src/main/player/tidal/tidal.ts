@@ -341,8 +341,11 @@ async function play(identifier: string) {
                 );
 
                 response2.json().then((data2) => {
-                    if (data2.album && data2.album.cover) {
-                        playbackData.albumCover = (TIDAL_RESOURCES_URL + "images/" + data2.album.cover.replaceAll('-', '/') + "/750x750.jpg");
+                    if (data2.album) {
+                        if (data2.album.cover)
+                            playbackData.albumCover = (TIDAL_RESOURCES_URL + "images/" + data2.album.cover.replaceAll('-', '/') + "/750x750.jpg");
+                        if (data2.album.videoCover)
+                            playbackData.albumVideoCover = (TIDAL_RESOURCES_URL + "videos/" + data2.album.videoCover.replaceAll('-', '/') + "/750x750.mp4");
                         playbackData.albumCoverUpdated = true;
                     } else {
                         console.log("Tidal backend: No cover for album?");
@@ -804,6 +807,7 @@ async function getAlbumData(identifier: string): Promise<AlbumData> {
 
                 if (e.modules[0].type == "ALBUM_HEADER") {
                     result.coverUrl = e.modules[0].album.cover ? TIDAL_RESOURCES_URL + "images/" + e.modules[0].album.cover.replaceAll('-', '/') + "/750x750.jpg" : undefined
+                    result.coverVideoUrl = e.modules[0].album.videoCover ? TIDAL_RESOURCES_URL + "videos/" + e.modules[0].album.videoCover.replaceAll('-', '/') + "/750x750.mp4" : undefined
                     // FIXME: allow passing multiple artists properly
                     let artists = "";
                     e.modules[0].album.artists.forEach((x) => {

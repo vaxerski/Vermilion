@@ -11,6 +11,7 @@ export interface SongDataShort {
     albumId?: string;
     duration: number;
     albumCoverUrl?: string;
+    albumVideoCoverUrl?: string;
     index?: number;
     playlist?: string;
 };

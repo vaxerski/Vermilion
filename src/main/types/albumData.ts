@@ -10,4 +10,5 @@ export interface AlbumData {
     date?: string;
     copyright?: string;
     coverUrl?: string;
+    coverVideoUrl?: string;
 };

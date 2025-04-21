@@ -4,15 +4,9 @@ import { SongInfo } from "../../types/songInfo";
 var mpris = require('mpris-service');
 
 let lastAlbumCover = "";
-let enabled = true;
+let enabled = false;
 
-var mprisPlayer = mpris(
-    {
-        name: 'Vermilion',
-        identity: 'Vermilion Music Player',
-        supportedInterfaces: ['player']
-    }
-);
+var mprisPlayer = null;
 
 function updateSongInfo(song: SongInfo) {
     if (song.albumCoverUpdated)
@@ -26,8 +20,12 @@ function updateSongInfo(song: SongInfo) {
             'mpris:length': song.totalSeconds * 1000 * 1000, // In microseconds for whatever reason
             'mpris:artUrl': lastAlbumCover,
             'xesam:title': song.title,
+            'custom:title': song.title,
             'xesam:album': song.album,
-            'xesam:artist': [song.artist]
+            'custom:album': song.album,
+            'xesam:artist': [song.artist],
+            'custom:artist': [song.artist],
+            "custom:status": song.playing ? 'playing' : 'paused',
         };
     }
 }
@@ -42,7 +40,7 @@ function setEnabled(enable: boolean) {
     else
         mprisPlayer = mpris(
             {
-                name: 'Vermilion',
+                name: 'vermilion',
                 identity: 'Vermilion Music Player',
                 supportedInterfaces: ['player']
             }

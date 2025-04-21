@@ -127,7 +127,7 @@
     }, 500);
 </script>
 
-<video id="shaka-player-output" controls autoplay></video>
+<video id="shaka-player-output" autoplay></video>
 
 <style>
     #shaka-player-output {

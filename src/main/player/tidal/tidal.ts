@@ -15,6 +15,8 @@ function getToken() {
 }
 
 const TIDAL_URL = "https://listen.tidal.com/";
+const TIDAL_AUTH_URL = "https://auth.tidal.com/";
+const TIDAL_AUTH_TOKEN_API_ENDPOINT = "v1/oauth2/token";
 const TIDAL_RESOURCES_URL = "https://resources.tidal.com/";
 const TIDAL_SEARCH_API_ENDPOINT = "v2/search/"
 const TIDAL_TRACK_API_ENDPOINT = "v1/tracks/"
@@ -27,6 +29,8 @@ const TIDAL_ALBUM_API_ENDPOINT = "v1/pages/album"
 
 let TIDAL_SESSION_ID = "";
 let TIDAL_COUNTRY_CODE = "US";
+let TIDAL_LOGGED_IN = false;
+let TIDAL_SESSION_TOKEN = "";
 
 // With tidal, we get elapsed fed from the render thread
 let playbackData: SongInfo = {
@@ -46,10 +50,8 @@ let playbackData: SongInfo = {
 async function performSearch(searchFor: string): Promise<SearchResults> {
     return new Promise<SearchResults>(
         async (res, rej) => {
-            const TOKEN = getToken();
-
-            if (TOKEN == "") {
-                rej("No Tidal token configured");
+            if (!TIDAL_LOGGED_IN) {
+                rej("Tidal: not logged in");
                 return;
             }
 
@@ -72,7 +74,7 @@ async function performSearch(searchFor: string): Promise<SearchResults> {
                             method: 'GET',
                             headers: {
                                 "Accept": "application/json",
-                                "authorization": "Bearer " + TOKEN,
+                                "authorization": "Bearer " + TIDAL_SESSION_TOKEN,
                                 "Host": "listen.tidal.com"
                             }
                         }
@@ -174,13 +176,73 @@ async function performSearch(searchFor: string): Promise<SearchResults> {
     );
 }
 
+async function refreshToken(): Promise<string> {
+    return new Promise<string>(
+        async (res) => {
+            if (config.getConfigValue("tidalClientID") == "" || config.getConfigValue("tidalToken") == "") {
+                res("");
+                return;
+            }
+
+            let CID = config.getConfigValue("tidalClientID");
+            let TK = config.getConfigValue("tidalToken");
+
+            CID = CID.replaceAll(/[^A-Za-z-0-9 \-\+\=\/\.\_]/g, '');
+            TK = TK.replaceAll(/[^A-Za-z-0-9 \-\+\=\/\.\_]/g, '');
+
+            const body = new FormData();
+            body.set("client_id", CID);
+            body.set("grant_type", "refresh_token");
+            body.set("refresh_token", TK);
+            body.set("scope", "r_usr+w_usr");
+            const response =
+                await fetch(
+                    TIDAL_AUTH_URL + TIDAL_AUTH_TOKEN_API_ENDPOINT,
+                    {
+                        method: 'POST',
+                        headers: {
+                            "Accept": "*/*",
+                            "Host": "auth.tidal.com",
+                            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                        },
+                        body: body,
+                    }
+                );
+
+            response.json().then((data) => {
+                if (response.status != 200) {
+                    console.log("Tidal: refresh token possibly failed: " + response.status + ": " + response.statusText);
+                    console.log("Tidal: this either means the token + CID is invalid, or that the token is still valid");
+                    TIDAL_SESSION_TOKEN = TK;
+                    res(TK);
+                    return;
+                }
+
+                if (data.access_token) {
+                    console.log("Tidal: got explicit new token from oauth endpoint, updating config");
+                    config.setConfigValue("tidalToken", data.access_token);
+                    TIDAL_SESSION_TOKEN = data.access_token;
+                    res(TIDAL_SESSION_TOKEN);
+                    return;
+                }
+
+                // FIXME: these tokens are valid for 24h. If we have the player open for more, it will expire.
+
+                console.log("Tidal: Got an empty response from oauth2, our token is likely valid.");
+                TIDAL_SESSION_TOKEN = TK;
+                res(TK);
+                return;
+            });
+        }
+    )
+}
+
 async function login(): Promise<boolean> {
     return new Promise<boolean>(
         async (res) => {
-            const TOKEN = getToken();
-
-            if (TOKEN == "") {
-                res(false);
+            const TK = await refreshToken();
+            if (TK == "") {
+                console.log("Tidal: Can't log in, refreshing token failed");
                 return;
             }
 
@@ -194,7 +256,7 @@ async function login(): Promise<boolean> {
                             method: 'GET',
                             headers: {
                                 "Accept": "*/*",
-                                "authorization": "Bearer " + TOKEN,
+                                "authorization": "Bearer " + TIDAL_SESSION_TOKEN,
                                 "Host": "listen.tidal.com"
                             }
                         }
@@ -218,6 +280,8 @@ async function login(): Promise<boolean> {
 
                     console.log("Got tidal session for country " + TIDAL_COUNTRY_CODE);
 
+                    TIDAL_LOGGED_IN = true;
+
                     res(true);
                 }).catch((e) => {
                     console.error("Tidal didn't log in");
@@ -234,10 +298,8 @@ async function login(): Promise<boolean> {
 
 async function play(identifier: string) {
     return new Promise<boolean>(async (res, rej) => {
-        const TOKEN = getToken();
-
-        if (TOKEN == "") {
-            rej("No Tidal token configured");
+        if (!TIDAL_LOGGED_IN) {
+            rej("Tidal: not logged in");
             return;
         }
 
@@ -251,7 +313,7 @@ async function play(identifier: string) {
                         method: 'GET',
                         headers: {
                             "Accept": "application/json",
-                            "authorization": "Bearer " + TOKEN,
+                            "authorization": "Bearer " + TIDAL_SESSION_TOKEN,
                             "Host": "listen.tidal.com"
                         }
                     }
@@ -269,7 +331,7 @@ async function play(identifier: string) {
                     manifest: manifestBase64,
                     licenseToken: licenseSecurityToken,
                     sessionId: TIDAL_SESSION_ID,
-                    token: TOKEN
+                    token: TIDAL_SESSION_TOKEN
                 });
 
                 // gather album and track data separately
@@ -279,7 +341,7 @@ async function play(identifier: string) {
                         method: 'GET',
                         headers: {
                             "Accept": "application/json",
-                            "authorization": "Bearer " + TOKEN,
+                            "authorization": "Bearer " + TIDAL_SESSION_TOKEN,
                             "Host": "listen.tidal.com"
                         }
                     }
@@ -373,14 +435,12 @@ async function songFromID(identifier: string): Promise<SongDataShort> {
             identifier: identifier,
             source: "tidal",
             title: "Unknown title",
-            artist: "",
+            artistString: "",
             album: "",
             duration: 0,
         };
 
-        const TOKEN = getToken();
-
-        if (TOKEN == "") {
+        if (!TIDAL_LOGGED_IN) {
             res(sd);
             return;
         }
@@ -393,19 +453,30 @@ async function songFromID(identifier: string): Promise<SongDataShort> {
                 method: 'GET',
                 headers: {
                     "Accept": "application/json",
-                    "authorization": "Bearer " + TOKEN,
+                    "authorization": "Bearer " + TIDAL_SESSION_TOKEN,
                     "Host": "listen.tidal.com"
                 }
             }
         );
 
         response2.json().then((data2) => {
+            let artists: Array<ArtistDataShort> = [];
+            let artistString = "";
+            data2.artists.forEach((x) => {
+                artistString += x.name + ", ";
+                artists.push({
+                    name: x.name,
+                    identifier: "" + x.id,
+                    source: "tidal",
+                })
+            });
+
             sd.album = data2.album ? data2.album.title : "unknown";
-            sd.artist = data2.artist ? data2.artist.name : data2.artists[0].name;
             sd.duration = data2.duration;
             sd.title = data2.title;
             sd.albumId = data2.album ? "" + data2.id : undefined;
-            sd.artistId = data2.artist ? "" + data2.artist.id : "" + data2.artists[0].id;
+            sd.artistString = artistString.substring(0, artistString.length - 2);
+            sd.artists = artists;
 
             res(sd);
         }).catch((e) => {
@@ -417,8 +488,6 @@ async function songFromID(identifier: string): Promise<SongDataShort> {
 
 async function getPlaylistData(data: PlaylistDataShort): Promise<PlaylistData> {
     return new Promise<PlaylistData>(async (res) => {
-        const TOKEN = getToken();
-
         let pd: PlaylistData = {
             name: data.name,
             songs: [],
@@ -426,7 +495,7 @@ async function getPlaylistData(data: PlaylistDataShort): Promise<PlaylistData> {
             identifier: data.identifier
         };
 
-        if (TOKEN == "") {
+        if (!TIDAL_LOGGED_IN) {
             res(pd);
             return;
         }
@@ -445,7 +514,7 @@ async function getPlaylistData(data: PlaylistDataShort): Promise<PlaylistData> {
                         method: 'GET',
                         headers: {
                             "Accept": "application/json",
-                            "authorization": "Bearer " + TOKEN,
+                            "authorization": "Bearer " + TIDAL_SESSION_TOKEN,
                             "Host": "listen.tidal.com"
                         }
                     }
@@ -459,6 +528,17 @@ async function getPlaylistData(data: PlaylistDataShort): Promise<PlaylistData> {
                         let i = 0;
 
                         itemJson.items.forEach((song) => {
+                            let artists: Array<ArtistDataShort> = [];
+                            let artistString = "";
+                            song.item.artists.forEach((x) => {
+                                artistString += x.name + ", ";
+                                artists.push({
+                                    name: x.name,
+                                    identifier: "" + x.id,
+                                    source: "tidal",
+                                })
+                            });
+
                             pd.songs.push(
                                 {
                                     title: song.item.title,
@@ -467,8 +547,8 @@ async function getPlaylistData(data: PlaylistDataShort): Promise<PlaylistData> {
                                     duration: song.item.duration,
                                     album: song.item.album ? song.item.album.title : "unknown",
                                     albumId: song.item.album ? "" + song.item.album.id : undefined,
-                                    artist: song.item.artist ? song.item.artist.name : song.item.artists[0].name,
-                                    artistId: song.item.artist ? "" + song.item.artist.id : "" + song.item.artists[0].id,
+                                    artists: artists,
+                                    artistString: artistString.substring(0, artistString.length - 2),
                                     albumCoverUrl: song.item.album ? TIDAL_RESOURCES_URL + "images/" + song.item.album.cover.replaceAll('-', '/') + "/750x750.jpg" : undefined,
                                     playlist: "tidal_" + data.identifier,
                                     index: i,
@@ -500,9 +580,7 @@ async function getPlaylists(): Promise<Array<PlaylistDataShort>> {
     return new Promise<Array<PlaylistDataShort>>(async (res) => {
         let pd: Array<PlaylistDataShort> = [];
 
-        const TOKEN = getToken();
-
-        if (TOKEN == "") {
+        if (!TIDAL_LOGGED_IN) {
             res(pd);
             return;
         }
@@ -513,7 +591,7 @@ async function getPlaylists(): Promise<Array<PlaylistDataShort>> {
                 method: 'GET',
                 headers: {
                     "Accept": "application/json",
-                    "authorization": "Bearer " + TOKEN,
+                    "authorization": "Bearer " + TIDAL_SESSION_TOKEN,
                     "Host": "listen.tidal.com"
                 }
             }
@@ -556,9 +634,7 @@ async function getArtistData(identifier: string): Promise<ArtistData> {
             newAlbums: [],
         };
 
-        const TOKEN = getToken();
-
-        if (TOKEN == "") {
+        if (!TIDAL_LOGGED_IN) {
             res(result);
             return;
         }
@@ -572,7 +648,7 @@ async function getArtistData(identifier: string): Promise<ArtistData> {
                     method: 'GET',
                     headers: {
                         "Accept": "application/json",
-                        "authorization": "Bearer " + TOKEN,
+                        "authorization": "Bearer " + TIDAL_SESSION_TOKEN,
                         "Host": "listen.tidal.com"
                     }
                 }
@@ -698,16 +774,12 @@ async function getAlbumData(identifier: string): Promise<AlbumData> {
             source: "tidal",
         };
 
-        const TOKEN = getToken();
-
-        if (TOKEN == "") {
+        if (!TIDAL_LOGGED_IN) {
             res(result);
             return;
         }
 
         identifier = identifier.replaceAll(/[^A-Za-z-0-9 ]/g, '');
-
-        let artistId: string = "";
 
         const response =
             await fetch(
@@ -716,7 +788,7 @@ async function getAlbumData(identifier: string): Promise<AlbumData> {
                     method: 'GET',
                     headers: {
                         "Accept": "application/json",
-                        "authorization": "Bearer " + TOKEN,
+                        "authorization": "Bearer " + TIDAL_SESSION_TOKEN,
                         "Host": "listen.tidal.com"
                     }
                 }

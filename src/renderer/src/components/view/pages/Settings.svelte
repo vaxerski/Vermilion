@@ -35,6 +35,12 @@
             text={"Tidal Token"}
             secret={true}
         />
+        <InputBox
+            placeholder={"..."}
+            valueName={"tidalClientID"}
+            text={"Tidal Client ID"}
+            secret={true}
+        />
     </div>
 
     <p class="settings-section-text">MPRIS</p>

@@ -23,7 +23,13 @@ To get your token:
 - It should look like this: `Bearer XXXXX` where the `XXXXX` is a _very_ long string.
 - Copy that string (without the `Bearer` and the space)
 - Paste that string into the `Tidal Token` input box in the Vermilion settings tab.
-- You're done! Close the tidal web player (_do not_ log out!) and you can listen to music from Tidal in Vermilion.
+- Now, input `token` into the search box.
+- Refresh the page.
+- Grab a request that just has the file `token`.
+- Go to `request` tab.
+- Copy the `client_id` value.
+- Paste it into the Client ID setting.
+- You're done! Close the tidal web player (_do not_ log out!), restart Vermilion and you can listen to music from Tidal.
 
 
 

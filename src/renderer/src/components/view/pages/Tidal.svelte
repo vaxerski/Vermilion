@@ -78,7 +78,7 @@
                     duration={album.duration}
                     iconURL={album.coverUrl ? album.coverUrl : ""}
                     releaseYear={album.year ? album.year : ""}
-                    artist={album.artist}
+                    artist={album.artistString}
                 />
             {/each}
         </div>

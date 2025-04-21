@@ -176,13 +176,14 @@ async function login(): Promise<boolean> {
                     );
 
                 response.json().then((data) => {
-                    if (data.code != 200) {
-                        console.log("Tidal login failed, got code " + data.status + ": " + data.statusText);
+                    if (response.status != 200) {
+                        console.log("Tidal login failed, got code " + response.status + ": " + response.statusText);
                         res(false);
                         return;
                     }
 
                     if (!data.sessionId || !data.countryCode) {
+                        console.log("Tidal login failed, got a weird response");
                         res(false);
                         return;
                     }

@@ -31,7 +31,7 @@
     <div class="settings-options-box">
         <InputBox
             placeholder={"..."}
-            valueName={"tidalToken"}
+            valueName={"tidalRefreshToken"}
             text={"Tidal Token"}
             secret={true}
         />

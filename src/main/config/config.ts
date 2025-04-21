@@ -8,8 +8,9 @@ interface Config {
     mpdPort?: string;
 
     // Tidal
-    tidalToken?: string;
+    tidalRefreshToken?: string;
     tidalClientID?: string;
+    tidalToken?: string;
 
     // MPRIS
     mprisEnabled?: boolean;
@@ -25,8 +26,9 @@ interface Config {
 const defaultConfig: Config = {
     mpdAddress: "localhost",
     mpdPort: "6600",
-    tidalToken: "",
+    tidalRefreshToken: "",
     tidalClientID: "",
+    tidalToken: "",
     mprisEnabled: true,
     lbEnabled: true,
     lbToken: "",

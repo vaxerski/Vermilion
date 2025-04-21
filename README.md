@@ -24,9 +24,9 @@ Vermilion is a clean, minimal and simple music player for MPD and Tidal.
 ### Planned
 
 - Favorites
-- Playlists
 - arrpc integration
-- Possibly a youtube music integration
+- spotify integration (premium only, I don't need a cease and desist from spotify inc)
+- possibly a youtube music integration
 
 ## Integrations
 
@@ -59,12 +59,14 @@ Check the [docs](./docs/Tidal.md) for how to connect Vermilion to Tidal.
 
 - Playback
 - Volume
-- Searching for songs
+- Playlists (read-only)
+- Searching for songs / albums / artists
+- Browsing artist / album pages
 
 #### Planned
 
-- Searching for albums / artists
-- Browsing artist / album pages
+- Adding / editing playlists
+- Viewing / adding / removing favorites
 
 ## Building
 

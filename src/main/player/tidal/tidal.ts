@@ -176,25 +176,20 @@ async function performSearch(searchFor: string): Promise<SearchResults> {
     );
 }
 
-async function refreshToken(): Promise<string> {
-    return new Promise<string>(
+async function refreshToken(): Promise<boolean> {
+    return new Promise<boolean>(
         async (res) => {
-            if (config.getConfigValue("tidalClientID") == "" || config.getConfigValue("tidalToken") == "") {
-                res("");
+            if (config.getConfigValue("tidalClientID") == "" || config.getConfigValue("tidalRefreshToken") == "") {
+                res(false);
                 return;
             }
 
             let CID = config.getConfigValue("tidalClientID");
-            let TK = config.getConfigValue("tidalToken");
+            let TK = config.getConfigValue("tidalRefreshToken");
 
             CID = CID.replaceAll(/[^A-Za-z-0-9 \-\+\=\/\.\_]/g, '');
             TK = TK.replaceAll(/[^A-Za-z-0-9 \-\+\=\/\.\_]/g, '');
 
-            const body = new FormData();
-            body.set("client_id", CID);
-            body.set("grant_type", "refresh_token");
-            body.set("refresh_token", TK);
-            body.set("scope", "r_usr+w_usr");
             const response =
                 await fetch(
                     TIDAL_AUTH_URL + TIDAL_AUTH_TOKEN_API_ENDPOINT,
@@ -205,16 +200,14 @@ async function refreshToken(): Promise<string> {
                             "Host": "auth.tidal.com",
                             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
                         },
-                        body: body,
+                        body: "client_id=" + CID + "&grant_type=refresh_token&refresh_token=" + TK + "&scope=r_usr+w_usr",
                     }
                 );
 
             response.json().then((data) => {
                 if (response.status != 200) {
-                    console.log("Tidal: refresh token possibly failed: " + response.status + ": " + response.statusText);
-                    console.log("Tidal: this either means the token + CID is invalid, or that the token is still valid");
-                    TIDAL_SESSION_TOKEN = TK;
-                    res(TK);
+                    console.log("Tidal: refresh token failed: " + response.status + ": " + response.statusText);
+                    res(false);
                     return;
                 }
 
@@ -222,15 +215,15 @@ async function refreshToken(): Promise<string> {
                     console.log("Tidal: got explicit new token from oauth endpoint, updating config");
                     config.setConfigValue("tidalToken", data.access_token);
                     TIDAL_SESSION_TOKEN = data.access_token;
-                    res(TIDAL_SESSION_TOKEN);
+                    res(true);
                     return;
                 }
 
                 // FIXME: these tokens are valid for 24h. If we have the player open for more, it will expire.
 
-                console.log("Tidal: Got an empty response from oauth2, our token is likely valid.");
-                TIDAL_SESSION_TOKEN = TK;
-                res(TK);
+                console.log("Tidal: Got an empty response from oauth2. Likely auth'd already.");
+                TIDAL_SESSION_TOKEN = data.config.getConfigValue("tidalToken");
+                res(true);
                 return;
             });
         }
@@ -240,8 +233,8 @@ async function refreshToken(): Promise<string> {
 async function login(): Promise<boolean> {
     return new Promise<boolean>(
         async (res) => {
-            const TK = await refreshToken();
-            if (TK == "") {
+            const SUCCESS = await refreshToken();
+            if (!SUCCESS) {
                 console.log("Tidal: Can't log in, refreshing token failed");
                 return;
             }

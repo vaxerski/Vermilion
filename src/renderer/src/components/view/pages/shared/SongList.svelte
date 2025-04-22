@@ -1,5 +1,6 @@
 <script lang="ts">
     import SongEntry from "./SongEntry.svelte";
+    import SongEntryBreaker from "./songEntry/SongEntryBreaker.svelte";
 
     let {
         songs /* Array<SongDataShort> */ = [],
@@ -7,17 +8,16 @@
         placeholder = "Such empty...",
         queue = false,
         propagateSongs = false,
+        queueBreaker = -1,
     } = $props();
 
     if (playlist != null) {
-        window.electron.ipcRenderer.send("getPlaylistData", {...playlist});
+        window.electron.ipcRenderer.send("getPlaylistData", { ...playlist });
 
         propagateSongs = true;
 
         window.electronAPI.playlistData((res) => {
-
-            if (res.name != playlist.name)
-                return;
+            if (res.name != playlist.name) return;
 
             songs = res.songs;
         });
@@ -34,6 +34,9 @@
     </div>
     <hr class="song-list-top-hr" />
     {#each songs as song, i}
+        {#if queueBreaker != -1 && queueBreaker == i}
+            <SongEntryBreaker text="More from the playlist..." />
+        {/if}
         <SongEntry
             title={song.title}
             artistString={song.artistString}

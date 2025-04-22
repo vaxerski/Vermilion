@@ -130,7 +130,7 @@ app.whenReady().then(async () => {
         // if we are playing a song from a playlist, album, or whatever, override the queue with the playlist sliced from the current song
         queue.replaceWith(data.songs.slice(data.index));
         queue.setCurrentIdx(0);
-        mainWindow.webContents.send('updateQueue', queue.getData());
+        queue.setPlaylistBreaker(1);
       } else {
         // otherwise just make the song the current queue
         player.songFromID(data.identifier, data.source).then((song: SongDataShort) => {

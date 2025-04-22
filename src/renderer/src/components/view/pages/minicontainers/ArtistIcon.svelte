@@ -54,7 +54,7 @@
     }
 
     .artist-icon-name {
-        font-family: var(--vm-panel-font-regular); /* TODO: change */
+        font-family: var(--vm-panel-font-regular);
         font-size: 0.9rem;
         color: var(--vm-panel-font-base);
         width: 90%;

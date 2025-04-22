@@ -6,6 +6,7 @@
     import PageSection from "../shared/PageSection.svelte";
     import AlbumIcon from "../minicontainers/AlbumIcon.svelte";
     import PageImageTitle from "./PageImageTitle.svelte";
+    import BigLink from "../minicontainers/BigLink.svelte";
 
     let { identifier, source } = $props();
 
@@ -46,6 +47,14 @@
         : "Artist"}
     infotext="Vermilion is not associated with Tidal or Tidal Music AS."
 />
+
+<div class="artist-page-top-links">
+    <BigLink
+        text={"See on Tidal"}
+        icon={"fa-link"}
+        link={"https://tidal.com/browse/artist/" + identifier}
+    />
+</div>
 
 <PageSection text={"Popular tracks"} />
 
@@ -109,5 +118,14 @@
     .artist-page-related-results-container:hover::-webkit-scrollbar-thumb,
     .artist-page-related-results-container:hover::-webkit-scrollbar-thumb:horizontal {
         background-color: #555555;
+    }
+
+    .artist-page-top-links {
+        display: block;
+        position: absolute;
+        width: auto;
+        height: auto;
+        margin-top: 4rem;
+        margin-left: 14rem;
     }
 </style>

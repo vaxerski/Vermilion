@@ -1,6 +1,6 @@
 <script lang="ts">
     function openRepo() {
-        window.electron.ipcRenderer.send("openRepo");
+        window.electron.ipcRenderer.send("openLink", "https://github.com/vaxerski/vermilion");
     }
 </script>
 

@@ -253,8 +253,8 @@ app.whenReady().then(async () => {
     mainWindow.webContents.send('pageChanged', data);
   });
 
-  ipcMain.on('openRepo', (ev) => {
-    shell.openExternal('https://github.com/vaxerski/vermilion');
+  ipcMain.on('openLink', (ev, data) => {
+    shell.openExternal(data);
   });
 
   ipcMain.on('setSetting', (ev, data) => {

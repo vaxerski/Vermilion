@@ -4,6 +4,7 @@
 
     import type { AlbumData } from "../../../../../../main/types/albumData";
     import PageImageTitle from "./PageImageTitle.svelte";
+    import BigLink from "../minicontainers/BigLink.svelte";
 
     let { identifier, source } = $props();
 
@@ -12,7 +13,7 @@
         source: source,
         identifier: "",
         artist: "Fetching from Tidal...",
-        songs: []
+        songs: [],
     });
 
     window.electronAPI.albumData((msg /* AlbumData */) => {
@@ -33,36 +34,55 @@
     updateAlbumData();
 </script>
 
-<PageImageTitle
-    imageURL={currentAlbumData.coverVideoUrl ? currentAlbumData.coverVideoUrl : (currentAlbumData.coverUrl ? currentAlbumData.coverUrl :"")}
-    imageIsVideo={!!currentAlbumData.coverVideoUrl}
-    imageBig={true}
-    text={currentAlbumData.name}
-    subtext={currentAlbumData.artist}
-    year={currentAlbumData.year ? currentAlbumData.year : ""}
-    infotext="Vermilion is not associated with Tidal or Tidal Music AS."
+    <PageImageTitle
+        imageURL={currentAlbumData.coverVideoUrl
+            ? currentAlbumData.coverVideoUrl
+            : currentAlbumData.coverUrl
+              ? currentAlbumData.coverUrl
+              : ""}
+        imageIsVideo={!!currentAlbumData.coverVideoUrl}
+        imageBig={true}
+        text={currentAlbumData.name}
+        subtext={currentAlbumData.artist}
+        year={currentAlbumData.year ? currentAlbumData.year : ""}
+        infotext="Vermilion is not associated with Tidal or Tidal Music AS."
+    />
+
+    <div class="album-page-top-links">
+        <BigLink
+            text={"See on Tidal"}
+            icon={"fa-link"}
+            link={"https://tidal.com/browse/album/" + identifier}
+        />
+    </div>
+
+<SongList
+    songs={currentAlbumData.songs}
+    placeholder="Loading..."
+    propagateSongs={true}
 />
 
-<SongList songs={currentAlbumData.songs} placeholder="Loading..." propagateSongs={true} />
-
 <div class="album-page-bottom-data">
-{#if currentAlbumData.year || currentAlbumData.date}
-    <p class="album-page-bottom-text">
-        {currentAlbumData.date ? currentAlbumData.date : currentAlbumData.year}
-    </p>
-{/if}
-{#if currentAlbumData.copyright }
-    <p class="album-page-bottom-text">
-        {currentAlbumData.copyright}
-    </p>
-{/if}</div>
+    {#if currentAlbumData.year || currentAlbumData.date}
+        <p class="album-page-bottom-text">
+            {currentAlbumData.date
+                ? currentAlbumData.date
+                : currentAlbumData.year}
+        </p>
+    {/if}
+    {#if currentAlbumData.copyright}
+        <p class="album-page-bottom-text">
+            {currentAlbumData.copyright}
+        </p>
+    {/if}
+</div>
 
 <style>
     .album-page-bottom-data {
         display: flex;
         position: relative;
         width: 100%;
-        flex-direction: column
+        flex-direction: column;
     }
 
     .album-page-bottom-text {
@@ -75,7 +95,14 @@
         opacity: 0.5;
         margin: -0.1rem 0;
         font-style: italic;
+    }
 
+    .album-page-top-links {
+        display: block;
+        position: absolute;
+        width: auto;
+        height: auto;
+        margin-top: 4rem;
+        margin-left: 21rem;
     }
 </style>
-

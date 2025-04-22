@@ -126,7 +126,9 @@
         volumeing = true;
 
         const VOLUMECONTAINER = document.getElementById("volume-container");
+        const VOLUMEBG = document.getElementById("volume-background");
         let BB = VOLUMECONTAINER.getBoundingClientRect();
+        let BB2 = VOLUMEBG.getBoundingClientRect();
 
         if (
             lastMouseX > BB.x + BB.width ||
@@ -137,7 +139,7 @@
             return;
 
         volume = Math.min(
-            Math.max((1 - (lastMouseY - BB.y) / BB.height) * 100, 0),
+            Math.max((1 - (lastMouseY - BB2.y) / BB2.height) * 100, 0),
             100,
         );
 
@@ -149,7 +151,9 @@
         if (!volumeing) return;
 
         const VOLUMECONTAINER = document.getElementById("volume-container");
+        const VOLUMEBG = document.getElementById("volume-background");
         let BB = VOLUMECONTAINER.getBoundingClientRect();
+        let BB2 = VOLUMEBG.getBoundingClientRect();
 
         if (
             e.clientX > BB.x + BB.width ||
@@ -160,7 +164,7 @@
             return;
 
         volume = Math.min(
-            Math.max((1 - (e.clientY - BB.y) / BB.height) * 100, 0),
+            Math.max((1 - (e.clientY - BB2.y) / BB2.height) * 100, 0),
             100,
         );
 
@@ -233,6 +237,7 @@
                 <div class="miniplayer-volume-bar-container-inner-2">
                     <div
                         class="miniplayer-volume-bar miniplayer-volume-bar-background"
+                        id="volume-background"
                     ></div>
                     <div
                         class="miniplayer-volume-bar miniplayer-volume-bar-foreground"

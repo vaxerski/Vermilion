@@ -9,8 +9,7 @@
         Pre-Alpha 0.1
     </p>
     <p class="news-text">
-        <span class="vermilion-grad">Vermilion</span> is still in pre-alpha stages.<br/>I am constantly working on fixing issues and adding new stuff, don't worry. :)<br/><br/>
-        I also need a logo for this thing, eh?
+        <span class="vermilion-grad">Vermilion</span> is still in pre-alpha stages.<br/>I am constantly working on fixing issues and adding new stuff, don't worry. :)
     </p>
 </div>
 

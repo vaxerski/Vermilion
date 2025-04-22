@@ -18,6 +18,9 @@ function updateSongInfo(song: SongInfo) {
 
     listenbrainzThrottle = 0;
 
+    if (!song.playing)
+        return;
+
     const TOKEN = config.getConfigValue("lbToken");
 
     if (TOKEN == "")

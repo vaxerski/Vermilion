@@ -23,6 +23,7 @@
                     : "border-radius: 2rem;"}
                 autoplay
                 muted
+                loop
             />
         {:else}
             <img

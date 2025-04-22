@@ -20,6 +20,10 @@ function add(songs: Array<SongDataShort>): void {
     songs.forEach((e) => { queueContents.push(e); });
 }
 
+function addNext(song: SongDataShort): void {
+    queueContents.splice(queueCurrentPlaying + 1, 0, song);
+}
+
 function getCurrentIdx(): number {
     return queueCurrentPlaying;
 }
@@ -28,7 +32,7 @@ function setCurrentIdx(idx: number) {
     queueCurrentPlaying = idx;
 }
 
-function removeIndex(idx: number ) {
+function removeIndex(idx: number) {
     queueContents.splice(idx, 1);
 }
 
@@ -48,6 +52,7 @@ export default {
     getAt,
     replaceWith,
     add,
+    addNext,
     getCurrentIdx,
     setCurrentIdx,
     getData,

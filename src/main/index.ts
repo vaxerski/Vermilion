@@ -160,7 +160,15 @@ app.whenReady().then(async () => {
             mainWindow.webContents.send('updateCurrentSong', msg);
           });
         });
+        queue.setCurrentIdx(queue.length() - 1);
       }
+    });
+  });
+
+  ipcMain.on('addToQueueAsNext', (ev, data) => {
+    player.songFromID(data.identifier, data.source).then((song: SongDataShort) => {
+      queue.addNext(song);
+      mainWindow.webContents.send('updateQueue', queue.getData());
     });
   });
 
@@ -279,7 +287,7 @@ app.whenReady().then(async () => {
     else
       mainWindow.webContents.send('newNotification', { color: "#b3000033", text: "Couldn't log into Tidal" });
 
-      player.updatePlaylists();
+    player.updatePlaylists();
   })
 
   createWindow();

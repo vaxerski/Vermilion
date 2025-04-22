@@ -56,7 +56,9 @@
 
     window.electronAPI.updateCurrentSong((res) => {
         currentlyPlaying =
-            title == res.title && album == res.album && identifier == res.identifier;
+            title == res.title &&
+            album == res.album &&
+            identifier == res.identifier;
         currentStatePlaying = res.playing;
     });
 
@@ -89,6 +91,20 @@
             duration: duration,
         };
         window.electron.ipcRenderer.send("addToQueue", songInfo);
+        closeMenu();
+    }
+
+    function addAsNext() {
+        const songInfo: SongDataShort = {
+            title: title,
+            artistString: artistString,
+            artists: artistList,
+            album: album,
+            identifier: identifier,
+            source: source,
+            duration: duration,
+        };
+        window.electron.ipcRenderer.send("addToQueueAsNext", songInfo);
         closeMenu();
     }
 
@@ -142,8 +158,8 @@
     >
         {title}
     </p>
-    
-        {#if artistList.length != 0}
+
+    {#if artistList.length != 0}
         <div class="song-entry-artist-multi-box">
             {#each artistList as artist, i}
                 <ArtistEntry
@@ -155,12 +171,12 @@
                 {/if}
             {/each}
         </div>
-        {:else}
+    {:else}
         <p class="song-entry-text song-entry-artist">
             {artistString}
         </p>
-        {/if}
-    
+    {/if}
+
     <p
         class="song-entry-text song-entry-album {albumId != ''
             ? 'song-entry-clickable'
@@ -184,6 +200,7 @@
             closeCallback={closeMenu}
             opacity={contextMenuOpacity}
             removeFromQueueCallback={removeFromQueue}
+            addAsNextCallback={addAsNext}
             {queue}
         />
     {/if}

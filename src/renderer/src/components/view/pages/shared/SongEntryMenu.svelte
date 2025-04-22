@@ -2,6 +2,7 @@
     let {
         closeCallback,
         addToQueueCallback,
+        addAsNextCallback,
         removeFromQueueCallback,
         opacity = 0,
         left = true,
@@ -56,6 +57,10 @@
         <div class="song-context-menu-option" on:click={addToQueueCallback}>
             <i class="song-context-menu-icon fa-solid fa-plus"></i>
             <p class="song-context-menu-text">Add to queue</p>
+        </div>
+        <div class="song-context-menu-option" on:click={addAsNextCallback}>
+            <i class="song-context-menu-icon fa-solid fa-plus"></i>
+            <p class="song-context-menu-text">Add as next</p>
         </div>
         <div class="song-context-menu-option">
             <i class="song-context-menu-icon fa-solid fa-music"></i>

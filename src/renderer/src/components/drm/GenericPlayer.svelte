@@ -6,7 +6,6 @@
 
     window.electronAPI.genericPlayerPlayEvent((res) => {
         const VIDEO = document.getElementById("yt-video-source");
-        console.log(res);
 
         if (res.volume) VIDEO.volume = res.volume;
         if (res.seek) VIDEO.currentTime = res.seek;

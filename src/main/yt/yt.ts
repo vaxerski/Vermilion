@@ -1,4 +1,4 @@
-import YTMusic from "ytmusic-api";
+import YTMusic, { SongDetailed } from "ytmusic-api";
 import { SearchResults } from "../types/searchResults";
 import { createWriteStream } from "fs";
 import { mainWindow } from "..";
@@ -28,6 +28,27 @@ let playbackData: SongInfo = {
 };
 
 let idToAlbumMap: Map<string, AlbumDataShort> = new Map();
+let idToShortDataMap: Map<string, SongDataShort> = new Map();
+
+function toSongDataShort(s: SongDetailed): SongDataShort {
+    return {
+        identifier: s.videoId,
+        source: "yt",
+        title: s.name,
+        artists: [
+            {
+                name: s.artist.name,
+                identifier: s.artist.artistId,
+                source: "yt",
+            }
+        ],
+        artistString: s.artist.name,
+        album: s.album.name,
+        albumId: s.album.albumId,
+        duration: s.duration,
+        albumCoverUrl: s.thumbnails.length == 0 ? undefined : s.thumbnails[s.thumbnails.length - 1].url,
+    };
+}
 
 async function performSearch(query: string): Promise<SearchResults> {
     return new Promise<SearchResults>(
@@ -46,22 +67,12 @@ async function performSearch(query: string): Promise<SearchResults> {
             console.log("yt: got " + YT_SONGS.length + " songs");
 
             YT_SONGS.forEach((s) => {
-                result.songs.push({
-                    identifier: s.videoId,
-                    source: "yt",
-                    title: s.name,
-                    artists: [
-                        {
-                            name: s.artist.name,
-                            identifier: s.artist.artistId,
-                            source: "yt",
-                        }
-                    ],
-                    artistString: s.artist.name,
-                    album: s.album.name,
-                    albumId: s.album.albumId,
-                    duration: s.duration,
-                });
+                const SHORT_DATA = toSongDataShort(s);
+
+                result.songs.push(SHORT_DATA);
+
+                if (!idToShortDataMap.has(s.videoId))
+                    idToShortDataMap.set(s.videoId, SHORT_DATA);
 
                 if (!idToAlbumMap.has(s.videoId)) {
                     idToAlbumMap.set(s.videoId, {
@@ -174,10 +185,9 @@ async function play(identifier: string) {
                 playbackData.artist = data.artistString;
                 playbackData.albumCover = data.albumCoverUrl;
                 playbackData.totalSeconds = data.duration;
+                playbackData.albumCoverUpdated = true;
             }
         });
-
-
 
         res(true);
     });
@@ -251,7 +261,6 @@ async function songFromID(identifier: string): Promise<SongDataShort> {
         identifier = identifier.replaceAll(/[^A-Za-z-0-9\-\_ ]/g, '');
 
         ytmusic.getSong(identifier).then((s) => {
-
             const HAS_ALBUM = idToAlbumMap.has(identifier);
 
             sd = {
@@ -272,10 +281,41 @@ async function songFromID(identifier: string): Promise<SongDataShort> {
                 duration: s.duration,
             };
             res(sd);
-        }).catch((e) => {
-            console.log("yt: song " + identifier + " errd");
-            console.log(e);
-            res(sd);
+        }).catch(async (e) => {
+            console.log("yt: song " + identifier + " errd, likely blocked. Checking cache, then trying a search.");
+            if (idToShortDataMap.has(identifier)) {
+                console.log("yt: song is in cache, returning that");
+                res(idToShortDataMap.get(identifier));
+                return;
+            }
+
+            console.log("yt: song is not cached, searching");
+
+            const YT_SONGS = await ytmusic.searchSongs(identifier);
+
+            if (YT_SONGS.length == 0) {
+                console.log("yt: search didn't yield anything :(");
+                res(sd);
+                return;
+            }
+
+            let found: boolean = false;
+            YT_SONGS.forEach((s) => {
+                if (s.videoId != identifier || found)
+                    return;
+
+                found = true;
+                console.log("yt: search found the id");
+
+                const SHORT_DATA = toSongDataShort(s);
+                res(SHORT_DATA);
+            });
+
+            if (!found) {
+                console.log("yt: nothing worked. :(");
+                console.log(e);
+                res(sd);
+            }
         });
     });
 }

@@ -4,7 +4,6 @@
     import Search from "./shared/Search.svelte";
     import ArtistIcon from "./minicontainers/ArtistIcon.svelte";
     import { type SearchResults } from "../../../../../main/types/searchResults";
-    import TidalDrm from "../../drm/TidalDRM.svelte";
     import { currentPage } from "../../state/sharedState.svelte";
     import ArtistPage from "./tidal/ArtistPage.svelte";
     import PageSection from "./shared/PageSection.svelte";
@@ -88,8 +87,6 @@
 
     <SongList songs={searchResults.songs} placeholder="Search something..." />
 {/if}
-
-<TidalDrm />
 
 <style>
     .artist-results-container {

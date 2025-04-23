@@ -43,6 +43,18 @@
         />
     </div>
 
+    <p class="settings-section-text">YT Music</p>
+
+    <hr class="settings-section-hr"/>
+
+    <div class="settings-options-box">
+        <InputBox
+            placeholder={""}
+            valueName={"ytCookieSource"}
+            text={"Cookie source (if getting blocked, browser name)"}
+        />
+    </div>
+
     <p class="settings-section-text">MPRIS</p>
 
     <hr class="settings-section-hr"/>

@@ -62,6 +62,12 @@
         href="/tidal"
         active={currentPage.page.indexOf('/tidal') == 0 ? true : false}
     />
+    <Button
+        icon="fa-brands fa-youtube"
+        text="YT Music"
+        href="/yt"
+        active={currentPage.page.indexOf('/yt') == 0 ? true : false}
+    />
     <Divider />
     <SectionText text="Other" />
     <Button

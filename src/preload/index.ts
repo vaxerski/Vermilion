@@ -21,6 +21,9 @@ if (process.contextIsolated) {
       updateTidalSearch: (callback) => ipcRenderer.on('updateTidalSearch',
         (_event, value) => callback(value)
       ),
+      updateYtSearch: (callback) => ipcRenderer.on('updateYtSearch',
+        (_event, value) => callback(value)
+      ),
       updateQueue: (callback) => ipcRenderer.on('updateQueue',
         (_event, value) => callback(value)
       ),
@@ -50,7 +53,13 @@ if (process.contextIsolated) {
       ),
       albumData: (callback) => ipcRenderer.on('albumData',
         (_event, value) => callback(value)
-      )
+      ),
+      playGeneric: (callback) => ipcRenderer.on('playGeneric',
+        (_event, value) => callback(value)
+      ),
+      genericPlayerPlayEvent: (callback) => ipcRenderer.on('genericPlayerPlayEvent',
+        (_event, value) => callback(value)
+      ),
     })
   } catch (error) {
     console.error(error)

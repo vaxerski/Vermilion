@@ -4,6 +4,8 @@
   import Miniplayer from "./components/miniplayer/Miniplayer.svelte";
   import Background from "./components/Background.svelte";
     import Notification from "./components/notification/Notification.svelte";
+    import GenericPlayer from "./components/drm/GenericPlayer.svelte";
+    import TidalDrm from "./components/drm/TidalDRM.svelte";
 </script>
 
 <Background />
@@ -11,3 +13,6 @@
 <View />
 <Miniplayer />
 <Notification />
+
+<GenericPlayer/>
+<TidalDrm />

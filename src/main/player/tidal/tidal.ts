@@ -43,7 +43,7 @@ let playbackData: SongInfo = {
     albumCover: "",
     albumCoverUpdated: false,
     identifier: "",
-    source: "mpd",
+    source: "tidal",
     volume: -1,
 };
 

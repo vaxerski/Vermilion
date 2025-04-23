@@ -7,6 +7,7 @@ import { mainWindow } from "..";
 import tidal from "./tidal/tidal";
 import config from "../config/config";
 import { PlaylistData, PlaylistDataShort } from "../types/playlistDataShort";
+import yt from "../yt/yt";
 
 let lastSongChange: number = Date.now();
 let playlistList: Array<PlaylistDataShort> = [];
@@ -40,6 +41,8 @@ function getCurrentSong(): Promise<SongInfo> {
                     promise = mpd.getPlayState();
                 else if (playerState.playSource == 'tidal')
                     promise = tidal.getPlayState()
+                else if (playerState.playSource == 'yt')
+                    promise = yt.getPlayState()
                 else {
                     rej();
                     return;
@@ -73,6 +76,8 @@ async function pausePlay(play: boolean): Promise<boolean> {
                 mpd.pausePlay(play).then((e) => { res(e) });
             else if (playerState.playSource == "tidal")
                 tidal.pausePlay(play).then((e) => { res(e) }).catch((e) => { res(false); });
+            else if (playerState.playSource == "yt")
+                yt.pausePlay(play).then((e) => { res(e) }).catch((e) => { res(false); });
 
             res(false);
         }
@@ -129,6 +134,8 @@ async function playSong(identifier: string, source: string): Promise<boolean> {
                 mpd.play(identifier).then((e) => { res(e) });
             else if (source == "tidal")
                 tidal.play(identifier).then((e) => { res(e) }).catch((e) => { res(false); });
+            else if (source == "yt")
+                yt.play(identifier).then((e) => { res(e) }).catch((e) => { res(false); });
 
             res(false);
         }
@@ -142,7 +149,8 @@ async function songFromID(identifier: string, source: string): Promise<SongDataS
                 identifier: identifier,
                 source: source,
                 title: "Unknown title",
-                artist: "",
+                artistString: "",
+                artists: [],
                 album: "",
                 duration: 0,
             };
@@ -151,6 +159,8 @@ async function songFromID(identifier: string, source: string): Promise<SongDataS
                 mpd.songFromID(identifier).then((e) => { res(e) });
             else if (source == "tidal")
                 tidal.songFromID(identifier).then((e) => { res(e) }).catch((e) => { res(data); });
+            else if (source == "yt")
+                yt.songFromID(identifier).then((e) => { res(e) }).catch((e) => { res(data); });
             else
                 res(data);
         }
@@ -164,6 +174,8 @@ async function seekCurrentSong(seconds: number): Promise<boolean> {
                 mpd.seek(seconds).then((e) => { res(e) });
             else if (playerState.playSource == "tidal")
                 tidal.seek(seconds).then((e) => { res(e) }).catch((e) => { res(false); });
+            else if (playerState.playSource == "yt")
+                yt.seek(seconds).then((e) => { res(e) }).catch((e) => { res(false); });
 
             res(false);
         }
@@ -177,8 +189,10 @@ async function setVolume(vol: number): Promise<boolean> {
                 mpd.setVolume(vol).then((e) => { res(e) });
             else if (playerState.playSource == "tidal")
                 tidal.setVolume(vol).then((e) => { res(e) }).catch((e) => { res(false); });
+            else if (playerState.playSource == "yt")
+                yt.setVolume(vol).then((e) => { res(e) }).catch((e) => { res(false); });
             else
-                res({});
+                res(false);
         }
     );
 }

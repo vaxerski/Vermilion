@@ -12,6 +12,9 @@ interface Config {
     tidalClientID?: string;
     tidalToken?: string;
 
+    // YT
+    ytCookieSource?: string;
+
     // MPRIS
     mprisEnabled?: boolean;
 
@@ -29,6 +32,7 @@ const defaultConfig: Config = {
     tidalRefreshToken: "",
     tidalClientID: "",
     tidalToken: "",
+    ytCookieSource: "",
     mprisEnabled: true,
     lbEnabled: true,
     lbToken: "",

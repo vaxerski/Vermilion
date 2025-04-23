@@ -11,6 +11,7 @@ import tidal from './player/tidal/tidal'
 import externalServices from './player/externalServices'
 import { PlaylistData } from './types/playlistData'
 import { PlaylistDataShort } from './types/playlistDataShort'
+import yt from './yt/yt'
 
 export var mainWindow: BrowserWindow;
 
@@ -216,8 +217,20 @@ app.whenReady().then(async () => {
     })
   });
 
+  ipcMain.on('ytGetSongs', (ev, data) => {
+    yt.performSearch(data).then((res) => {
+      mainWindow.webContents.send('updateYtSearch', res);
+    }).catch((e) => {
+      mainWindow.webContents.send('newNotification', { color: "#b3000033", text: "YT Music query failed: " + e + "." });
+    })
+  });
+
   ipcMain.on('tidalElapsed', (ev, data) => {
     tidal.elapsed(data);
+  });
+
+  ipcMain.on('genericPlayerElapsed', (ev, data) => {
+    yt.elapsed(data);
   });
 
   ipcMain.on('setVolume', (ev, data) => {
@@ -314,7 +327,8 @@ app.whenReady().then(async () => {
         identifier: msg.identifier,
         source: msg.source,
         title: msg.title,
-        artist: msg.artist,
+        artists: [],
+        artistString: msg.artist,
         album: msg.album,
         duration: msg.totalSeconds
       }

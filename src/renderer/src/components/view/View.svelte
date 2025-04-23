@@ -8,6 +8,7 @@
     import Settings from "./pages/Settings.svelte";
     import Tidal from "./pages/Tidal.svelte";
     import Playlists from "./pages/Playlists.svelte";
+    import Yt from "./pages/Yt.svelte";
 </script>
 
 <div
@@ -79,6 +80,19 @@
         : 'hidden'}; "
 >
     <Tidal />
+</div>
+
+<div
+    class="view-container"
+    style="opacity: {currentPage.page.indexOf('/yt') == 0 &&
+    !playerData.fullscreen
+        ? 1
+        : 0}; visibility: {currentPage.page.indexOf('/yt') == 0 &&
+    !playerData.fullscreen
+        ? 'visible'
+        : 'hidden'}; "
+>
+    <Yt />
 </div>
 
 <div

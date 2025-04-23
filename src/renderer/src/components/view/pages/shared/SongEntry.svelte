@@ -82,13 +82,13 @@
 
     function addToQueue() {
         const songInfo: SongDataShort = {
-            title: title,
-            artistString: artistString,
-            artists: artistList,
-            album: album,
-            identifier: identifier,
-            source: source,
-            duration: duration,
+            title: $state.snapshot(title),
+            artistString: $state.snapshot(artistString),
+            artists: $state.snapshot(artistList),
+            album: $state.snapshot(album),
+            identifier: $state.snapshot(identifier),
+            source: $state.snapshot(source),
+            duration: $state.snapshot(duration),
         };
         window.electron.ipcRenderer.send("addToQueue", songInfo);
         closeMenu();
@@ -96,13 +96,13 @@
 
     function addAsNext() {
         const songInfo: SongDataShort = {
-            title: title,
-            artistString: artistString,
-            artists: artistList,
-            album: album,
-            identifier: identifier,
-            source: source,
-            duration: duration,
+            title: $state.snapshot(title),
+            artistString: $state.snapshot(artistString),
+            artists: $state.snapshot(artistList),
+            album: $state.snapshot(album),
+            identifier: $state.snapshot(identifier),
+            source: $state.snapshot(source),
+            duration: $state.snapshot(duration),
         };
         window.electron.ipcRenderer.send("addToQueueAsNext", songInfo);
         closeMenu();
@@ -110,15 +110,15 @@
 
     function removeFromQueue() {
         const songInfo: SongDataShort = {
-            title: title,
-            artistString: artistString,
-            artists: artistList,
-            album: album,
-            identifier: identifier,
-            source: source,
-            duration: duration,
+            title: $state.snapshot(title),
+            artistString: $state.snapshot(artistString),
+            artists: $state.snapshot(artistList),
+            album: $state.snapshot(album),
+            identifier: $state.snapshot(identifier),
+            source: $state.snapshot(source),
+            duration: $state.snapshot(duration),
             index:
-                index -
+                $state.snapshot(index) -
                 1 /* index for queue is 0 based, while here it's 1 based for the user. */,
         };
         window.electron.ipcRenderer.send("removeFromQueue", songInfo);

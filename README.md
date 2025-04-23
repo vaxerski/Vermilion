@@ -2,7 +2,7 @@
 
 ## Vermilion
 
-Vermilion is a clean, minimal and simple music player for MPD and Tidal.
+Vermilion is a clean, minimal and simple music player for MPD, Tidal and YT Music.
 
 > [!NOTE]
 > Please note Vermilion is in very early stages of development.

@@ -59,7 +59,7 @@ async function listSongs(searchFor: string): Promise<Array<SongDataShort>> {
                         identifier: result[i].file,
                         source: "mpd",
                         title: result[i].title,
-                        artist: result[i].artist == "" ? result[i].album_artist : result[i].artist,
+                        artistString: result[i].artist == "" ? result[i].album_artist : result[i].artist,
                         album: result[i].album,
                         duration: result[i].duration
                     }
@@ -243,7 +243,7 @@ async function songFromID(identifier: string): Promise<SongDataShort> {
             let sd: SongDataShort = {
                 identifier: "",
                 source: "mpd",
-                artist: "",
+                artistString: "",
                 title: "",
                 album: "",
                 duration: 0
@@ -266,7 +266,7 @@ async function songFromID(identifier: string): Promise<SongDataShort> {
                     {
                         identifier: result[i].file,
                         source: "mpd",
-                        artist: result[i].artist == "" ? result[i].album_artist : result[i].artist,
+                        artistString: result[i].artist == "" ? result[i].album_artist : result[i].artist,
                         album: result[i].album,
                         title: result[i].title,
                         duration: result[i].duration

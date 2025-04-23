@@ -1,7 +1,24 @@
 <script>
+    import Button from "./settings/Button.svelte";
     import Checkbox from "./settings/Checkbox.svelte";
     import InputBox from "./settings/InputBox.svelte";
     import PageTitle from "./shared/PageTitle.svelte";
+
+    let loggedIn = $state(false);
+
+    window.electronAPI.sendSetting((res) => {
+        if (res.setting != "tidalRefreshToken") return;
+
+        loggedIn = res.value != "";
+    });
+
+    function tidalLogin() {
+        if (loggedIn) return;
+        console.log("Logging into tidal...");
+        window.electron.ipcRenderer.send("loginTidal");
+    }
+
+    window.electron.ipcRenderer.send("getSetting", "tidalRefreshToken");
 </script>
 
 <PageTitle text="Settings" subtext="Just what you need" />
@@ -9,7 +26,7 @@
 <div class="settings-content">
     <p class="settings-section-text">MPD</p>
 
-    <hr class="settings-section-hr"/>
+    <hr class="settings-section-hr" />
 
     <div class="settings-options-box">
         <InputBox
@@ -26,43 +43,30 @@
 
     <p class="settings-section-text">Tidal</p>
 
-    <hr class="settings-section-hr"/>
+    <hr class="settings-section-hr" />
 
     <div class="settings-options-box">
-        <InputBox
-            placeholder={"..."}
-            valueName={"tidalRefreshToken"}
-            text={"Tidal Token"}
-            secret={true}
-        />
-        <InputBox
-            placeholder={"..."}
-            valueName={"tidalClientID"}
-            text={"Tidal Client ID"}
-            secret={true}
+        <Button
+            text={"Tidal connection"}
+            buttonText={!loggedIn ? "Login to Tidal" : "Logged in to Tidal"}
+            callback={tidalLogin}
         />
     </div>
 
     <p class="settings-section-text">MPRIS</p>
 
-    <hr class="settings-section-hr"/>
+    <hr class="settings-section-hr" />
 
     <div class="settings-options-box">
-        <Checkbox
-            valueName={"mprisEnabled"}
-            text={"Enabled"}
-        />
+        <Checkbox valueName={"mprisEnabled"} text={"Enabled"} />
     </div>
 
     <p class="settings-section-text">Listenbrainz</p>
 
-    <hr class="settings-section-hr"/>
+    <hr class="settings-section-hr" />
 
     <div class="settings-options-box">
-        <Checkbox
-            valueName={"lbEnabled"}
-            text={"Enabled"}
-        />
+        <Checkbox valueName={"lbEnabled"} text={"Enabled"} />
         <InputBox
             placeholder={"..."}
             valueName={"lbToken"}

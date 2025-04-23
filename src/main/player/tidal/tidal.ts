@@ -9,25 +9,19 @@ import { ArtistData } from "../../types/artistData";
 import { AlbumData } from "../../types/albumData";
 import helpers from "../../helpers/helpers";
 import { ArtistDataShort } from "../../types/artistDataShort";
+import { BrowserWindow } from "electron";
 
 function getToken() {
     return config.getConfigValue("tidalToken");
 }
 
+const TIDAL_VERMILION_CLIENT_ID = "SRxYyjLcQ5LrfbWS";
 const TIDAL_URL = "https://listen.tidal.com/";
+const TIDAL_LOGIN_URL = "https://login.tidal.com/";
 const TIDAL_AUTH_URL = "https://auth.tidal.com/";
-const TIDAL_AUTH_TOKEN_API_ENDPOINT = "v1/oauth2/token";
 const TIDAL_RESOURCES_URL = "https://resources.tidal.com/";
-const TIDAL_SEARCH_API_ENDPOINT = "v2/search/"
-const TIDAL_TRACK_API_ENDPOINT = "v1/tracks/"
-const TIDAL_PLAYBACKINFO_ENDPOINT_AFTER = "/playbackinfo"
-const TIDAL_SESSION_API_ENDPOINT = "v1/sessions"
-const TIDAL_FOLDERS_API_ENDPOINT = "v2/my-collection/playlists/folders"
-const TIDAL_PLAYLISTS_API_ENDPOINT = "v1/playlists"
-const TIDAL_ARTIST_API_ENDPOINT = "v1/pages/artist"
-const TIDAL_ALBUM_API_ENDPOINT = "v1/pages/album"
+const TIDAL_OPEN_API_URL = "https://openapi.tidal.com/v2";
 
-let TIDAL_SESSION_ID = "";
 let TIDAL_COUNTRY_CODE = "US";
 let TIDAL_LOGGED_IN = false;
 let TIDAL_SESSION_TOKEN = "";
@@ -46,6 +40,10 @@ let playbackData: SongInfo = {
     source: "mpd",
     volume: -1,
 };
+
+async function fetchArtist(id: number) : Promise<ArtistData> {
+
+}
 
 async function performSearch(searchFor: string): Promise<SearchResults> {
     return new Promise<SearchResults>(
@@ -67,108 +65,147 @@ async function performSearch(searchFor: string): Promise<SearchResults> {
             };
 
             try {
-                const response =
+
+                const tracksReq =
                     await fetch(
-                        TIDAL_URL + TIDAL_SEARCH_API_ENDPOINT + "?includeContributors=true&includeDidYouMean=true&includeUserPlaylists=false&limit=10&types=TRACKS,ARTISTS,ALBUMS&countryCode=" + TIDAL_COUNTRY_CODE + "&locale=en_US&query=" + searchFor,
+                        TIDAL_OPEN_API_URL + "/searchResults/" + searchFor + "/relationships/tracks?countryCode=" + TIDAL_COUNTRY_CODE + "&include=tracks,artists,albums",
                         {
                             method: 'GET',
                             headers: {
                                 "Accept": "application/json",
                                 "authorization": "Bearer " + TIDAL_SESSION_TOKEN,
-                                "Host": "listen.tidal.com"
+                                "Host": "openapi.tidal.com"
                             }
                         }
                     );
 
-                response.json().then((data) => {
-                    if (data.tracks.items.length != 0) {
-                        console.log("Tidal returned " + data.tracks.items.length + " tracks.");
+                    const albumsReq =
+                    await fetch(
+                        TIDAL_OPEN_API_URL + "/searchResults/" + searchFor + "/relationships/albums?countryCode=" + TIDAL_COUNTRY_CODE + "&include=albums",
+                        {
+                            method: 'GET',
+                            headers: {
+                                "Accept": "application/json",
+                                "authorization": "Bearer " + TIDAL_SESSION_TOKEN,
+                                "Host": "openapi.tidal.com"
+                            }
+                        }
+                    );
 
-                        data.tracks.items.forEach((e) => {
-                            let artists: Array<ArtistDataShort> = [];
-                            let artistString = "";
-                            e.artists.forEach((x) => {
-                                artistString += x.name + ", ";
-                                artists.push({
-                                    name: x.name,
-                                    identifier: "" + x.id,
-                                    source: "tidal",
-                                })
-                            });
+                    const artistsReq =
+                    await fetch(
+                        TIDAL_OPEN_API_URL + "/searchResults/" + searchFor + "/relationships/artists?countryCode=" + TIDAL_COUNTRY_CODE + "&include=artists",
+                        {
+                            method: 'GET',
+                            headers: {
+                                "Accept": "application/json",
+                                "authorization": "Bearer " + TIDAL_SESSION_TOKEN,
+                                "Host": "openapi.tidal.com"
+                            }
+                        }
+                    );
 
-                            result.songs.push(
-                                {
-                                    title: e.title,
-                                    album: e.album ? e.album.title : "unknown",
-                                    albumId: e.album ? "" + e.album.id : undefined,
-                                    duration: e.duration,
-                                    artistString: artistString.substring(0, artistString.length - 2),
-                                    artists: artists,
-                                    source: "tidal",
-                                    identifier: "" + e.id,
-                                    albumCoverUrl: e.album && e.album.cover ? (TIDAL_RESOURCES_URL + "images/" + e.album.cover.replaceAll('-', '/') + "/750x750.jpg") : undefined,
-                                }
-                            );
-                        });
-                    } else
-                        console.log("Tidal: no tracks for query");
+                tracksReq.json().then((d) => {
+                    console.log(d);
+                    console.log(d.included);
 
-                    if (data.artists.items.length != 0) {
-                        console.log("Tidal returned " + data.artists.items.length + " artists.");
+                    const tracks = d.included;
 
-                        data.artists.items.forEach((e) => {
-                            const COVER = e.picture ? e.picture : (e.selectedAlbumCoverFallback ? e.selectedAlbumCoverFallback : undefined);
+                    console.log("Tidal returned " + tracks.length + " tracks.");
 
-                            result.artists.push(
-                                {
-                                    name: e.name,
-                                    source: "tidal",
-                                    identifier: "" + e.id,
-                                    imageURL: COVER ? (TIDAL_RESOURCES_URL + "images/" + COVER.replaceAll('-', '/') + "/750x750.jpg") : undefined,
-                                    topSongs: [],
-                                    relatedArtists: [],
-                                    newAlbums: [],
-                                }
-                            );
-                        });
-                    } else
-                        console.log("Tidal: no artists for query");
+                    if (tracks.length == 0)
+                        return;
 
-                    if (data.albums.items.length != 0) {
-                        console.log("Tidal returned " + data.albums.items.length + " albums.");
+                    tracks.forEach((e) => {
+                        let artists: Array<ArtistDataShort> = [];
+                        let artistString = "";
+                        console.log(e.relationships.albums);
+                        console.log(e.relationships.artists);
 
-                        data.albums.items.forEach((e) => {
-                            const COVER = e.cover ? e.cover : undefined;
+                        // e.artists.forEach((x) => {
+                        //     artistString += x.name + ", ";
+                        //     artists.push({
+                        //         name: x.name,
+                        //         identifier: "" + x.id,
+                        //         source: "tidal",
+                        //     })
+                        // });
 
-                            let artists: Array<ArtistDataShort> = [];
-                            let artistString = "";
-                            e.artists.forEach((x) => {
-                                artistString += x.name + ", ";
-                                artists.push({
-                                    name: x.name,
-                                    identifier: "" + x.id,
-                                    source: "tidal",
-                                })
-                            });
-
-                            result.albums.push(
-                                {
-                                    name: e.title,
-                                    source: "tidal",
-                                    identifier: "" + e.id,
-                                    coverUrl: COVER ? (TIDAL_RESOURCES_URL + "images/" + COVER.replaceAll('-', '/') + "/750x750.jpg") : undefined,
-                                    songsNumber: e.numberOfTracks + e.numberOfVideos,
-                                    duration: e.duration,
-                                    artistString: artistString.substring(0, artistString.length - 2),
-                                    artists: artists,
-                                }
-                            );
-                        });
-                    } else
-                        console.log("Tidal: no artists for query");
+                        result.songs.push(
+                            {
+                                title: e.attributes.title,
+                                album: e.attributes.album ? e.attributes.album.title : "unknown",
+                                albumId: e.attributes.album ? "" + e.attributes.album.id : undefined,
+                                duration: e.attributes.duration,
+                                artistString: artistString.substring(0, artistString.length - 2),
+                                artists: artists,
+                                source: "tidal",
+                                identifier: "" + e.attributes.id,
+                                albumCoverUrl: e.attributes.album && e.attributes.album.cover ? (TIDAL_RESOURCES_URL + "images/" + e.attributes.album.cover.replaceAll('-', '/') + "/750x750.jpg") : undefined,
+                            }
+                        );
+                    });
 
                     res(result);
                 });
+
+                // albumsReq.json().then((data) => {
+                //     if (data.artists.items.length != 0) {
+                //         console.log("Tidal returned " + data.artists.items.length + " artists.");
+
+                //         data.artists.items.forEach((e) => {
+                //             const COVER = e.picture ? e.picture : (e.selectedAlbumCoverFallback ? e.selectedAlbumCoverFallback : undefined);
+
+                //             result.artists.push(
+                //                 {
+                //                     name: e.name,
+                //                     source: "tidal",
+                //                     identifier: "" + e.id,
+                //                     imageURL: COVER ? (TIDAL_RESOURCES_URL + "images/" + COVER.replaceAll('-', '/') + "/750x750.jpg") : undefined,
+                //                     topSongs: [],
+                //                     relatedArtists: [],
+                //                     newAlbums: [],
+                //                 }
+                //             );
+                //         });
+                //     } else
+                //         console.log("Tidal: no artists for query");
+
+                //     if (data.albums.items.length != 0) {
+                //         console.log("Tidal returned " + data.albums.items.length + " albums.");
+
+                //         data.albums.items.forEach((e) => {
+                //             const COVER = e.cover ? e.cover : undefined;
+
+                //             let artists: Array<ArtistDataShort> = [];
+                //             let artistString = "";
+                //             e.artists.forEach((x) => {
+                //                 artistString += x.name + ", ";
+                //                 artists.push({
+                //                     name: x.name,
+                //                     identifier: "" + x.id,
+                //                     source: "tidal",
+                //                 })
+                //             });
+
+                //             result.albums.push(
+                //                 {
+                //                     name: e.title,
+                //                     source: "tidal",
+                //                     identifier: "" + e.id,
+                //                     coverUrl: COVER ? (TIDAL_RESOURCES_URL + "images/" + COVER.replaceAll('-', '/') + "/750x750.jpg") : undefined,
+                //                     songsNumber: e.numberOfTracks + e.numberOfVideos,
+                //                     duration: e.duration,
+                //                     artistString: artistString.substring(0, artistString.length - 2),
+                //                     artists: artists,
+                //                 }
+                //             );
+                //         });
+                //     } else
+                //         console.log("Tidal: no artists for query");
+
+                //     res(result);
+                // });
             } catch (e) {
                 rej("API call failed: " + e);
             }
@@ -192,7 +229,7 @@ async function refreshToken(): Promise<boolean> {
 
             const response =
                 await fetch(
-                    TIDAL_AUTH_URL + TIDAL_AUTH_TOKEN_API_ENDPOINT,
+                    TIDAL_AUTH_URL + "v1/oauth2/token",
                     {
                         method: 'POST',
                         headers: {
@@ -200,7 +237,7 @@ async function refreshToken(): Promise<boolean> {
                             "Host": "auth.tidal.com",
                             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
                         },
-                        body: "client_id=" + CID + "&grant_type=refresh_token&refresh_token=" + TK + "&scope=r_usr+w_usr",
+                        body: "client_id=" + CID + "&grant_type=refresh_token&refresh_token=" + TK,
                     }
                 );
 
@@ -244,32 +281,31 @@ async function login(): Promise<boolean> {
 
                 const response =
                     await fetch(
-                        TIDAL_URL + TIDAL_SESSION_API_ENDPOINT,
+                        TIDAL_OPEN_API_URL + "/users/me",
                         {
                             method: 'GET',
                             headers: {
                                 "Accept": "*/*",
                                 "authorization": "Bearer " + TIDAL_SESSION_TOKEN,
-                                "Host": "listen.tidal.com"
+                                "Host": "openapi.tidal.com"
                             }
                         }
                     );
 
                 response.json().then((data) => {
                     if (response.status != 200) {
-                        console.log("Tidal login failed, got code " + response.status + ": " + response.statusText);
+                        console.log("Tidal session failed, got code " + response.status + ": " + response.statusText);
                         res(false);
                         return;
                     }
 
-                    if (!data.sessionId || !data.countryCode) {
+                    if (!data.data.attributes.country) {
                         console.log("Tidal login failed, got a weird response");
                         res(false);
                         return;
                     }
 
-                    TIDAL_COUNTRY_CODE = data.countryCode;
-                    TIDAL_SESSION_ID = data.sessionId;
+                    TIDAL_COUNTRY_CODE = data.data.attributes.country;
 
                     console.log("Got tidal session for country " + TIDAL_COUNTRY_CODE);
 
@@ -867,6 +903,107 @@ async function getAlbumData(identifier: string): Promise<AlbumData> {
     });
 }
 
+function randomString(length) {
+    const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const VALUES = crypto.getRandomValues(new Uint8Array(length));
+    return VALUES.reduce((acc, x) => acc + CHARS[x % CHARS.length], "");
+}
+
+function sha256(str) {
+    const DATA = new TextEncoder().encode(str)
+    return crypto.subtle.digest('SHA-256', DATA);
+}
+
+function B64Encode(arr) {
+    return btoa(String.fromCharCode(...new Uint8Array(arr)))
+        .replace(/=/g, '')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_');
+}
+
+async function attemptNewSession(): Promise<boolean> {
+    return new Promise<boolean>(
+        async (res) => {
+            var oauthWindow = new BrowserWindow({
+                width: 800,
+                height: 600,
+                show: true,
+            });
+
+            const VERIFIER = randomString(64);
+            const CHALLENGE = B64Encode(await sha256(VERIFIER));
+            const STATE = randomString(32);
+
+            const SCOPES = "user.read%20collection.read%20search.read%20playlists.write%20collection.write%20playlists.read%20playback%20recommendations.read%20entitlements.read%20search.write";
+
+            oauthWindow.loadURL(TIDAL_LOGIN_URL + "authorize?response_type=code&client_id=" + TIDAL_VERMILION_CLIENT_ID +
+                "&redirect_uri=https://tidal.com/nonexistent-page-vermilion&scope=" + SCOPES + "&code_challenge_method=S256&restrict_signup=true&lang=EN&appMode=web&code_challenge=" + CHALLENGE + "&state=" + STATE);
+
+            oauthWindow.webContents.on('will-redirect', async function (e) {
+                const redirect = e.url;
+                console.log("will-redirect: " + redirect);
+                console.log(e);
+                if (redirect.indexOf("https://tidal.com/nonexistent-page-vermilion") == -1)
+                    return;
+
+                if (redirect.indexOf("?error=") != -1) {
+                    console.log("Tidal session rejected: " + redirect);
+                    res(false);
+                    return;
+                }
+
+                const CODE = redirect.substring(redirect.indexOf("?code=") + 6, redirect.indexOf("&state="));
+                const RET_STATE = redirect.substring(redirect.indexOf("&state=") + 7);
+
+                if (STATE != RET_STATE) {
+                    console.log("Tidal state doesnt match: " + STATE + " != " + RET_STATE);
+                    res(false);
+                    return;
+                }
+
+                console.log("Tidal: Got oauth code.");
+
+                const response =
+                    await fetch(
+                        TIDAL_AUTH_URL + "v1/oauth2/token",
+                        {
+                            method: 'POST',
+                            headers: {
+                                "Accept": "application/json",
+                                "authorization": "Bearer " + TIDAL_SESSION_TOKEN,
+                                "Host": "auth.tidal.com",
+                                "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                            },
+                            body: "grant_type=authorization_code&client_id=" + TIDAL_VERMILION_CLIENT_ID + "&code=" + CODE + "&redirect_uri=https://tidal.com/nonexistent-page-vermilion&code_verifier=" + VERIFIER,
+                        }
+                    );
+
+                response.json().then((data) => {
+                    if (response.status != 200) {
+                        console.log("Tidal: Failed to oauth token: " + response.status + ": " + response.statusText);
+                        res(false);
+                        return;
+                    }
+
+                    console.log(data);
+
+                    config.setConfigValue("tidalRefreshToken", data.refresh_token);
+                    config.setConfigValue("tidalToken", data.access_token);
+                    config.setConfigValue("tidalClientID", TIDAL_VERMILION_CLIENT_ID);
+
+                    console.log("Tidal: Auth'd!");
+
+                    oauthWindow.close();
+
+                    login().then((result) => {
+                        res(result);
+                    })
+                });
+            });
+        }
+    );
+}
+
 export default {
     performSearch,
     play,
@@ -881,4 +1018,5 @@ export default {
     getPlaylistData,
     getArtistData,
     getAlbumData,
+    attemptNewSession,
 }

@@ -1,6 +1,4 @@
 <script lang="ts">
-    import { blur } from "svelte/transition";
-
     let { placeholder = "", valueName, text, secret = false } = $props();
 
     let value = $state("");

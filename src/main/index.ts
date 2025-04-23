@@ -253,6 +253,15 @@ app.whenReady().then(async () => {
     mainWindow.webContents.send('pageChanged', data);
   });
 
+  ipcMain.on('loginTidal', (ev, data) => {
+    tidal.attemptNewSession().then((result) => {
+      if (result)
+        mainWindow.webContents.send('newNotification', { color: "#00b30033", text: "Logged into Tidal" });
+      else
+        mainWindow.webContents.send('newNotification', { color: "#b3000033", text: "Couldn't log into Tidal" });
+    })
+  });
+
   ipcMain.on('openLink', (ev, data) => {
     shell.openExternal(data);
   });

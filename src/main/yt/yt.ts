@@ -142,7 +142,7 @@ async function play(identifier: string) {
             "https://youtube.com/watch?v=" + identifier,
             "-x",
             "-f",
-            "best"
+            "bestaudio"
         ];
 
         const BROWSER_FOR_COOKIES = config.getConfigValue("ytCookieSource");

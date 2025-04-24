@@ -21,8 +21,8 @@ importers:
         specifier: ^2.20.7
         version: 2.20.7(@sveltejs/vite-plugin-svelte@5.0.3(svelte@5.27.2)(vite@6.3.1(@types/node@22.14.1)))(svelte@5.27.2)(vite@6.3.1(@types/node@22.14.1))
       mpd-api:
-        specifier: ^1.1.2
-        version: 1.1.2
+        specifier: ^1.1.3
+        version: 1.1.3
       mpris-service:
         specifier: ^2.1.2
         version: 2.1.2
@@ -2034,12 +2034,12 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  mpd-api@1.1.2:
-    resolution: {integrity: sha512-UWSkIzYQnTvuvhLTfD0bIhBa4PCGCz6OsnDlojp319khsL8xXwS4qLVyJ+R5J7gNUTWiV9Y6d1j6apSYt2WDVA==}
+  mpd-api@1.1.3:
+    resolution: {integrity: sha512-MrfpDCWBMGaZoLAw38Iz1Zu8k9xt3heHFr72v3EuUqxWNn8E+ca6aykUOhXo0snUSbui6x7RXXicP4u842THHw==}
     engines: {node: '>=11.0.0'}
 
-  mpd2@1.0.5:
-    resolution: {integrity: sha512-DcIy3jISfjmFTlOpwDE2KDhBLcGuFIAMTvY23OMkCikJXRnDqqm1jaHG3/LVYkKjrUVzQhlABW31roGqv/esRw==}
+  mpd2@1.0.6:
+    resolution: {integrity: sha512-Fa4SiiR73w35/cHIyvWrNYrS6UHfH+zQL3oxzSL+FMsUvTcxPGv5sjBYZ0ceMwssyZ4fH42Vepp7THFNZmneqQ==}
 
   mpris-service@2.1.2:
     resolution: {integrity: sha512-AC6WepCnFWwOME9OWplHZ8ps/BB+g9QrEpUKCv7wX82fDPzR3nPrypOFmL/Fm0JloEAu6QTWSfDLLc6mM/jinw==}
@@ -4930,15 +4930,15 @@ snapshots:
 
   mkdirp@1.0.4: {}
 
-  mpd-api@1.1.2:
+  mpd-api@1.1.3:
     dependencies:
       debug: 4.4.0
       file-type: 16.5.4
-      mpd2: 1.0.5
+      mpd2: 1.0.6
     transitivePeerDependencies:
       - supports-color
 
-  mpd2@1.0.5:
+  mpd2@1.0.6:
     dependencies:
       debug: 4.4.0
     transitivePeerDependencies:

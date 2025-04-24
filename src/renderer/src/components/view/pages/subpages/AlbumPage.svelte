@@ -12,12 +12,12 @@
         name: "Loading...",
         source: source,
         identifier: "",
-        artist: "Fetching from Tidal...",
+        artist: "Fetching...",
         songs: [],
     });
 
     window.electronAPI.albumData((msg /* AlbumData */) => {
-        if (msg.identifier != identifier) return;
+        if (msg.identifier != identifier || msg.source != source) return;
 
         if (msg.name == "") msg.name = "Album";
 
@@ -27,7 +27,7 @@
     function updateAlbumData() {
         window.electron.ipcRenderer.send("getAlbumData", {
             identifier: identifier,
-            source: "tidal",
+            source: source,
         });
     }
 
@@ -45,14 +45,14 @@
         text={currentAlbumData.name}
         subtext={currentAlbumData.artist}
         year={currentAlbumData.year ? currentAlbumData.year : ""}
-        infotext="Vermilion is not associated with Tidal or Tidal Music AS."
+        infotext={"Vermilion is not associated with " + (source == "tidal" ? "Tidal or Tidal Music AS." : "Spotify.")}
     />
 
     <div class="album-page-top-links">
         <BigLink
-            text={"See on Tidal"}
+            text={"See on " + (source == "tidal" ? "Tidal" : "Spotify")}
             icon={"fa-link"}
-            link={"https://tidal.com/browse/album/" + identifier}
+            link={(source == "tidal" ? "https://tidal.com/browse/album/" : "https://open.spotify.com/album/") + identifier}
         />
     </div>
 

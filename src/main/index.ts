@@ -12,6 +12,7 @@ import externalServices from './player/externalServices'
 import { PlaylistData } from './types/playlistData'
 import { PlaylistDataShort } from './types/playlistDataShort'
 import yt from './yt/yt'
+import spotify from './player/spotify/spotify'
 
 export var mainWindow: BrowserWindow;
 
@@ -225,6 +226,14 @@ app.whenReady().then(async () => {
     })
   });
 
+  ipcMain.on('spotifyGetSongs', (ev, data) => {
+    spotify.performSearch(data).then((res) => {
+      mainWindow.webContents.send('updateSpotifySearch', res);
+    }).catch((e) => {
+      mainWindow.webContents.send('newNotification', { color: "#b3000033", text: "Spotify query failed: " + e + "." });
+    })
+  });
+
   ipcMain.on('tidalElapsed', (ev, data) => {
     tidal.elapsed(data);
   });
@@ -250,16 +259,28 @@ app.whenReady().then(async () => {
 
   ipcMain.on('getArtistData', (ev, data) => {
     // FIXME: route thru player? maybe make a new class for metadata
-    tidal.getArtistData(data.identifier).then((res) => {
-      mainWindow.webContents.send('artistData', res);
-    })
+    if (data.source == "tidal") {
+      tidal.getArtistData(data.identifier).then((res) => {
+        mainWindow.webContents.send('artistData', res);
+      })
+    } else if (data.source == "spotify") {
+      spotify.getArtistData(data.identifier).then((res) => {
+        mainWindow.webContents.send('artistData', res);
+      })
+    }
   });
 
   ipcMain.on('getAlbumData', (ev, data) => {
     // FIXME: route thru player? maybe make a new class for metadata
-    tidal.getAlbumData(data.identifier).then((res) => {
-      mainWindow.webContents.send('albumData', res);
-    })
+    if (data.source == "tidal") {
+      tidal.getAlbumData(data.identifier).then((res) => {
+        mainWindow.webContents.send('albumData', res);
+      })
+    } else if (data.source == "spotify") {
+      spotify.getAlbumData(data.identifier).then((res) => {
+        mainWindow.webContents.send('albumData', res);
+      })
+    }
   });
 
   ipcMain.on('pageGotChanged', (ev, data) => {
@@ -292,16 +313,25 @@ app.whenReady().then(async () => {
     mainWindow.webContents.send('sendSetting', { setting: data, value: val });
   });
 
+  ipcMain.on('spotifyDeviceID', (ev, data) => {
+    spotify.setDeviceID(data);
+  });
+
+  ipcMain.on('loginSpotify', (ev, data) => {
+    spotify.attemptNewSession().then((result) => {
+      if (result) {
+        mainWindow.webContents.send('newNotification', { color: "#00b30033", text: "Logged into Spotify" });
+        mainWindow.webContents.send('spotifyLoggedIn');
+      } else
+        mainWindow.webContents.send('newNotification', { color: "#b3000033", text: "Couldn't log into Spotify" });
+    })
+  });
+
+  ipcMain.on('spotifyElapsed', (ev, data) => {
+    spotify.elapsed(data);
+  });
+
   config.loadConfig();
-
-  tidal.login().then((e) => {
-    if (e)
-      mainWindow.webContents.send('newNotification', { color: "#00b30033", text: "Logged into Tidal" });
-    else
-      mainWindow.webContents.send('newNotification', { color: "#b3000033", text: "Couldn't log into Tidal" });
-
-    player.updatePlaylists();
-  })
 
   createWindow();
 
@@ -336,6 +366,25 @@ app.whenReady().then(async () => {
       queue.setCurrentIdx(0);
       mainWindow.webContents.send('updateQueue', queue.getData());
       player.setVolume(config.getConfigValue("volume"));
+    });
+
+    spotify.login().then((e) => {
+      if (e) {
+        mainWindow.webContents.send('newNotification', { color: "#00b30033", text: "Logged into Spotify" });
+        mainWindow.webContents.send('spotifyLoggedIn');
+      } else
+        mainWindow.webContents.send('newNotification', { color: "#b3000033", text: "Couldn't log into Spotify" });
+
+      player.updatePlaylists();
+    });
+
+    tidal.login().then((e) => {
+      if (e)
+        mainWindow.webContents.send('newNotification', { color: "#00b30033", text: "Logged into Tidal" });
+      else
+        mainWindow.webContents.send('newNotification', { color: "#b3000033", text: "Couldn't log into Tidal" });
+
+      player.updatePlaylists();
     });
   }, 500);
 

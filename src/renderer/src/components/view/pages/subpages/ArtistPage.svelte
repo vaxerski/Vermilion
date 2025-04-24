@@ -11,7 +11,7 @@
     let { identifier, source } = $props();
 
     let currentArtistData: ArtistData = $state({
-        name: "Loading...",
+        name: "Fetching...",
         source: source,
         identifier: "",
         topSongs: [],
@@ -22,7 +22,7 @@
     let ID = $props.id();
 
     window.electronAPI.artistData((msg /* ArtistData */) => {
-        if (msg.identifier != identifier) return;
+        if (msg.identifier != identifier || msg.source != source) return;
 
         if (msg.name == "") msg.name = "Artist";
 
@@ -32,7 +32,7 @@
     function updateArtistData() {
         window.electron.ipcRenderer.send("getArtistData", {
             identifier: identifier,
-            source: "tidal",
+            source: source,
         });
     }
 
@@ -43,16 +43,16 @@
     imageURL={currentArtistData.imageURL ? currentArtistData.imageURL : ""}
     text={currentArtistData.name}
     subtext={currentArtistData.name == ""
-        ? "Fetching from Tidal..."
+        ? "Fetching..."
         : "Artist"}
-    infotext="Vermilion is not associated with Tidal or Tidal Music AS."
+    infotext={"Vermilion is not associated with " + (source == "tidal" ? "Tidal or Tidal Music AS." : "Spotify.")}
 />
 
 <div class="artist-page-top-links">
     <BigLink
-        text={"See on Tidal"}
+        text={"See on " + (source == "tidal" ? "Tidal" : "Spotify")}
         icon={"fa-link"}
-        link={"https://tidal.com/browse/artist/" + identifier}
+        link={(source == "tidal" ? "https://tidal.com/browse/artist/" : "https://open.spotify.com/artist/") + identifier}
     />
 </div>
 

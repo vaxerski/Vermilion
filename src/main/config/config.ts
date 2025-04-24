@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import { mainWindow } from '..';
 
 interface Config {
     // MPD
@@ -14,6 +15,12 @@ interface Config {
 
     // YT
     ytCookieSource?: string;
+
+    // Spotify
+    spotifyToken?: string;
+    spotifyRefreshToken?: string;
+    spotifyClientID?: string;
+    spotifyScopesObtained?: string;
 
     // MPRIS
     mprisEnabled?: boolean;
@@ -32,6 +39,10 @@ const defaultConfig: Config = {
     tidalRefreshToken: "",
     tidalClientID: "",
     tidalToken: "",
+    spotifyRefreshToken: "",
+    spotifyClientID: "",
+    spotifyToken: "",
+    spotifyScopesObtained: "",
     ytCookieSource: "",
     mprisEnabled: true,
     lbEnabled: true,
@@ -61,9 +72,9 @@ function loadConfig() {
 
 function writeConfig() {
     const configPath = CONFIG_DIR + "/vermilion/vermilion.json";
-    fs.writeFileSync(configPath, JSON.stringify(
+    fs.writeFile(configPath, JSON.stringify(
         config
-    ));
+    ), (e) => { if (e) { console.log("failed to write config: "); console.log(e); } });
 }
 
 function getConfigValue(member: string) {
@@ -76,6 +87,7 @@ function getConfigValue(member: string) {
 function setConfigValue(member: string, value: any) {
     config[member] = value;
     writeConfig();
+    mainWindow.webContents.send('sendSetting', { setting: member, value: value });
 }
 
 export default {

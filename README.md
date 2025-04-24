@@ -17,7 +17,7 @@ Vermilion is a clean, minimal and simple music player for MPD, Tidal and YT Musi
 
 - Play queue
 - Mini / fullscreen player with controls
-- Tidal / MPD / YT Music support
+- Tidal / MPD / Spotify / YT Music support
 - Listenbrainz integration
 - MPRIS integration
 
@@ -25,7 +25,6 @@ Vermilion is a clean, minimal and simple music player for MPD, Tidal and YT Musi
 
 - favorites (fetch / send)
 - arrpc (discord) integration
-- spotify integration (premium only, I don't need a cease and desist from spotify inc)
 - local playlists
 - foreign playlist write (update, remove, add)
 - a bunch of qol stuff
@@ -65,6 +64,25 @@ Check the [docs](./docs/Tidal.md) for how to connect Vermilion to Tidal.
 - Searching for songs / albums / artists
 - Browsing artist / album pages
 - Video album covers
+
+#### Planned
+
+- Adding / editing playlists
+- Viewing / adding / removing favorites
+
+### Spotify
+
+> [!NOTE]
+> Spotify playback requires a Spotify Premium account to work, and a small API setup.
+>
+> Check the [docs](./docs/Spotify.md) for more.
+
+#### Supported
+- Playback
+- Volume
+- Searching for songs / albums / artists
+- Browsing artist / album pages
+- Browsing your playlists
 
 #### Planned
 

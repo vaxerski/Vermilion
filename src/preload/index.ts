@@ -24,6 +24,9 @@ if (process.contextIsolated) {
       updateYtSearch: (callback) => ipcRenderer.on('updateYtSearch',
         (_event, value) => callback(value)
       ),
+      updateSpotifySearch: (callback) => ipcRenderer.on('updateSpotifySearch',
+        (_event, value) => callback(value)
+      ),
       updateQueue: (callback) => ipcRenderer.on('updateQueue',
         (_event, value) => callback(value)
       ),
@@ -58,6 +61,12 @@ if (process.contextIsolated) {
         (_event, value) => callback(value)
       ),
       genericPlayerPlayEvent: (callback) => ipcRenderer.on('genericPlayerPlayEvent',
+        (_event, value) => callback(value)
+      ),
+      spotifyLoggedIn: (callback) => ipcRenderer.on('spotifyLoggedIn',
+        (_event, value) => callback(value)
+      ),
+      spotifyPlayEvent: (callback) => ipcRenderer.on('spotifyPlayEvent',
         (_event, value) => callback(value)
       ),
     })

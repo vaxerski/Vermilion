@@ -1,7 +1,37 @@
 <script>
+    import Button from "./settings/Button.svelte";
     import Checkbox from "./settings/Checkbox.svelte";
     import InputBox from "./settings/InputBox.svelte";
     import PageTitle from "./shared/PageTitle.svelte";
+
+    let spotifyLoggedIn = $state(false);
+
+    window.electronAPI.sendSetting((res) => {
+        if (res.setting != "spotifyRefreshToken") return;
+
+        spotifyLoggedIn = res.value != "";
+    });
+
+    function spotifyLogIn() {
+        if (spotifyLoggedIn) {
+            window.electron.ipcRenderer.send("setSetting", {
+                setting: "spotifyRefreshToken",
+                value: "",
+            });
+            window.electron.ipcRenderer.send("setSetting", {
+                setting: "spotifyToken",
+                value: "",
+            });
+            spotifyLoggedIn = false;
+            return;
+        }
+
+        console.log("Logging into spotify...");
+
+        window.electron.ipcRenderer.send("loginSpotify");
+    }
+
+    window.electron.ipcRenderer.send("getSetting", "spotifyRefreshToken");
 </script>
 
 <PageTitle text="Settings" subtext="Just what you need" />
@@ -9,7 +39,7 @@
 <div class="settings-content">
     <p class="settings-section-text">MPD</p>
 
-    <hr class="settings-section-hr"/>
+    <hr class="settings-section-hr" />
 
     <div class="settings-options-box">
         <InputBox
@@ -26,7 +56,7 @@
 
     <p class="settings-section-text">Tidal</p>
 
-    <hr class="settings-section-hr"/>
+    <hr class="settings-section-hr" />
 
     <div class="settings-options-box">
         <InputBox
@@ -43,9 +73,27 @@
         />
     </div>
 
+    <p class="settings-section-text">Spotify</p>
+
+    <hr class="settings-section-hr" />
+
+    <div class="settings-options-box">
+        <InputBox
+            placeholder={""}
+            valueName={"spotifyClientID"}
+            text={"Spotify API Client ID"}
+        />
+
+        <Button
+            text={"Once you have a token, log in"}
+            buttonText={!spotifyLoggedIn ? "Log in" : "Log out"}
+            callback={spotifyLogIn}
+        />
+    </div>
+
     <p class="settings-section-text">YT Music</p>
 
-    <hr class="settings-section-hr"/>
+    <hr class="settings-section-hr" />
 
     <div class="settings-options-box">
         <InputBox
@@ -57,24 +105,18 @@
 
     <p class="settings-section-text">MPRIS</p>
 
-    <hr class="settings-section-hr"/>
+    <hr class="settings-section-hr" />
 
     <div class="settings-options-box">
-        <Checkbox
-            valueName={"mprisEnabled"}
-            text={"Enabled"}
-        />
+        <Checkbox valueName={"mprisEnabled"} text={"Enabled"} />
     </div>
 
     <p class="settings-section-text">Listenbrainz</p>
 
-    <hr class="settings-section-hr"/>
+    <hr class="settings-section-hr" />
 
     <div class="settings-options-box">
-        <Checkbox
-            valueName={"lbEnabled"}
-            text={"Enabled"}
-        />
+        <Checkbox valueName={"lbEnabled"} text={"Enabled"} />
         <InputBox
             placeholder={"..."}
             valueName={"lbToken"}

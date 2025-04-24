@@ -573,11 +573,11 @@ async function getPlaylistData(data: PlaylistDataShort): Promise<PlaylistData> {
 }
 
 async function getPlaylists(): Promise<Array<PlaylistDataShort>> {
-    return new Promise<Array<PlaylistDataShort>>(async (res) => {
+    return new Promise<Array<PlaylistDataShort>>(async (res, rej) => {
         let pd: Array<PlaylistDataShort> = [];
 
         if (!TIDAL_LOGGED_IN) {
-            res(pd);
+            rej();
             return;
         }
 

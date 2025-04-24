@@ -63,6 +63,12 @@
         active={currentPage.page.indexOf('/tidal') == 0 ? true : false}
     />
     <Button
+        icon="fa-brands fa-spotify"
+        text="Spotify"
+        href="/spotify"
+        active={currentPage.page.indexOf('/spotify') == 0 ? true : false}
+    />
+    <Button
         icon="fa-brands fa-youtube"
         text="YT Music"
         href="/yt"

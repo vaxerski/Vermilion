@@ -9,6 +9,7 @@
     import Tidal from "./pages/Tidal.svelte";
     import Playlists from "./pages/Playlists.svelte";
     import Yt from "./pages/Yt.svelte";
+    import Spotify from "./pages/Spotify.svelte";
 </script>
 
 <div
@@ -80,6 +81,19 @@
         : 'hidden'}; "
 >
     <Tidal />
+</div>
+
+<div
+    class="view-container"
+    style="opacity: {currentPage.page.indexOf('/spotify') == 0 &&
+    !playerData.fullscreen
+        ? 1
+        : 0}; visibility: {currentPage.page.indexOf('/spotify') == 0 &&
+    !playerData.fullscreen
+        ? 'visible'
+        : 'hidden'}; "
+>
+    <Spotify />
 </div>
 
 <div

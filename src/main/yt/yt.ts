@@ -193,7 +193,6 @@ async function play(identifier: string) {
     });
 }
 
-
 async function seek(seconds: number) {
     return new Promise<boolean>(
         async (res) => {

@@ -6,6 +6,7 @@
     import Notification from "./components/notification/Notification.svelte";
     import GenericPlayer from "./components/drm/GenericPlayer.svelte";
     import TidalDrm from "./components/drm/TidalDRM.svelte";
+    import SpotifyPlayer from "./components/drm/SpotifyPlayer.svelte";
 </script>
 
 <Background />
@@ -16,3 +17,4 @@
 
 <GenericPlayer/>
 <TidalDrm />
+<SpotifyPlayer />

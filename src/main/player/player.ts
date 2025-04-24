@@ -8,6 +8,7 @@ import tidal from "./tidal/tidal";
 import config from "../config/config";
 import { PlaylistData, PlaylistDataShort } from "../types/playlistDataShort";
 import yt from "../yt/yt";
+import spotify from "./spotify/spotify";
 
 let lastSongChange: number = Date.now();
 let playlistList: Array<PlaylistDataShort> = [];
@@ -43,6 +44,8 @@ function getCurrentSong(): Promise<SongInfo> {
                     promise = tidal.getPlayState()
                 else if (playerState.playSource == 'yt')
                     promise = yt.getPlayState()
+                else if (playerState.playSource == 'spotify')
+                    promise = spotify.getPlayState()
                 else {
                     rej();
                     return;
@@ -78,6 +81,8 @@ async function pausePlay(play: boolean): Promise<boolean> {
                 tidal.pausePlay(play).then((e) => { res(e) }).catch((e) => { res(false); });
             else if (playerState.playSource == "yt")
                 yt.pausePlay(play).then((e) => { res(e) }).catch((e) => { res(false); });
+            else if (playerState.playSource == "spotify")
+                spotify.pausePlay(play).then((e) => { res(e) }).catch((e) => { res(false); });
 
             res(false);
         }
@@ -136,6 +141,8 @@ async function playSong(identifier: string, source: string): Promise<boolean> {
                 tidal.play(identifier).then((e) => { res(e) }).catch((e) => { res(false); });
             else if (source == "yt")
                 yt.play(identifier).then((e) => { res(e) }).catch((e) => { res(false); });
+            else if (source == "spotify")
+                spotify.play(identifier).then((e) => { res(e) }).catch((e) => { res(false); });
 
             res(false);
         }
@@ -161,6 +168,8 @@ async function songFromID(identifier: string, source: string): Promise<SongDataS
                 tidal.songFromID(identifier).then((e) => { res(e) }).catch((e) => { res(data); });
             else if (source == "yt")
                 yt.songFromID(identifier).then((e) => { res(e) }).catch((e) => { res(data); });
+            else if (source == "spotify")
+                spotify.songFromID(identifier).then((e) => { res(e) }).catch((e) => { res(data); });
             else
                 res(data);
         }
@@ -176,6 +185,8 @@ async function seekCurrentSong(seconds: number): Promise<boolean> {
                 tidal.seek(seconds).then((e) => { res(e) }).catch((e) => { res(false); });
             else if (playerState.playSource == "yt")
                 yt.seek(seconds).then((e) => { res(e) }).catch((e) => { res(false); });
+            else if (playerState.playSource == "spotify")
+                spotify.seek(seconds).then((e) => { res(e) }).catch((e) => { res(false); });
 
             res(false);
         }
@@ -191,6 +202,8 @@ async function setVolume(vol: number): Promise<boolean> {
                 tidal.setVolume(vol).then((e) => { res(e) }).catch((e) => { res(false); });
             else if (playerState.playSource == "yt")
                 yt.setVolume(vol).then((e) => { res(e) }).catch((e) => { res(false); });
+            else if (playerState.playSource == "spotify")
+                spotify.setVolume(vol).then((e) => { res(e) }).catch((e) => { res(false); });
             else
                 res(false);
         }
@@ -215,11 +228,27 @@ async function initPlayer() {
     lastSongChange = Date.now();
 }
 
+let tidalGotPlaylists = false;
+let spotifyGotPlaylists = false;
+
+let playlists: Array<PlaylistDataShort> = [];
+
 async function updatePlaylists() {
-    tidal.getPlaylists().then((res) => {
-        playlistList = res;
-        mainWindow.webContents.send('updatePlaylists', res);
-    });
+    if (!tidalGotPlaylists) {
+        tidal.getPlaylists().then((res) => {
+            playlists = playlists.concat(res);
+            mainWindow.webContents.send('updatePlaylists', playlists);
+            tidalGotPlaylists = true;
+        }).catch(() => { });
+    }
+
+    if (!spotifyGotPlaylists) {
+        spotify.getPlaylists().then((res) => {
+            playlists = playlists.concat(res);
+            mainWindow.webContents.send('updatePlaylists', playlists);
+            spotifyGotPlaylists = true;
+        }).catch(() => { });
+    }
 }
 
 async function getPlaylistData(playlist: PlaylistDataShort): Promise<PlaylistData> {
@@ -234,6 +263,11 @@ async function getPlaylistData(playlist: PlaylistDataShort): Promise<PlaylistDat
                 res({}); // TODO:
             else if (playlist.source == "tidal")
                 tidal.getPlaylistData(playlist).then((e) => {
+                    playlistDatas.set(playlist.source + "_" + playlist.identifier, e);
+                    res(e);
+                }).catch((e) => { res({}); });
+            else if (playlist.source == "spotify")
+                spotify.getPlaylistData(playlist).then((e) => {
                     playlistDatas.set(playlist.source + "_" + playlist.identifier, e);
                     res(e);
                 }).catch((e) => { res({}); });

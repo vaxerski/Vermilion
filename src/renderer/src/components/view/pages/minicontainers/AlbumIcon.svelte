@@ -38,7 +38,9 @@
     {/if}
 
     <p class="album-icon-text album-icon-duration">
-        {songAmount} songs, {prettyTime(duration)}
+        {#if songAmount != 0}
+        {songAmount} songs{#if duration != 0}, {prettyTime(duration)} {/if}
+        {/if}
     </p>
 </div>
 

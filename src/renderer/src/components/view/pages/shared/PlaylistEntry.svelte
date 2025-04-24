@@ -33,9 +33,10 @@
     function onEnter() {
         changePageTo(
             "/playlists/playlist/" +
-            playlist.source +
-            "_" +
-            playlist.identifier);
+                playlist.source +
+                "_" +
+                playlist.identifier,
+        );
     }
 
     let wantsToPlay = false;
@@ -93,16 +94,17 @@
     <p class="playlist-entry-text playlist-entry-source">
         {#if playlist.source == "mpd"}
             <i class="fa-solid fa-music" />
-        {/if}
-        {#if playlist.source == "tidal"}
+        {:else if playlist.source == "tidal"}
             <img
                 class="playlist-entry-text-svg"
                 src="../../resources/tidalWhite.svg"
             />
+        {:else if playlist.source == "spotify"}
+            <i class="fa-brands fa-spotify" />
         {/if}
     </p>
     <p class="playlist-entry-text playlist-entry-duration">
-        {prettyTime(playlist.duration)}
+        {playlist.duration == 0 ? "?:??" : prettyTime(playlist.duration)}
     </p>
 </div>
 

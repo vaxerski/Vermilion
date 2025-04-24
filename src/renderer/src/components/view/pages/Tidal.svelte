@@ -5,9 +5,9 @@
     import ArtistIcon from "./minicontainers/ArtistIcon.svelte";
     import { type SearchResults } from "../../../../../main/types/searchResults";
     import { currentPage } from "../../state/sharedState.svelte";
-    import ArtistPage from "./tidal/ArtistPage.svelte";
+    import ArtistPage from "./subpages/ArtistPage.svelte";
     import PageSection from "./shared/PageSection.svelte";
-    import AlbumPage from "./tidal/AlbumPage.svelte";
+    import AlbumPage from "./subpages/AlbumPage.svelte";
     import AlbumIcon from "./minicontainers/AlbumIcon.svelte";
 
     let searchResults: SearchResults = $state({

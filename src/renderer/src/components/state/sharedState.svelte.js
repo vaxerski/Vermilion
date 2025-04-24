@@ -3,6 +3,7 @@
 export const currentPage = $state({
     page: "/",
     pageTidal: "",
+    pageSpotify: "",
     pagePlaylists: "",
 });
 export const playerData = $state({ fullscreen: false });
@@ -11,6 +12,8 @@ export function changePageTo(page) {
 
     if (page.indexOf("/tidal") == 0)
         currentPage.pageTidal = page;
+    else if (page.indexOf("/spotify") == 0)
+        currentPage.pageSpotify = page;
     else if (page.indexOf("/playlist") == 0)
         currentPage.pagePlaylists = page;
 

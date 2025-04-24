@@ -89,6 +89,7 @@ async function performSearch(query: string): Promise<SearchResults> {
                             }
                         ],
                         artistString: s.artist.name,
+                        coverUrl: s.thumbnails.length == 0 ? undefined : s.thumbnails[0].url,
                     });
                 }
             });

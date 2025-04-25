@@ -1,7 +1,9 @@
 <script lang="ts">
+    import type { LyricData } from "../../../../main/types/lyricData";
     import type { SongInfo } from "../../../../main/types/songInfo";
     import { playerData } from "../state/sharedState.svelte";
     import SongEntryMenu from "../view/pages/shared/SongEntryMenu.svelte";
+    import Lyrics from "./fullscreen/Lyrics.svelte";
     import PausePlay from "./parts/PausePlay.svelte";
 
     function prettyTime(time: number) {
@@ -33,7 +35,14 @@
         volume: 0,
     });
 
+    let currentSongLyrics: LyricData = $state({
+        lyrics: [],
+        rawLyrics: [],
+    });
+
     window.electronAPI.updateCurrentSong((res) => {
+        if (res.lyricsUpdated) currentSongLyrics = res.lyrics;
+
         currentSongData = res;
 
         if (
@@ -219,6 +228,10 @@
     function setViewClear() {
         fullscreenViewMode = 0;
     }
+
+    function setViewLyrics() {
+        fullscreenViewMode = 1;
+    }
 </script>
 
 <div class="miniplayer-container">
@@ -299,6 +312,29 @@
     >
         <i class="miniplayer-icon fa-solid fa-image" />
     </div>
+
+    <div
+        class="miniplayer-player-icon-container miniplayer-player-lyrics-mode-container"
+        on:click={setViewLyrics}
+        style="opacity: {fullscreen ? '1' : '0'}; visibility: {fullscreen
+            ? 'visible'
+            : 'hidden'};"
+    >
+        <i class="miniplayer-icon fa-solid fa-bars" />
+    </div>
+
+    <!-- ----------- -->
+
+    <!-- Fullscreen modes -->
+    {#if fullscreen}
+        {#if fullscreenViewMode == 1}
+            <!-- Lyrics mode -->
+
+            <div class="miniplayer-side-view-container">
+                <Lyrics lyrics={currentSongLyrics} />
+            </div>
+        {/if}
+    {/if}
 
     <!-- ----------- -->
 
@@ -385,7 +421,36 @@
 <!-- Conditional stylesheets for fullscreen mode. -->
 
 {#if fullscreen}
+    {#if fullscreenViewMode == 0}
+        <style>
+            .miniplayer-player-container {
+                top: 50%;
+                transform: translateY(-50%) translateX(-50%);
+                left: 50%;
+            }
+        </style>
+    {:else}
+        <style>
+            .miniplayer-player-container {
+                top: 50%;
+                transform: translateY(-50%);
+                left: calc(45% - 25rem);
+            }
+        </style>
+    {/if}
+
     <style>
+        .miniplayer-side-view-container {
+            left: 55%;
+            width: 40%;
+            height: 70%;
+            top: 15%;
+            position: absolute;
+            display: block;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
         .miniplayer-container {
             bottom: unset;
             left: 0;
@@ -394,6 +459,7 @@
             height: 100%;
             border-top-left-radius: 0;
             border-top-right-radius: 0;
+            overflow: hidden;
         }
 
         .miniplayer-player-favorite-container {
@@ -407,7 +473,13 @@
         }
 
         .miniplayer-player-clear-mode-container {
-            left: 50%;
+            left: calc(50% - 1.5rem);
+            top: calc(100% - 2.5rem);
+            transform: translateX(-50%);
+        }
+
+        .miniplayer-player-lyrics-mode-container {
+            left: calc(50% + 1.5rem);
             top: calc(100% - 2.5rem);
             transform: translateX(-50%);
         }
@@ -423,9 +495,6 @@
 
         .miniplayer-player-container {
             height: auto;
-            top: 50%;
-            transform: translateY(-50%) translateX(-50%);
-            left: 50%;
             flex-direction: column;
         }
 
@@ -540,6 +609,10 @@
             height: 100%;
             margin-bottom: 0rem;
         }
+
+        .miniplayer-side-view-container {
+            display: none;
+        }
     </style>
 {/if}
 
@@ -562,6 +635,7 @@
         position: absolute;
         justify-items: center;
         align-items: center;
+        transition: 0.2s cubic-bezier(0.23, 0.65, 0.27, 1);
     }
 
     .miniplayer-player-right-container {
@@ -601,6 +675,7 @@
     .miniplayer-player-more-container:hover > .miniplayer-icon,
     .miniplayer-player-fullscreen-container:hover > .miniplayer-icon,
     .miniplayer-player-clear-mode-container:hover > .miniplayer-icon,
+    .miniplayer-player-lyrics-mode-container:hover > .miniplayer-icon,
     .miniplayer-icon-container:hover > .miniplayer-icon {
         color: var(--vm-panel-font-highlight-mid);
     }
@@ -831,7 +906,8 @@
     }
 
     /* Fullscreen-only icons */
-    .miniplayer-player-clear-mode-container {
+    .miniplayer-player-clear-mode-container,
+    .miniplayer-player-lyrics-mode-container {
         transition: 0.5s cubic-bezier(0.12, 0.67, 0.12, 0.99);
     }
 </style>

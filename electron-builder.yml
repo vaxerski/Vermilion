@@ -32,13 +32,30 @@ dmg:
 linux:
   target:
     - AppImage
-  maintainer: electronjs.org
-  category: Utility
+  executableName: vermilion
+  category: AudioVideo
+  icon: build
+  executableArgs:
+    [
+      "--enable-features=UseOzonePlatform",
+      "--ozone-platform-hint=auto",
+      "--enable-features=WaylandWindowDecorations"
+    ]
+  desktop:
+    entry:
+      Encoding: "UTF-8"
+      Name: "Vermilion"
+      GenericName: "Vermilion"
+      Comment: "A simple and elegant music player"
+      Icon: "vermilion"
+      StartupNotify: "true"
+      Terminal: "false"
+      Type: "Application"
+      Categories: "Network;Application;AudioVideo;Audio;Video"
+      StartupWMClass: "vermilion"
+      X-PulseAudio-Properties: "media.role=music"
 appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
-publish:
-  provider: generic
-  url: https://example.com/auto-updates
 electronDownload:
   mirror: https://github.com/castlabs/electron-releases/releases/download/

@@ -64,7 +64,13 @@
 
     setInterval(() => {
         // update the main thread with our elapsed
+        if (!spotifyPlayer)
+            return;
+
         spotifyPlayer.getCurrentState().then((res) => {
+            if (!res)
+                return;
+
             window.electron.ipcRenderer.send(
                 "spotifyElapsed",
                 res.position / 1000,

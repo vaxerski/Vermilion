@@ -25,6 +25,9 @@ interface Config {
     // MPRIS
     mprisEnabled?: boolean;
 
+    // Discord
+    dcEnabled?: boolean;
+
     // Listenbrainz
     lbEnabled?: boolean;
     lbToken?: string;
@@ -46,13 +49,16 @@ const defaultConfig: Config = {
     ytCookieSource: "",
     mprisEnabled: true,
     lbEnabled: true,
+    dcEnabled: true,
     lbToken: "",
     volume: 0.5,
 };
 
 let config: Config = defaultConfig;
 
-const CONFIG_DIR = path.resolve(os.homedir() + "/.config");
+const XDG_CONFIG_HOME = process.env.XDG_CONFIG_HOME;
+
+const CONFIG_DIR = path.resolve(XDG_CONFIG_HOME ? XDG_CONFIG_HOME : os.homedir() + "/.config");
 
 function loadConfig() {
     if (!fs.existsSync(CONFIG_DIR + "/vermilion"))

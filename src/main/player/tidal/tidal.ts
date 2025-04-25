@@ -9,6 +9,7 @@ import { ArtistData } from "../../types/artistData";
 import { AlbumData } from "../../types/albumData";
 import helpers from "../../helpers/helpers";
 import { ArtistDataShort } from "../../types/artistDataShort";
+import { LyricData } from "../../types/lyricData";
 
 function getToken() {
     return config.getConfigValue("tidalToken");
@@ -45,6 +46,7 @@ let playbackData: SongInfo = {
     identifier: "",
     source: "tidal",
     volume: -1,
+    lyrics: undefined,
 };
 
 async function performSearch(searchFor: string): Promise<SearchResults> {
@@ -298,6 +300,9 @@ async function play(identifier: string) {
 
         identifier = identifier.replaceAll(/[^A-Za-z-0-9 ]/g, '');
 
+        playbackData.lyrics = undefined;
+        playbackData.lyricsUpdated = true;
+
         try {
             const response =
                 await fetch(
@@ -361,6 +366,13 @@ async function play(identifier: string) {
                     playbackData.totalSeconds = data2.duration;
                     playbackData.title = data2.title;
 
+                    getLyrics(identifier).then((l: LyricData) => {
+                        playbackData.lyrics = l;
+                        playbackData.lyricsUpdated = true;
+                    }).catch((e) => {
+                        console.log("Tidal: track " + identifier + " has no lyrics");
+                    });
+
                     res(true);
                 }).catch((e) => {
                     console.log(e);
@@ -403,6 +415,7 @@ async function getPlayState(): Promise<SongInfo> {
         (res) => {
             let pbdata = { ...playbackData }; // clone
             playbackData.albumCoverUpdated = false;
+            playbackData.lyricsUpdated = false;
             res(pbdata);
         }
     );
@@ -867,6 +880,67 @@ async function getAlbumData(identifier: string): Promise<AlbumData> {
     });
 }
 
+async function getLyrics(identifier: string): Promise<LyricData> {
+    return new Promise<LyricData>(async (res, rej) => {
+
+        let lyrics: LyricData = {
+            lyrics: [],
+            rawLyrics: [],
+        };
+
+        identifier = identifier.replaceAll(/[^A-Za-z-0-9 ]/g, '');
+
+        const response =
+            await fetch(
+                TIDAL_URL + TIDAL_TRACK_API_ENDPOINT + identifier + "/lyrics?countryCode=" + TIDAL_COUNTRY_CODE + "&locale=en_US&deviceType=BROWSER",
+                {
+                    method: 'GET',
+                    headers: {
+                        "Accept": "application/json",
+                        "authorization": "Bearer " + TIDAL_SESSION_TOKEN,
+                        "Host": "listen.tidal.com"
+                    }
+                }
+            );
+
+        response.json().then((data) => {
+            if (!data.lyrics) {
+                rej("no lyrics");
+                return;
+            }
+
+            lyrics.rawLyrics = data.lyrics.split("\n");
+
+            if (!data.subtitles) {
+                res(lyrics);
+                return;
+            }
+
+            data.subtitles.split('\n').forEach((line) => {
+                // [mm:ss.ds] lyric...
+                if (line.indexOf("]") == -1)
+                    return;
+                const text = line.substring(line.indexOf("]") + 2);
+                const time = line.substring(1, line.indexOf("]"));
+
+                const mins = parseInt(time.substring(0, time.indexOf(":")));
+                const secs = parseInt(time.substring(time.indexOf(":") + 1, time.indexOf(".")));
+                const ds = parseInt(time.substring(time.indexOf(".") + 1));
+
+                lyrics.lyrics.push({
+                    timeMs: mins * 60 * 1000 + secs * 1000 + ds * 10,
+                    lyric: text
+                });
+            });
+
+            res(lyrics);
+        }).catch((e) => {
+            console.log(e);
+            rej("error in request");
+        });
+    });
+}
+
 export default {
     performSearch,
     play,
@@ -881,4 +955,5 @@ export default {
     getPlaylistData,
     getArtistData,
     getAlbumData,
+    getLyrics,
 }

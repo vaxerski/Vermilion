@@ -1,3 +1,5 @@
+import { LyricData } from "./lyricData";
+
 export interface SongInfo {
     title: string;
     artist: string;
@@ -13,4 +15,6 @@ export interface SongInfo {
     volume: number;
     quality?: string;
     playlist?: string;
+    lyrics?: LyricData;
+    lyricsUpdated?: boolean;
 };

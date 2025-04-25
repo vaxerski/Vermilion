@@ -1,5 +1,5 @@
 <script lang="ts">
-    let { text, buttonText, callback } = $props();
+    let { text = "", buttonText, callback } = $props();
 
     function sendCallback() {
         callback();
@@ -7,15 +7,32 @@
 </script>
 
 <div class="option-container">
+    {#if text != ""}
     <p class="option-name">
         {text}
     </p>
-    <div class="button-container" on:click={sendCallback}>
-        <p class="button-text">
+    {/if}
+    <div class="setting-button-container" on:click={sendCallback}>
+        <p class="setting-button-text">
             {buttonText}
         </p>
     </div>
 </div>
+
+{#if text == ""}
+<style>
+    .setting-button-container {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+</style>
+{:else}
+<style>
+    .setting-button-container {
+        right: 0.5rem;
+    }
+</style>
+{/if}
 
 <style>
     .option-name {
@@ -39,12 +56,11 @@
         height: 2.3rem;
     }
 
-    .button-container {
+    .setting-button-container {
         position: absolute;
         display: block;
         width: 11rem;
         height: 2.3rem;
-        right: 0.5rem;
         background-color: var(--vm-panel-background);
         border: 1px solid var(--vm-panel-border);
         border-radius: 0.7rem;
@@ -53,11 +69,11 @@
         transition: 0.15s ease-in;
     }
 
-    .button-container:hover {
+    .setting-button-container:hover {
         background-color: var(--vm-panel-background-active);
     }
 
-    .button-text {
+    .setting-button-text {
         position: absolute;
         top:50%;
         text-align: center;

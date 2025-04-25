@@ -1,4 +1,5 @@
 <script>
+    import { changePageTo } from "../../state/sharedState.svelte";
     import Button from "./settings/Button.svelte";
     import Checkbox from "./settings/Checkbox.svelte";
     import InputBox from "./settings/InputBox.svelte";
@@ -29,6 +30,10 @@
         console.log("Logging into spotify...");
 
         window.electron.ipcRenderer.send("loginSpotify");
+    }
+
+    function goToCredits() {
+        changePageTo("/credits");
     }
 
     window.electron.ipcRenderer.send("getSetting", "spotifyRefreshToken");
@@ -131,6 +136,14 @@
             text={"API Token"}
             secret={true}
         />
+    </div>
+
+    <p class="settings-section-text">Credits</p>
+
+    <hr class="settings-section-hr" />
+
+    <div class="settings-options-box">
+        <Button callback={goToCredits} text={""} buttonText={"See credits"} />
     </div>
 </div>
 

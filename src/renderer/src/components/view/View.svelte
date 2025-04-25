@@ -10,6 +10,7 @@
     import Playlists from "./pages/Playlists.svelte";
     import Yt from "./pages/Yt.svelte";
     import Spotify from "./pages/Spotify.svelte";
+    import Credits from "./pages/Credits.svelte";
 </script>
 
 <div
@@ -119,6 +120,18 @@
         : 'hidden'}; "
 >
     <Settings />
+</div>
+
+<div
+    class="view-container"
+    style="opacity: {currentPage.page == '/credits' && !playerData.fullscreen
+        ? 1
+        : 0}; visibility: {currentPage.page == '/credits' &&
+    !playerData.fullscreen
+        ? 'visible'
+        : 'hidden'}; "
+>
+    <Credits />
 </div>
 
 {#if playerData.fullscreen}

@@ -12,8 +12,8 @@ let discordThrottle = 0;
 let discordClient = undefined;
 
 const IDLE_PRESENCE = {
-    // largeImageKey: "vermilion-big",
-    //largeImageText: `Vermilion`,
+    largeImageKey: "vermilion-big",
+    largeImageText: "Vermilion",
     instance: false,
     type: ACTIVITY_LISTENING
 };
@@ -37,7 +37,7 @@ function updateSongInfo(song: SongInfo) {
     let activity: SetActivity = {
         details: song.title,
         state: song.artist,
-        largeImageKey: song.albumCover ? song.albumCover : undefined,
+        largeImageKey: song.albumCover && song.albumCover.substring(0, 5) != "data:" ? song.albumCover : "vermilion-big",
         largeImageText: song.album,
         startTimestamp: Date.now() / 1000 - song.elapsedSeconds,
         endTimestamp: Date.now() / 1000 - song.elapsedSeconds + song.totalSeconds,

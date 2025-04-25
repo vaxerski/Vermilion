@@ -7,7 +7,7 @@ import { mainWindow } from "..";
 import tidal from "./tidal/tidal";
 import config from "../config/config";
 import { PlaylistData, PlaylistDataShort } from "../types/playlistDataShort";
-import yt from "../yt/yt";
+import yt from "./yt/yt";
 import spotify from "./spotify/spotify";
 
 let lastSongChange: number = Date.now();

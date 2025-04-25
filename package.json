@@ -28,7 +28,7 @@
     "mpris-service": "^2.1.2",
     "shaka-player": "^4.14.8",
     "yt-dlp-wrap": "^2.3.12",
-    "ytmusic-api": "^5.3.0"
+    "ytmusic_api_unofficial": "^2.1.6"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^3.0.0",

@@ -11,7 +11,7 @@ import tidal from './player/tidal/tidal'
 import externalServices from './player/externalServices'
 import { PlaylistData } from './types/playlistData'
 import { PlaylistDataShort } from './types/playlistDataShort'
-import yt from './yt/yt'
+import yt from './player/yt/yt'
 import spotify from './player/spotify/spotify'
 
 export var mainWindow: BrowserWindow;

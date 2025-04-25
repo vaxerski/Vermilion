@@ -1,15 +1,14 @@
-import YTMusic, { SongDetailed } from "ytmusic-api";
-import { SearchResults } from "../types/searchResults";
-import { createWriteStream } from "fs";
-import { mainWindow } from "..";
-import { SongInfo } from "../types/songInfo";
-import { SongDataShort } from "../types/songData";
-import { AlbumDataShort } from "../types/albumDataShort";
-import config from "../config/config";
+const ytmusic = require("ytmusic_api_unofficial");
+import { SearchResults } from "../../types/searchResults";
+import { mainWindow } from "../..";
+import { SongInfo } from "../../types/songInfo";
+import { SongDataShort } from "../../types/songData";
+import { AlbumDataShort } from "../../types/albumDataShort";
+import config from "../../config/config";
+import { Album, Artist, Music } from "ytmusic_api_unofficial";
+import { ArtistDataShort } from "../../types/artistDataShort";
 const YTDlpWrap = require('yt-dlp-wrap').default;
 
-const ytmusic = new YTMusic();
-ytmusic.initialize();
 const ytDlpWrap = new YTDlpWrap();
 
 // With yt, we get elapsed fed from the render thread
@@ -30,22 +29,32 @@ let playbackData: SongInfo = {
 let idToAlbumMap: Map<string, AlbumDataShort> = new Map();
 let idToShortDataMap: Map<string, SongDataShort> = new Map();
 
-function toSongDataShort(s: SongDetailed): SongDataShort {
+function toArtistDataShort(s: Artist): ArtistDataShort {
     return {
-        identifier: s.videoId,
+        name: s.name,
+        identifier: s.id + "",
+        source: ""
+    };
+}
+
+function toSongDataShort(s: Music): SongDataShort {
+    let artists: Array<ArtistDataShort> = [];
+    let artistString: string = "";
+    s.artists.forEach((x) => {
+        artists.push(toArtistDataShort(x));
+        artistString += x.name + ", ";
+    });
+    artistString = artistString.substring(0, artistString.length - 2);
+
+    return {
+        identifier: s.id,
         source: "yt",
-        title: s.name,
-        artists: [
-            {
-                name: s.artist.name,
-                identifier: s.artist.artistId,
-                source: "yt",
-            }
-        ],
-        artistString: s.artist.name,
+        title: s.title,
+        artists: artists,
+        artistString: artistString,
         album: s.album.name,
-        albumId: s.album.albumId,
-        duration: s.duration,
+        albumId: s.album.id + "",
+        duration: s.duration.duration,
         albumCoverUrl: s.thumbnails.length == 0 ? undefined : s.thumbnails[s.thumbnails.length - 1].url,
     };
 }
@@ -60,54 +69,57 @@ async function performSearch(query: string): Promise<SearchResults> {
             };
 
             // Do this synchronously to avoid a 429.
-            const YT_SONGS = await ytmusic.searchSongs(query);
-            const YT_ALBUMS = await ytmusic.searchAlbums(query);
-            const YT_ARTISTS = await ytmusic.searchArtists(query);
+            const YT_SONGS = await ytmusic.search(query, "SONG");
+            const YT_ALBUMS = await ytmusic.search(query, "ALBUM");
+            const YT_ARTISTS = await ytmusic.search(query, "ARTIST");
 
             console.log("yt: got " + YT_SONGS.length + " songs");
 
-            YT_SONGS.forEach((s) => {
+            YT_SONGS.content.forEach((s: Music) => {
                 const SHORT_DATA = toSongDataShort(s);
 
                 result.songs.push(SHORT_DATA);
 
-                if (!idToShortDataMap.has(s.videoId))
-                    idToShortDataMap.set(s.videoId, SHORT_DATA);
+                if (!idToShortDataMap.has(s.id + ""))
+                    idToShortDataMap.set(s.id + "", SHORT_DATA);
 
-                if (!idToAlbumMap.has(s.videoId)) {
-                    idToAlbumMap.set(s.videoId, {
+                if (!idToAlbumMap.has(s.id + "")) {
+                    let artists: Array<ArtistDataShort> = [];
+                    let artistString: string = "";
+                    s.artists.forEach((x) => {
+                        artists.push(toArtistDataShort(x));
+                        artistString += x.name + ", ";
+                    });
+                    artistString = artistString.substring(0, artistString.length - 2);
+
+                    idToAlbumMap.set(s.id + "", {
                         name: s.album.name,
-                        identifier: s.album.albumId,
+                        identifier: s.album.id + "",
                         source: "yt",
                         songsNumber: 0,
                         duration: 0,
-                        artists: [
-                            {
-                                name: s.artist.name,
-                                identifier: s.artist.artistId,
-                                source: "yt",
-                            }
-                        ],
-                        artistString: s.artist.name,
+                        artists: artists,
+                        artistString: artistString,
                     });
                 }
             });
 
             console.log("yt: got " + YT_ALBUMS.length + " albums");
 
-            YT_ALBUMS.forEach((a) => {
+            YT_ALBUMS.content.forEach((a: Album) => {
+                let artists: Array<ArtistDataShort> = [];
+                let artistString: string = "";
+                a.artists.forEach((x) => {
+                    artists.push(toArtistDataShort(x));
+                    artistString += x.name + ", ";
+                });
+                artistString = artistString.substring(0, artistString.length - 2);
                 result.albums.push({
                     name: a.name,
-                    artists: [
-                        {
-                            name: a.artist.name,
-                            identifier: a.artist.artistId,
-                            source: "yt",
-                        }
-                    ],
-                    artistString: a.artist.name,
+                    artists: artists,
+                    artistString: artistString,
                     source: "yt",
-                    identifier: a.albumId,
+                    identifier: a.id + "",
                     songsNumber: 0,
                     duration: 0,
                     coverUrl: a.thumbnails.length == 0 ? undefined : a.thumbnails[0].url,
@@ -116,10 +128,10 @@ async function performSearch(query: string): Promise<SearchResults> {
 
             console.log("yt: got " + YT_ARTISTS.length + " artists");
 
-            YT_ARTISTS.forEach((a) => {
+            YT_ARTISTS.content.forEach((a: Artist) => {
                 result.artists.push({
                     name: a.name,
-                    identifier: a.artistId,
+                    identifier: a.id + "",
                     source: "yt",
                     topSongs: [],
                     relatedArtists: [],
@@ -259,25 +271,27 @@ async function songFromID(identifier: string): Promise<SongDataShort> {
 
         identifier = identifier.replaceAll(/[^A-Za-z-0-9\-\_ ]/g, '');
 
-        ytmusic.getSong(identifier).then((s) => {
+        ytmusic.get(identifier).then((s: Music) => {
             const HAS_ALBUM = idToAlbumMap.has(identifier);
 
+            let artists: Array<ArtistDataShort> = [];
+            let artistString: string = "";
+            s.artists.forEach((x) => {
+                artists.push(toArtistDataShort(x));
+                artistString += x.name + ", ";
+            });
+            artistString = artistString.substring(0, artistString.length - 2);
+
             sd = {
-                identifier: s.videoId,
+                identifier: s.id + "",
                 source: "yt",
-                title: s.name,
-                artists: [
-                    {
-                        name: s.artist.name,
-                        identifier: s.artist.artistId,
-                        source: "yt",
-                    }
-                ],
-                artistString: s.artist.name,
+                title: s.title,
+                artists: artists,
+                artistString: artistString,
                 album: HAS_ALBUM ? idToAlbumMap.get(identifier).name : "",
                 albumId: HAS_ALBUM ? idToAlbumMap.get(identifier).identifier : undefined,
                 albumCoverUrl: HAS_ALBUM ? idToAlbumMap.get(identifier).coverUrl : undefined,
-                duration: s.duration,
+                duration: s.duration.duration,
             };
             res(sd);
         }).catch(async (e) => {
@@ -290,7 +304,7 @@ async function songFromID(identifier: string): Promise<SongDataShort> {
 
             console.log("yt: song is not cached, searching");
 
-            const YT_SONGS = await ytmusic.searchSongs(identifier);
+            const YT_SONGS = await ytmusic.search(identifier, "SONG");
 
             if (YT_SONGS.length == 0) {
                 console.log("yt: search didn't yield anything :(");

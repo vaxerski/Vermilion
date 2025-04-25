@@ -609,6 +609,10 @@
             height: 100%;
             margin-bottom: 0rem;
         }
+
+        .miniplayer-side-view-container {
+            display: none;
+        }
     </style>
 {/if}
 
@@ -905,9 +909,5 @@
     .miniplayer-player-clear-mode-container,
     .miniplayer-player-lyrics-mode-container {
         transition: 0.5s cubic-bezier(0.12, 0.67, 0.12, 0.99);
-    }
-
-    .miniplayer-side-view-container {
-        display: none;
     }
 </style>

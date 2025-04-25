@@ -433,8 +433,8 @@
         <style>
             .miniplayer-player-container {
                 top: 50%;
-                transform: translateY(-50%) translateX(-50%);
-                left: calc(50% - 20rem);
+                transform: translateY(-50%);
+                left: calc(45% - 25rem);
             }
         </style>
     {/if}

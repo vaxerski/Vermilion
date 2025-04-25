@@ -904,8 +904,6 @@ async function getLyrics(identifier: string): Promise<LyricData> {
             );
 
         response.json().then((data) => {
-            console.log(data);
-
             if (!data.lyrics) {
                 rej("no lyrics");
                 return;

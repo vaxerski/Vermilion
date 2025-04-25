@@ -71,7 +71,7 @@
                 </p>
             {/each}
         {:else if lyrics.rawLyrics.length != 0}
-            {#each lyrics.lyrics as lyric}
+            {#each lyrics.rawLyrics as lyric}
                 <p class="lyrics-lyric lyrics-lyric-active">
                     {lyric.lyric}
                 </p>

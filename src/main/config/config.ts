@@ -15,6 +15,7 @@ interface Config {
 
     // YT
     ytCookieSource?: string;
+    ytBinaryPath?: string;
 
     // Spotify
     spotifyToken?: string;
@@ -44,6 +45,7 @@ const defaultConfig: Config = {
     spotifyToken: "",
     spotifyScopesObtained: "",
     ytCookieSource: "",
+    ytBinaryPath: "",
     mprisEnabled: true,
     lbEnabled: true,
     lbToken: "",

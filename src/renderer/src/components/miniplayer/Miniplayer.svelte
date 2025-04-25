@@ -5,6 +5,7 @@
     import SongEntryMenu from "../view/pages/shared/SongEntryMenu.svelte";
     import Lyrics from "./fullscreen/Lyrics.svelte";
     import PausePlay from "./parts/PausePlay.svelte";
+    import {onMount} from "svelte"
 
     function prettyTime(time: number) {
         if (time <= 0) return "0:00";
@@ -232,6 +233,27 @@
     function setViewLyrics() {
         fullscreenViewMode = 1;
     }
+
+    onMount(() => {
+        const ignoredSelectors = [
+            '.miniplayer-icon',
+            '.miniplayer-volume-bar',
+            '.miniplayer-player-icon-container',
+            '.miniplayer-play-pause-container',
+            '.miniplayer-progress',
+            '.miniplayer-text'
+        ]
+
+        document.querySelector(".miniplayer-container").addEventListener("dblclick", (e) => {
+            const isIgnored = ignoredSelectors
+                .some(selector => (e.target as HTMLElement).closest(selector))
+
+            if (!isIgnored) {
+                toggleFullscreen()
+            }
+        });
+    })
+
 </script>
 
 <div class="miniplayer-container">

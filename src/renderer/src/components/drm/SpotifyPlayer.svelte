@@ -68,6 +68,9 @@
             return;
 
         spotifyPlayer.getCurrentState().then((res) => {
+            if (!res)
+                return;
+
             window.electron.ipcRenderer.send(
                 "spotifyElapsed",
                 res.position / 1000,

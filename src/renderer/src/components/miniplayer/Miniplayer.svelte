@@ -459,6 +459,7 @@
             height: 100%;
             border-top-left-radius: 0;
             border-top-right-radius: 0;
+            overflow: hidden;
         }
 
         .miniplayer-player-favorite-container {
@@ -623,7 +624,6 @@
         z-index: 100;
         backdrop-filter: saturate(150%) blur(50px);
         transition: 0.6s cubic-bezier(0.23, 0.65, 0.27, 1);
-        overflow: hidden;
     }
 
     .miniplayer-player-container {
@@ -905,5 +905,9 @@
     .miniplayer-player-clear-mode-container,
     .miniplayer-player-lyrics-mode-container {
         transition: 0.5s cubic-bezier(0.12, 0.67, 0.12, 0.99);
+    }
+
+    .miniplayer-side-view-container {
+        display: none;
     }
 </style>

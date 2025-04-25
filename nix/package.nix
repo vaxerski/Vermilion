@@ -7,6 +7,7 @@
   makeWrapper,
   electron,
   xdg-utils,
+  yt-dlp,
   ...
 }: let
   fs = lib.fileset;
@@ -62,7 +63,7 @@ in
       runHook preBuild
 
       cp -r ${electron.dist} electron-dist
-      chmod -R u+w electron-dist
+      chmod -R u+w electron-dist # for possible Darwin support in the future
 
       pnpm run build
       pnpm exec electron-builder \
@@ -79,8 +80,14 @@ in
     # *never* catch me unpacking an appimage again.
     # - raf
     installPhase = let
-      # For Electron & file pickers
-      binPath = lib.makeBinPath [xdg-utils];
+      binPath = lib.makeBinPath [
+        # For Electron & file pickers
+        xdg-utils
+
+        # For YT-Music integration
+        # https://github.com/vaxerski/Vermilion/blob/main/docs/YTM.md
+        yt-dlp
+      ];
     in ''
       runHook preInstall
 

@@ -111,6 +111,14 @@
         <Checkbox valueName={"mprisEnabled"} text={"Enabled"} />
     </div>
 
+    <p class="settings-section-text">Discord</p>
+
+    <hr class="settings-section-hr" />
+
+    <div class="settings-options-box">
+        <Checkbox valueName={"dcEnabled"} text={"Enabled"} />
+    </div>
+
     <p class="settings-section-text">Listenbrainz</p>
 
     <hr class="settings-section-hr" />

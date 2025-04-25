@@ -20,11 +20,11 @@ Vermilion is a clean, minimal and simple music player for MPD, Tidal and YT Musi
 - Tidal / MPD / Spotify / YT Music support
 - Listenbrainz integration
 - MPRIS integration
+- Discord RPC integration
 
 ### Planned
 
 - favorites (fetch / send)
-- arrpc (discord) integration
 - local playlists
 - foreign playlist write (update, remove, add)
 - a bunch of qol stuff

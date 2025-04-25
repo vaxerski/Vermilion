@@ -25,6 +25,9 @@ interface Config {
     // MPRIS
     mprisEnabled?: boolean;
 
+    // Discord
+    dcEnabled?: boolean;
+
     // Listenbrainz
     lbEnabled?: boolean;
     lbToken?: string;
@@ -46,6 +49,7 @@ const defaultConfig: Config = {
     ytCookieSource: "",
     mprisEnabled: true,
     lbEnabled: true,
+    dcEnabled: true,
     lbToken: "",
     volume: 0.5,
 };

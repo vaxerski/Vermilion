@@ -234,29 +234,23 @@
         fullscreenViewMode = 1;
     }
 
-    onMount(() => {
-        const ignoredSelectors = [
-            '.miniplayer-icon',
-            '.miniplayer-volume-bar',
-            '.miniplayer-player-icon-container',
-            '.miniplayer-play-pause-container',
-            '.miniplayer-progress',
-            '.miniplayer-text'
-        ]
+    function miniplayerDoubleClickHandler(e: MouseEvent) {
+        const whitelist = [
+            'miniplayer-container',
+            'miniplayer-text',
+            'miniplayer-player-album-cover',
+            'miniplayer-nav-container',
+            'miniplayer-time',
+            'miniplayer-player-container',
+        ];
 
-        document.querySelector(".miniplayer-container").addEventListener("dblclick", (e) => {
-            const isIgnored = ignoredSelectors
-                .some(selector => (e.target as HTMLElement).closest(selector))
-
-            if (!isIgnored) {
-                toggleFullscreen()
-            }
-        });
-    })
-
+        if (whitelist.some(x => (e.target as HTMLElement).classList.contains(x))) {
+            toggleFullscreen();
+        }
+    }
 </script>
 
-<div class="miniplayer-container">
+<div class="miniplayer-container" on:dblclick={miniplayerDoubleClickHandler}>
     <!-- Auxiliary icons (more, fullscreen, volume, like) -->
 
     <div

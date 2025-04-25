@@ -10,6 +10,7 @@ import { AlbumData } from "../../types/albumData";
 import helpers from "../../helpers/helpers";
 import { ArtistDataShort } from "../../types/artistDataShort";
 import { LyricData } from "../../types/lyricData";
+import mxm from "../mxm/mxm";
 
 function getToken() {
     return config.getConfigValue("tidalToken");
@@ -366,7 +367,14 @@ async function play(identifier: string) {
                     playbackData.totalSeconds = data2.duration;
                     playbackData.title = data2.title;
 
-                    getLyrics(identifier).then((l: LyricData) => {
+                    mxm.getLyricsForSong({
+                        title: data2.title,
+                        duration: data2.duration,
+                        album: data2.album ? data2.album.title : "",
+                        artistString: data2.artist ? data2.artist.name : data2.artists[0].name,
+                        identifier: "",
+                        source: "",
+                    }).then((l: LyricData) => {
                         playbackData.lyrics = l;
                         playbackData.lyricsUpdated = true;
                     }).catch((e) => {

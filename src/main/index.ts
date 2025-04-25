@@ -13,6 +13,7 @@ import { PlaylistData } from './types/playlistData'
 import { PlaylistDataShort } from './types/playlistDataShort'
 import yt from './player/yt/yt'
 import spotify from './player/spotify/spotify'
+import mxm from './player/mxm/mxm'
 
 export var mainWindow: BrowserWindow;
 
@@ -331,6 +332,12 @@ app.whenReady().then(async () => {
     spotify.elapsed(data);
   });
 
+  ipcMain.on('reconnectMXM', (ev, data) => {
+    config.setConfigValue("mxmToken", "");
+    mxm.connect();
+    mainWindow.webContents.send('newNotification', { color: "#00b30033", text: "Reconnected to MXM" });
+  });
+
   config.loadConfig();
 
   createWindow();
@@ -386,6 +393,8 @@ app.whenReady().then(async () => {
 
       player.updatePlaylists();
     });
+
+    mxm.connect();
   }, 500);
 
   app.on('activate', function () {

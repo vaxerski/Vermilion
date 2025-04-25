@@ -36,6 +36,10 @@
         changePageTo("/credits");
     }
 
+    function reconnectMXM() {
+        window.electron.ipcRenderer.send("reconnectMXM");
+    }
+
     window.electron.ipcRenderer.send("getSetting", "spotifyRefreshToken");
 </script>
 
@@ -138,12 +142,29 @@
         />
     </div>
 
+    <p class="settings-section-text">Musixmatch</p>
+
+    <hr class="settings-section-hr" />
+
+    <div class="settings-options-box">
+        <Button
+            callback={reconnectMXM}
+            text={"Reconnect to MXM"}
+            buttonText={"Reconnect"}
+        />
+    </div>
+
     <p class="settings-section-text">Credits</p>
 
     <hr class="settings-section-hr" />
 
     <div class="settings-options-box">
-        <Button callback={goToCredits} text={""} buttonText={"See credits"} />
+        <Button
+            callback={goToCredits}
+            text={""}
+            buttonText={"See credits"}
+            center={true}
+        />
     </div>
 </div>
 

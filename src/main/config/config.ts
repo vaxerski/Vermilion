@@ -25,6 +25,9 @@ interface Config {
     // MPRIS
     mprisEnabled?: boolean;
 
+    // MXM
+    mxmToken?: string;
+
     // Discord
     dcEnabled?: boolean;
 
@@ -47,6 +50,7 @@ const defaultConfig: Config = {
     spotifyToken: "",
     spotifyScopesObtained: "",
     ytCookieSource: "",
+    mxmToken: "",
     mprisEnabled: true,
     lbEnabled: true,
     dcEnabled: true,

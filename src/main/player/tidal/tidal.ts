@@ -633,7 +633,7 @@ async function getPlaylists(): Promise<Array<PlaylistDataShort>> {
 }
 
 async function getArtistData(identifier: string): Promise<ArtistData> {
-    return new Promise<ArtistData>(async (res) => {
+    return new Promise<ArtistData>(async (res, rej) => {
         let result: ArtistData = {
             name: "",
             topSongs: [],
@@ -644,7 +644,7 @@ async function getArtistData(identifier: string): Promise<ArtistData> {
         };
 
         if (!TIDAL_LOGGED_IN) {
-            res(result);
+            rej("Not logged in");
             return;
         }
 
@@ -667,7 +667,7 @@ async function getArtistData(identifier: string): Promise<ArtistData> {
             if (!data.rows) {
                 console.log("Tidal: artist query error");
                 console.log(data);
-                res(result);
+                rej("artist query server error");
                 return;
             }
 
@@ -774,7 +774,7 @@ async function getArtistData(identifier: string): Promise<ArtistData> {
 }
 
 async function getAlbumData(identifier: string): Promise<AlbumData> {
-    return new Promise<AlbumData>(async (res) => {
+    return new Promise<AlbumData>(async (res, rej) => {
         let result: AlbumData = {
             name: "",
             artist: "",
@@ -784,7 +784,7 @@ async function getAlbumData(identifier: string): Promise<AlbumData> {
         };
 
         if (!TIDAL_LOGGED_IN) {
-            res(result);
+            rej("Not logged in");
             return;
         }
 
@@ -807,7 +807,7 @@ async function getAlbumData(identifier: string): Promise<AlbumData> {
             if (!data.rows) {
                 console.log("Tidal: artist query error");
                 console.log(data);
-                res(result);
+                rej("Server error");
                 return;
             }
 

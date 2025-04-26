@@ -262,11 +262,15 @@ app.whenReady().then(async () => {
     if (data.source == "tidal") {
       tidal.getArtistData(data.identifier).then((res) => {
         mainWindow.webContents.send('artistData', res);
-      })
+      }).catch((e) => {
+        mainWindow.webContents.send('newNotification', { color: "#b3000033", text: "Query failed: " + e + "." });
+      });
     } else if (data.source == "spotify") {
       spotify.getArtistData(data.identifier).then((res) => {
         mainWindow.webContents.send('artistData', res);
-      })
+      }).catch((e) => {
+        mainWindow.webContents.send('newNotification', { color: "#b3000033", text: "Query failed: " + e + "." });
+      });
     }
   });
 
@@ -275,11 +279,15 @@ app.whenReady().then(async () => {
     if (data.source == "tidal") {
       tidal.getAlbumData(data.identifier).then((res) => {
         mainWindow.webContents.send('albumData', res);
-      })
+      }).catch((e) => {
+        mainWindow.webContents.send('newNotification', { color: "#b3000033", text: "Query failed: " + e + "." });
+      });
     } else if (data.source == "spotify") {
       spotify.getAlbumData(data.identifier).then((res) => {
         mainWindow.webContents.send('albumData', res);
-      })
+      }).catch((e) => {
+        mainWindow.webContents.send('newNotification', { color: "#b3000033", text: "Query failed: " + e + "." });
+      });
     }
   });
 

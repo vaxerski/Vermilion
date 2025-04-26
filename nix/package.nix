@@ -13,7 +13,7 @@
   fs = lib.fileset;
 in
   stdenvNoCC.mkDerivation (finalAttrs: {
-    pname = "vermillion";
+    pname = "vermilion";
     version =
       if (self ? rev)
       then (builtins.substring 0 7 self.rev)
@@ -91,12 +91,12 @@ in
     in ''
       runHook preInstall
 
-      mkdir -p $out/share/vermillion
-      cp -r dist/*-unpacked/{locales,resources{,.pak}} $out/share/vermillion
+      mkdir -p $out/share/vermilion
+      cp -r dist/*-unpacked/{locales,resources{,.pak}} $out/share/vermilion
 
-      makeWrapper '${lib.getExe electron}' "$out/bin/vermillion" \
+      makeWrapper '${lib.getExe electron}' "$out/bin/vermilion" \
         --inherit-argv0 \
-        --add-flags $out/share/vermillion/resources/app.asar \
+        --add-flags $out/share/vermilion/resources/app.asar \
         --suffix PATH : "${binPath}" \
         --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime=true}}"
 

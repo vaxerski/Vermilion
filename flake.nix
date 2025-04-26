@@ -20,16 +20,16 @@
     packages = forEachSystem (system: let
       pkgs = pkgsForEach.${system};
     in {
-      default = self.packages.${system}.vermillion;
-      vermillion = pkgs.callPackage ./nix/package.nix {inherit self;};
+      default = self.packages.${system}.vermilion;
+      vermilion = pkgs.callPackage ./nix/package.nix {inherit self;};
     });
 
     devShells = forEachSystem (system: let
       pkgs = pkgsForEach.${system};
     in {
-      default = self.devShells.${system}.vermillion;
-      vermillion = pkgs.mkShellNoCC {
-        name = "vermillion-dev";
+      default = self.devShells.${system}.vermilion;
+      vermilion = pkgs.mkShellNoCC {
+        name = "vermilion-dev";
         packages = with pkgs; [
           # Eslint_d
           nodejs-slim

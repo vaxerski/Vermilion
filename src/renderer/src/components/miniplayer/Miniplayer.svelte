@@ -153,6 +153,8 @@
             100,
         );
 
+        console.log(volume);
+
         document.getElementById("volume-foreground").style.height =
             volume + "%";
     }
@@ -257,12 +259,11 @@
         class="miniplayer-player-icon-container miniplayer-player-volume-container"
     >
         <i class="miniplayer-icon fa-solid fa-volume-low" />
-        <div
-            class="miniplayer-volume-bar-container"
-            on:mousedown={onClickOnVolume}
-            id="volume-container"
-        >
-            <div class="miniplayer-volume-bar-container-inner">
+        <div class="miniplayer-volume-bar-container" id="volume-container">
+            <div
+                class="miniplayer-volume-bar-container-inner"
+                on:mousedown={onClickOnVolume}
+            >
                 <div class="miniplayer-volume-bar-container-inner-2">
                     <div
                         class="miniplayer-volume-bar miniplayer-volume-bar-background"

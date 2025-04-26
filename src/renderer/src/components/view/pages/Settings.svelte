@@ -6,6 +6,7 @@
     import PageTitle from "./shared/PageTitle.svelte";
 
     let spotifyLoggedIn = $state(false);
+    let tidalLoggedIn = $state(false);
 
     window.electronAPI.sendSetting((res) => {
         if (res.setting != "spotifyRefreshToken") return;
@@ -32,11 +33,22 @@
         window.electron.ipcRenderer.send("loginSpotify");
     }
 
+    function tidalLogIn() {
+        if (tidalLoggedIn) return;
+
+        console.log("Logging into tidal...");
+
+        window.electron.ipcRenderer.send("loginTidal");
+    }
+
     function goToCredits() {
         changePageTo("/credits");
     }
 
-    window.electron.ipcRenderer.send("getSetting", "spotifyRefreshToken");
+    window.electronAPI.loginState((msg) => {
+        if (msg.tidal) tidalLoggedIn = msg.tidal;
+        if (msg.spotify) spotifyLoggedIn = msg.spotify;
+    });
 </script>
 
 <PageTitle text="Settings" subtext="Just what you need" />
@@ -75,6 +87,11 @@
             valueName={"tidalClientID"}
             text={"Tidal Client ID"}
             secret={true}
+        />
+        <Button
+            callback={tidalLogIn}
+            text={"Log in manually or restart Vermilion"}
+            buttonText={!tidalLoggedIn ? "Log in" : "Log out"}
         />
     </div>
 

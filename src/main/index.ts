@@ -16,6 +16,12 @@ import spotify from './player/spotify/spotify'
 
 export var mainWindow: BrowserWindow;
 
+let loginState = {
+  spotify: false,
+  tidal: false,
+  mpd: false
+};
+
 function createWindow(): void {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -293,6 +299,7 @@ app.whenReady().then(async () => {
 
   ipcMain.on('pageGotChanged', (ev, data) => {
     mainWindow.webContents.send('pageChanged', data);
+    mainWindow.webContents.send('loginState', loginState);
   });
 
   ipcMain.on('openLink', (ev, data) => {
@@ -312,6 +319,9 @@ app.whenReady().then(async () => {
         } else {
           mainWindow.webContents.send('newNotification', { color: "#00b30033", text: "Connected to mpd" });
         }
+
+        mainWindow.webContents.send('loginState', { mpd: !!res });
+        loginState.mpd = !!res;
       })
     }
   });
@@ -332,7 +342,24 @@ app.whenReady().then(async () => {
         mainWindow.webContents.send('spotifyLoggedIn');
       } else
         mainWindow.webContents.send('newNotification', { color: "#b3000033", text: "Couldn't log into Spotify" });
-    })
+
+      mainWindow.webContents.send('loginState', { spotify: !!result });
+      loginState.spotify = !!result;
+    });
+  });
+
+  ipcMain.on('loginTidal', (ev, data) => {
+    tidal.login().then((e) => {
+      if (e)
+        mainWindow.webContents.send('newNotification', { color: "#00b30033", text: "Logged into Tidal" });
+      else
+        mainWindow.webContents.send('newNotification', { color: "#b3000033", text: "Couldn't log into Tidal" });
+
+      player.updatePlaylists();
+
+      mainWindow.webContents.send('loginState', { tidal: !!e });
+      loginState.tidal = !!tidal;
+    });
   });
 
   ipcMain.on('spotifyElapsed', (ev, data) => {
@@ -342,14 +369,6 @@ app.whenReady().then(async () => {
   config.loadConfig();
 
   createWindow();
-
-  mpd.reconnect(config.getConfigValue("mpdAddress"), parseInt(config.getConfigValue("mpdPort"))).then((res) => {
-    if (!res) {
-      mainWindow.webContents.send('newNotification', { color: "#b3000033", text: "Couldn't connect to mpd at " + config.getConfigValue("mpdAddress") + ":" + config.getConfigValue("mpdPort") + "." });
-    } else {
-      mainWindow.webContents.send('newNotification', { color: "#00b30033", text: "Connected to mpd" });
-    }
-  })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     return { action: 'deny' }
@@ -384,6 +403,9 @@ app.whenReady().then(async () => {
         mainWindow.webContents.send('newNotification', { color: "#b3000033", text: "Couldn't log into Spotify" });
 
       player.updatePlaylists();
+
+      mainWindow.webContents.send('loginState', { spotify: !!e });
+      loginState.spotify = !!e;
     });
 
     tidal.login().then((e) => {
@@ -393,6 +415,20 @@ app.whenReady().then(async () => {
         mainWindow.webContents.send('newNotification', { color: "#b3000033", text: "Couldn't log into Tidal" });
 
       player.updatePlaylists();
+
+      mainWindow.webContents.send('loginState', { tidal: !!e });
+      loginState.tidal = !!e;
+    });
+
+    mpd.reconnect(config.getConfigValue("mpdAddress"), parseInt(config.getConfigValue("mpdPort"))).then((e) => {
+      if (!e) {
+        mainWindow.webContents.send('newNotification', { color: "#b3000033", text: "Couldn't connect to mpd at " + config.getConfigValue("mpdAddress") + ":" + config.getConfigValue("mpdPort") + "." });
+      } else {
+        mainWindow.webContents.send('newNotification', { color: "#00b30033", text: "Connected to mpd" });
+      }
+
+      mainWindow.webContents.send('loginState', { mpd: !!e });
+      loginState.mpd = !!e;
     });
   }, 500);
 

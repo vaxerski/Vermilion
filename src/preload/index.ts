@@ -69,6 +69,9 @@ if (process.contextIsolated) {
       spotifyPlayEvent: (callback) => ipcRenderer.on('spotifyPlayEvent',
         (_event, value) => callback(value)
       ),
+      loginState: (callback) => ipcRenderer.on('loginState',
+        (_event, value) => callback(value)
+      ),
     })
   } catch (error) {
     console.error(error)

@@ -9,6 +9,7 @@
     import { currentPage } from "../../state/sharedState.svelte";
     import ArtistPage from "./subpages/ArtistPage.svelte";
     import AlbumPage from "./subpages/AlbumPage.svelte";
+    import PageLoginRequest from "./shared/PageLoginRequest.svelte";
 
     let searchResults: SearchResults = $state({
         songs: [],
@@ -17,6 +18,11 @@
     });
 
     const ID = $props.id();
+    let spotifyLoggedIn = $state(false);
+
+    window.electronAPI.loginState((msg) => {
+        if (msg.spotify) spotifyLoggedIn = msg.spotify;
+    });
 
     window.electronAPI.updateSpotifySearch((msg /* Array<SongDataShort> */) => {
         searchResults = msg;
@@ -27,72 +33,73 @@
     };
 </script>
 
+{#if !spotifyLoggedIn}
+    <PageTitle
+        text="Spotify"
+        subtext="Stream music from Spotify"
+        infotext="Vermilion is not associated with Spotify."
+    />
 
-{#if currentPage.pageSpotify.indexOf("/spotify/artist/") == 0}
-
+    <PageLoginRequest text={"Go to settings to log in to Spotify"} />
+{:else if currentPage.pageSpotify.indexOf("/spotify/artist/") == 0}
     {#key currentPage.pageSpotify}
         <ArtistPage
             identifier={currentPage.page.substring("/spotify/artist/".length)}
             source={"spotify"}
         />
     {/key}
-
 {:else if currentPage.pageSpotify.indexOf("/spotify/album/") == 0}
-
     {#key currentPage.pageSpotify}
         <AlbumPage
             identifier={currentPage.page.substring("/spotify/album/".length)}
             source={"spotify"}
         />
     {/key}
-
 {:else}
+    <PageTitle
+        text="Spotify"
+        subtext="Stream music from Spotify"
+        infotext="Vermilion is not associated with Spotify."
+    />
 
-<PageTitle
-    text="Spotify"
-    subtext="Stream music from Spotify"
-    infotext="Vermilion is not associated with Spotify."
-/>
+    <Search placeholder="Search..." callback={updateSearchItem} />
 
-<Search placeholder="Search..." callback={updateSearchItem} />
+    {#if searchResults.artists.length > 0}
+        <PageSection text={"Artists"} />
 
-{#if searchResults.artists.length > 0}
-    <PageSection text={"Artists"} />
+        <div class="artist-results-container" id="artist-results-{ID}">
+            {#each searchResults.artists as artist}
+                <ArtistIcon
+                    name={artist.name}
+                    identifier={artist.identifier}
+                    source={artist.source}
+                    iconURL={artist.imageURL ? artist.imageURL : ""}
+                />
+            {/each}
+        </div>
+    {/if}
 
-    <div class="artist-results-container" id="artist-results-{ID}">
-        {#each searchResults.artists as artist}
-            <ArtistIcon
-                name={artist.name}
-                identifier={artist.identifier}
-                source={artist.source}
-                iconURL={artist.imageURL ? artist.imageURL : ""}
-            />
-        {/each}
-    </div>
-{/if}
+    {#if searchResults.albums.length > 0}
+        <PageSection text={"Albums"} />
+        <div class="artist-results-container" id="album-results-{ID}">
+            {#each searchResults.albums as album}
+                <AlbumIcon
+                    name={album.name}
+                    identifier={album.identifier}
+                    source={album.source}
+                    songAmount={album.songsNumber}
+                    duration={album.duration}
+                    iconURL={album.coverUrl ? album.coverUrl : ""}
+                    releaseYear={album.year ? album.year : ""}
+                    artist={album.artistString}
+                />
+            {/each}
+        </div>
+    {/if}
 
-{#if searchResults.albums.length > 0}
-    <PageSection text={"Albums"} />
-    <div class="artist-results-container" id="album-results-{ID}">
-        {#each searchResults.albums as album}
-            <AlbumIcon
-                name={album.name}
-                identifier={album.identifier}
-                source={album.source}
-                songAmount={album.songsNumber}
-                duration={album.duration}
-                iconURL={album.coverUrl ? album.coverUrl : ""}
-                releaseYear={album.year ? album.year : ""}
-                artist={album.artistString}
-            />
-        {/each}
-    </div>
-{/if}
+    <PageSection text={"Tracks"} />
 
-<PageSection text={"Tracks"} />
-
-<SongList songs={searchResults.songs} placeholder="Search something..." />
-
+    <SongList songs={searchResults.songs} placeholder="Search something..." />
 {/if}
 
 <style>

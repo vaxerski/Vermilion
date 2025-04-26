@@ -9,17 +9,23 @@
     import PageSection from "./shared/PageSection.svelte";
     import AlbumPage from "./subpages/AlbumPage.svelte";
     import AlbumIcon from "./minicontainers/AlbumIcon.svelte";
+    import PageLoginRequest from "./shared/PageLoginRequest.svelte";
 
     let searchResults: SearchResults = $state({
         songs: [],
         artists: [],
-        albums: []
+        albums: [],
     });
 
     const ID = $props.id();
+    let tidalLoggedIn = $state(false);
 
     window.electronAPI.updateTidalSearch((msg /* Array<SongDataShort> */) => {
         searchResults = msg;
+    });
+
+    window.electronAPI.loginState((msg) => {
+        if (msg.tidal) tidalLoggedIn = msg.tidal;
     });
 
     const updateSearchItem = (d: string) => {
@@ -27,7 +33,15 @@
     };
 </script>
 
-{#if currentPage.pageTidal.indexOf("/tidal/artist/") == 0}
+{#if !tidalLoggedIn}
+    <PageTitle
+        text="Tidal"
+        subtext="Stream high-res music from Tidal"
+        infotext="Vermilion is not associated with Tidal or Tidal Music AS."
+    />
+
+    <PageLoginRequest text={"Go to settings to log in to Tidal"} />
+{:else if currentPage.pageTidal.indexOf("/tidal/artist/") == 0}
     {#key currentPage.pageTidal}
         <ArtistPage
             identifier={currentPage.page.substring("/tidal/artist/".length)}

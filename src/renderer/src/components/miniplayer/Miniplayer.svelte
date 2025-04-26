@@ -127,17 +127,20 @@
 
     // ------------------ Volume Bar ------------------ //
 
-    let volume = 50;
+    let volume = $state(50);
     let volumeBackup = 0;
     let volumeing = false;
     let reportedVolume = 50;
+    let volumeIcon = $derived(
+        volume == 0 ? "fa-volume-xmark"
+        : volume < 50 ? "fa-volume-low"
+        : "fa-volume-high"
+    )
 
     function onClickOnVolumeIcon() {
         let temp = volume
         volume = volume == 0 ? volumeBackup : 0
         volumeBackup = temp == 0 ? 0 : temp
-
-        console.log("hey")
 
         document.getElementById("volume-foreground").style.height =
             volume + "%";
@@ -267,7 +270,7 @@
     <div
         class="miniplayer-player-icon-container miniplayer-player-volume-container"
     >
-        <i class="miniplayer-icon fa-solid fa-volume-low" on:mousedown={onClickOnVolumeIcon} />
+        <i class="miniplayer-icon fa-solid {volumeIcon}" on:mousedown={onClickOnVolumeIcon} />
         <div class="miniplayer-volume-bar-container" id="volume-container">
             <div
                 class="miniplayer-volume-bar-container-inner"

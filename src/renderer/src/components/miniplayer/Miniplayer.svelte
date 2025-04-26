@@ -137,13 +137,15 @@
         : "fa-volume-high"
     )
 
+    $effect(() => {
+        document.getElementById("volume-foreground").style.height =
+            volume + "%";
+    })
+
     function onClickOnVolumeIcon() {
         let temp = volume
         volume = volume == 0 ? volumeBackup : 0
         volumeBackup = temp == 0 ? 0 : temp
-
-        document.getElementById("volume-foreground").style.height =
-            volume + "%";
     }
 
     function onClickOnVolumeBar() {
@@ -166,9 +168,6 @@
             Math.max((1 - (lastMouseY - BB2.y) / BB2.height) * 100, 0),
             100,
         );
-
-        document.getElementById("volume-foreground").style.height =
-            volume + "%";
     }
 
     addEventListener("mousemove", (e) => {

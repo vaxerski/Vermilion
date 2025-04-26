@@ -5,7 +5,6 @@
     import SongEntryMenu from "../view/pages/shared/SongEntryMenu.svelte";
     import Lyrics from "./fullscreen/Lyrics.svelte";
     import PausePlay from "./parts/PausePlay.svelte";
-    import {onMount} from "svelte"
 
     function prettyTime(time: number) {
         if (time <= 0) return "0:00";
@@ -129,10 +128,22 @@
     // ------------------ Volume Bar ------------------ //
 
     let volume = 50;
+    let volumeBackup = 0;
     let volumeing = false;
     let reportedVolume = 50;
 
-    function onClickOnVolume() {
+    function onClickOnVolumeIcon() {
+        let temp = volume
+        volume = volume == 0 ? volumeBackup : 0
+        volumeBackup = temp == 0 ? 0 : temp
+
+        console.log("hey")
+
+        document.getElementById("volume-foreground").style.height =
+            volume + "%";
+    }
+
+    function onClickOnVolumeBar() {
         volumeing = true;
 
         const VOLUMECONTAINER = document.getElementById("volume-container");
@@ -152,8 +163,6 @@
             Math.max((1 - (lastMouseY - BB2.y) / BB2.height) * 100, 0),
             100,
         );
-
-        console.log(volume);
 
         document.getElementById("volume-foreground").style.height =
             volume + "%";
@@ -258,11 +267,11 @@
     <div
         class="miniplayer-player-icon-container miniplayer-player-volume-container"
     >
-        <i class="miniplayer-icon fa-solid fa-volume-low" />
+        <i class="miniplayer-icon fa-solid fa-volume-low" on:mousedown={onClickOnVolumeIcon} />
         <div class="miniplayer-volume-bar-container" id="volume-container">
             <div
                 class="miniplayer-volume-bar-container-inner"
-                on:mousedown={onClickOnVolume}
+                on:mousedown={onClickOnVolumeBar}
             >
                 <div class="miniplayer-volume-bar-container-inner-2">
                     <div
@@ -866,10 +875,10 @@
     .miniplayer-volume-bar-container {
         position: absolute;
         display: block;
-        bottom: 0;
+        bottom: 1.5em;
         left: 50%;
         transform: translateX(-50%);
-        height: 12rem;
+        height: 10rem;
         width: 3rem;
         z-index: 101;
         background-color: transparent;
@@ -879,7 +888,7 @@
     .miniplayer-volume-bar-container-inner {
         position: absolute;
         display: block;
-        bottom: 1.5rem;
+        bottom: 0;
         left: 50%;
         transform: translateX(-50%);
         height: 10rem;

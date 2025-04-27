@@ -28,6 +28,8 @@
                 // disable all lyrics
                 for (let i = 0; i < lyrics.lyrics.length; ++i) {
                     const EL = document.getElementById("lyrics-lyric-" + i);
+                    if (!EL || !EL.style)
+                        continue;
                     if (EL.style.opacity != "0.5") EL.style.opacity = "0.5";
                 }
             }
@@ -35,6 +37,8 @@
             lastI = i;
 
             const EL = document.getElementById("lyrics-lyric-" + i);
+            if (!EL || !EL.style)
+                break;
             if (EL.style.opacity != "1") EL.style.opacity = "1";
 
             const CONT = document.getElementById("lyrics-container");

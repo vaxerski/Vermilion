@@ -20,7 +20,7 @@ To get your token:
 - Refresh the page.
 - Grab a request that has the resource of just `token`:<br/>
   ![](./resources/tidal_1.png)
-- Click it and go to the `request` tab:<br/>
+- Click it and go to the `response` tab:<br/>
   ![](./resources/tidal_2.png)
   
 - Copy the `client_id` value and paste it into the `Tidal Client ID` setting.

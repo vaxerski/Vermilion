@@ -5,7 +5,7 @@
     import { type SongDataShort } from "../../../../../main/types/songData";
     import PageLoginRequest from "./shared/PageLoginRequest.svelte";
 
-    let songs: Array<SongDataShort> = [];
+    let songs: Array<SongDataShort> = $state([]);
     let mpdLoggedIn = $state(false);
 
     window.electronAPI.loginState((msg) => {

@@ -46,4 +46,6 @@ jobs:
           sed -e "s#hash =.*\$#hash = \"$hash\";#g" -i nix/package.nix
 
           git diff
-
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "[CI]: update pnpm dependency hash"

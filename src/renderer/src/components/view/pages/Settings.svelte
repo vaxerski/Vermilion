@@ -60,14 +60,14 @@
 
     <div class="settings-options-box">
         <InputBox
-            placeholder={"127.0.0.1"}
-            valueName={"mpdAddress"}
-            text={"Server Address"}
+            placeholder="127.0.0.1"
+            valueName="mpdAddress"
+            text="Server Address"
         />
         <InputBox
-            placeholder={"6600"}
-            valueName={"mpdPort"}
-            text={"Server Port"}
+            placeholder="6600"
+            valueName="mpdPort"
+            text="Server Port"
         />
     </div>
 
@@ -77,15 +77,15 @@
 
     <div class="settings-options-box">
         <InputBox
-            placeholder={"..."}
-            valueName={"tidalRefreshToken"}
-            text={"Tidal Token"}
+            placeholder="..."
+            valueName="tidalRefreshToken"
+            text="Tidal Token"
             secret={true}
         />
         <InputBox
-            placeholder={"..."}
-            valueName={"tidalClientID"}
-            text={"Tidal Client ID"}
+            placeholder="..."
+            valueName="tidalClientID"
+            text="Tidal Client ID"
             secret={true}
         />
         <Button
@@ -113,7 +113,7 @@
         />
     </div>
 
-    <p class="settings-section-text">YT Music</p>
+    <p class="settings-section-text">Spotify</p>
 
     <hr class="settings-section-hr" />
 
@@ -123,6 +123,25 @@
             valueName={"ytCookieSource"}
             text={"Cookie source (if getting blocked, browser name)"}
         />
+    </div>
+
+    <p class="settings-section-text">YT Music</p>
+
+    <hr class="settings-section-hr" />
+
+    <div class="settings-options-box">
+        <InputBox
+            placeholder=""
+            valueName="ytCookieSource"
+            text="Cookie source (if getting blocked, browser name)"
+        />
+        {#if window.electronAPI.isWindows}
+            <InputBox
+            placeholder=""
+            valueName="ytBinaryPath"
+            text="YT-Dtp path (by default is ./yt-dtp)"
+        />
+        {/if}
     </div>
 
     <p class="settings-section-text">MPRIS</p>
@@ -148,9 +167,9 @@
     <div class="settings-options-box">
         <Checkbox valueName={"lbEnabled"} text={"Enabled"} />
         <InputBox
-            placeholder={"..."}
-            valueName={"lbToken"}
-            text={"API Token"}
+            placeholder="..."
+            valueName="lbToken"
+            text="API Token"
             secret={true}
         />
     </div>

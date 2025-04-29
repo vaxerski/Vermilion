@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { isLinux, isMac, isWindows } from '../main/helpers/helpers'
 
 // Custom APIs for renderer
 const api = {}
@@ -12,6 +13,9 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
     contextBridge.exposeInMainWorld('electronAPI', {
+      isWindows,
+      isLinux,
+      isMac,
       updateCurrentSong: (callback) => ipcRenderer.on('updateCurrentSong',
         (_event, value) => callback(value)
       ),

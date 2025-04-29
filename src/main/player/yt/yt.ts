@@ -7,9 +7,22 @@ import { AlbumDataShort } from "../../types/albumDataShort";
 import config from "../../config/config";
 import { Album, Artist, Music } from "ytmusic_api_unofficial";
 import { ArtistDataShort } from "../../types/artistDataShort";
+import { isWindows } from "../../helpers/helpers";
 const YTDlpWrap = require('yt-dlp-wrap').default;
 
-const ytDlpWrap = new YTDlpWrap();
+let ytDlpWrap;
+function newYTDlpWrap(): void {
+    if (ytDlpWrap) {
+        return;
+    }
+
+    if (isWindows) {
+        const binarypath = config.getConfigValue("ytBinaryPath");
+        ytDlpWrap = new YTDlpWrap(binarypath);
+    } else {
+        ytDlpWrap = new YTDlpWrap();
+    }
+}
 
 // With yt, we get elapsed fed from the render thread
 let playbackData: SongInfo = {
@@ -148,6 +161,7 @@ async function performSearch(query: string): Promise<SearchResults> {
 
 async function play(identifier: string) {
     return new Promise<boolean>(async (res, rej) => {
+        newYTDlpWrap();
         identifier = identifier.replaceAll(/[^A-Za-z-0-9\-\_ ]/g, '');
 
         let params: string[] = [

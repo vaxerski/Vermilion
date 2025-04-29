@@ -123,6 +123,13 @@
             valueName={"ytCookieSource"}
             text={"Cookie source (if getting blocked, browser name)"}
         />
+        {#if window.electronAPI.isWindows}
+            <InputBox
+                placeholder=""
+                valueName="ytBinaryPath"
+                text="YT-Dtp path (by default is ./yt-dtp)"
+            />
+        {/if}
     </div>
 
     <p class="settings-section-text">MPRIS</p>

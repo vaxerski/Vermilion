@@ -1,0 +1,49 @@
+name: Fix PNPM Dependency Hash
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-$${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  build-nix:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Get changed files
+        id: changed-files
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            files:
+              - 'flake.nix'
+              - 'nix/package.nix'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+
+      - uses: DeterminateSystems/nix-installer-action@main
+        if: steps.changed-files.outputs.files == 'true'
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+        if: steps.changed-files.outputs.files == 'true'
+
+      - if: steps.changed-files.outputs.files == 'true'
+        run: |
+          if nix build --print-build-logs .#vermilion 2> /tmp/log; then
+            exit 0
+          fi
+
+          hash="$(grep 'got:' /tmp/log | awk '{print $2}')"
+          echo "hash=$hash"
+
+          sed -e "s#hash =.*\$#hash = \"$hash\";#g" -i nix/packages.nix
+
+          git diff
+

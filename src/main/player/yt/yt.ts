@@ -7,6 +7,7 @@ import { AlbumDataShort } from "../../types/albumDataShort";
 import config from "../../config/config";
 import { Album, Artist, Music } from "ytmusic_api_unofficial";
 import { ArtistDataShort } from "../../types/artistDataShort";
+import { isWindows } from "../../helpers/helpers";
 const YTDlpWrap = require('yt-dlp-wrap').default;
 
 

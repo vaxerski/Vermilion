@@ -115,4 +115,4 @@ See [building.md](./docs/Building.md).
 
 ## Disclaimer
 
-Vermilion is in no way associated with, or endorsed by, Tidal, TIDAL Music AS, Youtube, Youtube Music or Google LLC.
+Vermilion is in no way associated with, or endorsed by, Tidal, TIDAL Music AS, Youtube, Spotify, Youtube Music or Google LLC.

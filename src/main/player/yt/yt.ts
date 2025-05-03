@@ -12,16 +12,13 @@ const YTDlpWrap = require('yt-dlp-wrap').default;
 
 let ytDlpWrap;
 function newYTDlpWrap(): void {
-    if (ytDlpWrap) {
-        return;
-    }
+    if (ytDlpWrap) return;
 
     if (isWindows) {
         const binarypath = config.getConfigValue("ytBinaryPath");
         ytDlpWrap = new YTDlpWrap(binarypath);
-    } else {
-        ytDlpWrap = new YTDlpWrap();
     }
+    else ytDlpWrap = new YTDlpWrap();
 }
 
 // With yt, we get elapsed fed from the render thread

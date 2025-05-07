@@ -14,5 +14,5 @@ to add `--no-sandbox --no-zygote` to the launch parameters for Vermilion to run:
 For windows, run:
 ```sh
 pnpm i
-pnpm build:win
+pnpm build:windows
 ```

@@ -10,3 +10,9 @@ to add `--no-sandbox --no-zygote` to the launch parameters for Vermilion to run:
 ```sh
 ./dist/vermilion-0.1.0.AppImage --no-zygote --no-sandbox
 ```
+
+For windows, run:
+```sh
+pnpm i
+pnpm build:windows
+```

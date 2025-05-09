@@ -37,7 +37,7 @@ jobs:
 
       - if: steps.changed-files.outputs.files == 'true'
         run: |
-          if nix build --no-out-link --print-build-logs .#vermilion 2> /tmp/log; then
+          if nix build -Lv --no-link .#vermilion 2> /tmp/log; then
             exit 0
           fi
 
@@ -50,3 +50,4 @@ jobs:
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "[CI]: update pnpm dependency hash"
+          file_pattern: 'nix/package.nix'

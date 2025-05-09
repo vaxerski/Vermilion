@@ -36,7 +36,7 @@ jobs:
 
       - if: steps.changed-files.outputs.files == 'true'
         run: |
-          if nix build --print-build-logs .#vermilion 2> /tmp/log; then
+          if nix build --no-out-link --print-build-logs .#vermilion 2> /tmp/log; then
             exit 0
           fi
 

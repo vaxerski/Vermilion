@@ -1,10 +1,11 @@
 name: Fix PNPM Dependency Hash
 
-# on:
-#   push:
-#     branches: [main]
-#   pull_request:
-#     branches: [main]
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-$${{ github.head_ref || github.run_id }}
@@ -36,7 +37,7 @@ jobs:
 
       - if: steps.changed-files.outputs.files == 'true'
         run: |
-          if nix build --print-build-logs .#vermilion 2> /tmp/log; then
+          if nix build -Lv --no-link .#vermilion 2> /tmp/log; then
             exit 0
           fi
 
@@ -49,3 +50,4 @@ jobs:
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "[CI]: update pnpm dependency hash"
+          file_pattern: 'nix/package.nix'

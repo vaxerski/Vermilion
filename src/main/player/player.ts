@@ -255,19 +255,24 @@ async function getPlaylistData(playlist: PlaylistDataShort): Promise<PlaylistDat
     return new Promise<PlaylistData>(
         async (res) => {
             if (playlistDatas.has(playlist.source + "_" + playlist.identifier)) {
-                res(playlistDatas.get(playlist.source + "_" + playlist.identifier));
-                return;
+                const data = playlistDatas.get(playlist.source + "_" + playlist.identifier);
+                if (data.gatheredAt + 1000 * 60 * 2 /* 2 mins */ > new Date().getTime()) {
+                    res(playlistDatas.get(playlist.source + "_" + playlist.identifier));
+                    return;
+                }
             }
 
             if (playlist.source == "mpd")
                 res({}); // TODO:
             else if (playlist.source == "tidal")
                 tidal.getPlaylistData(playlist).then((e) => {
+                    e.gatheredAt = new Date().getTime();
                     playlistDatas.set(playlist.source + "_" + playlist.identifier, e);
                     res(e);
                 }).catch((e) => { res({}); });
             else if (playlist.source == "spotify")
                 spotify.getPlaylistData(playlist).then((e) => {
+                    e.gatheredAt = new Date().getTime();
                     playlistDatas.set(playlist.source + "_" + playlist.identifier, e);
                     res(e);
                 }).catch((e) => { res({}); });

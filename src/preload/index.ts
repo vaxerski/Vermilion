@@ -76,6 +76,9 @@ if (process.contextIsolated) {
       loginState: (callback) => ipcRenderer.on('loginState',
         (_event, value) => callback(value)
       ),
+      reloadPlaylist: (callback) => ipcRenderer.on('reloadPlaylist',
+        (_event, value) => callback(value)
+      ),
     })
   } catch (error) {
     console.error(error)

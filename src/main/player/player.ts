@@ -232,11 +232,16 @@ let tidalGotPlaylists = false;
 let spotifyGotPlaylists = false;
 
 let playlists: Array<PlaylistDataShort> = [];
+let tidalPlaylists: Array<PlaylistDataShort> = [];
+let spotifyPlaylists: Array<PlaylistDataShort> = [];
 
 async function updatePlaylists() {
+    console.log("updating playlists")
+
     if (!tidalGotPlaylists) {
         tidal.getPlaylists().then((res) => {
-            playlists = playlists.concat(res);
+            tidalPlaylists = res;
+            playlists = tidalPlaylists.concat(spotifyPlaylists);
             mainWindow.webContents.send('updatePlaylists', playlists);
             tidalGotPlaylists = true;
         }).catch(() => { });
@@ -244,11 +249,58 @@ async function updatePlaylists() {
 
     if (!spotifyGotPlaylists) {
         spotify.getPlaylists().then((res) => {
-            playlists = playlists.concat(res);
+            spotifyPlaylists = res;
+            playlists = tidalPlaylists.concat(spotifyPlaylists);
             mainWindow.webContents.send('updatePlaylists', playlists);
             spotifyGotPlaylists = true;
         }).catch(() => { });
     }
+
+    mainWindow.webContents.send('updatePlaylists', playlists);
+}
+
+function uncachePlaylist(playlist: PlaylistDataShort) {
+    if (playlistDatas.has(playlist.source + "_" + playlist.identifier))
+        playlistDatas.delete(playlist.source + "_" + playlist.identifier);
+}
+
+async function removeFromPlaylist(song: SongDataShort, playlist: PlaylistDataShort): Promise<boolean> {
+    return new Promise<boolean>(
+        async (res) => {
+            if (playlist.source == "mpd")
+                res(false); // TODO:
+            else if (playlist.source == "tidal")
+                tidal.removeFromPlaylist(song, playlist).then((e) => {
+                    res(true);
+                }).catch((e) => { res(false); });
+            else if (playlist.source == "spotify")
+                res(false);
+            else
+                res(false);
+        }
+    );
+}
+
+async function addToPlaylist(song: SongDataShort, playlist: PlaylistDataShort): Promise<boolean> {
+    return new Promise<boolean>(
+        async (res) => {
+            if (song.source != playlist.source) {
+                res(false);
+                return;
+            }
+
+            if (playlist.source == "mpd")
+                res(false); // TODO:
+            else if (playlist.source == "tidal")
+                tidal.addToPlaylist(song, playlist).then((e) => {
+                    res(true);
+                }).catch((e) => { res(false); });
+            else if (playlist.source == "spotify")
+                res(false);
+            else
+                res(false);
+        }
+    );
 }
 
 async function getPlaylistData(playlist: PlaylistDataShort): Promise<PlaylistData> {
@@ -295,4 +347,7 @@ export default {
     initPlayer,
     updatePlaylists,
     getPlaylistData,
+    removeFromPlaylist,
+    addToPlaylist,
+    uncachePlaylist,
 };

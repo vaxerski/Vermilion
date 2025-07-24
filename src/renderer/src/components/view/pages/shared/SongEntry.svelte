@@ -1,4 +1,5 @@
 <script lang="ts">
+    import type { PlaylistDataShort } from "../../../../../../main/types/playlistDataShort";
     import type { SongDataShort } from "../../../../../../main/types/songData";
     import { changePageTo } from "../../../state/sharedState.svelte";
     import ArtistEntry from "./songEntry/ArtistEntry.svelte";
@@ -15,6 +16,7 @@
         identifier = "",
         source = "",
         index = 0,
+        playlist /* PlaylistDataShort */ = null,
         queue = false,
         songs = [],
     } = $props();
@@ -125,6 +127,39 @@
         closeMenu();
     }
 
+    function removeFromPlaylist() {
+        const songInfo: SongDataShort = {
+            title: $state.snapshot(title),
+            artistString: $state.snapshot(artistString),
+            artists: $state.snapshot(artistList),
+            album: $state.snapshot(album),
+            identifier: $state.snapshot(identifier),
+            source: $state.snapshot(source),
+            duration: $state.snapshot(duration),
+            index:
+                $state.snapshot(index) -
+                1 /* index for playlist is 0 based, while here it's 1 based for the user. */,
+        };
+        console.log("removing index " + ($state.snapshot(index) - 1) + " from playlist");
+        window.electron.ipcRenderer.send("removeFromPlaylist", {song: songInfo, playlist: $state.snapshot(playlist)});
+        closeMenu();
+    }
+
+    function addToPlaylist(playlist: PlaylistDataShort) {
+        const songInfo: SongDataShort = {
+            title: $state.snapshot(title),
+            artistString: $state.snapshot(artistString),
+            artists: $state.snapshot(artistList),
+            album: $state.snapshot(album),
+            identifier: $state.snapshot(identifier),
+            source: $state.snapshot(source),
+            duration: $state.snapshot(duration),
+        };
+        console.log("adding to playlist")
+        window.electron.ipcRenderer.send("addToPlaylist", {song: songInfo, playlist: playlist});
+        closeMenu();
+    }
+
     function clickedAlbum() {
         if (!albumId || albumId == "") return;
 
@@ -201,7 +236,11 @@
             opacity={contextMenuOpacity}
             removeFromQueueCallback={removeFromQueue}
             addAsNextCallback={addAsNext}
+            addToPlaylistCallback={addToPlaylist}
+            removeFromPlaylistCallback={removeFromPlaylist}
             {queue}
+            playlist={playlist == null ? false : true}
+            source={source}
         />
     {/if}
 </div>

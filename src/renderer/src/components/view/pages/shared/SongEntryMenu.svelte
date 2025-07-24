@@ -1,14 +1,32 @@
 <script lang="ts">
+    import type { PlaylistDataShort } from "../../../../../../main/types/playlistDataShort";
+
     let {
         closeCallback,
         addToQueueCallback,
         addAsNextCallback,
         removeFromQueueCallback,
+        removeFromPlaylistCallback,
+        addToPlaylistCallback,
         opacity = 0,
         left = true,
         top = false,
         queue = false,
+        playlist = false,
+        source = "",
     } = $props();
+
+    let addingToPlaylist = $state(false);
+
+    function setAddingToPlaylist() {
+        addingToPlaylist = !addingToPlaylist;
+        if (addingToPlaylist)
+            window.electron.ipcRenderer.send("gatherPlaylists");
+    }
+
+    function addToPlaylist(playlist) {
+        addToPlaylistCallback($state.snapshot(playlist));
+    }
 
     addEventListener("mousedown", (e) => {
         const CONTAINER = document.getElementById("contextMenuContainer");
@@ -30,6 +48,13 @@
         if (e.key == "Escape") closeCallback();
     });
 
+    let playlists: Array<PlaylistDataShort> = $state([]);
+
+    window.electronAPI.updatePlaylists((msg /* Array<PlaylistData> */) => {
+        console.log("playlists");
+        playlists = msg;
+    });
+
     // THIS DOESN'T WORK BECAUSE SONGDATA IS NOT UPDATED PROPERLY AS THE LIST CHANGES AAAAAAAAAAAAAAAAAAAA
     // function addToQueue() {
     //     window.electron.ipcRenderer.send("addToQueue", $state.snapshot(songData));
@@ -44,37 +69,64 @@
         ? 'right'
         : 'left'}: 1.5rem;"
 >
-    {#if queue}
-        <div
-            class="song-context-menu-option"
-            on:click={removeFromQueueCallback}
-        >
-            <i class="song-context-menu-icon fa-solid fa-xmark"></i>
-            <p class="song-context-menu-text">Remove from queue</p>
+    {#if addingToPlaylist}
+        <div class="song-context-menu-option" on:click={setAddingToPlaylist}>
+            <i class="song-context-menu-icon fa-solid fa-arrow-left"></i>
+            <p class="song-context-menu-text">Back</p>
         </div>
-    {/if}
-    {#if !queue}
-        <div class="song-context-menu-option" on:click={addToQueueCallback}>
-            <i class="song-context-menu-icon fa-solid fa-plus"></i>
-            <p class="song-context-menu-text">Add to queue</p>
-        </div>
-        <div class="song-context-menu-option" on:click={addAsNextCallback}>
-            <i class="song-context-menu-icon fa-solid fa-plus"></i>
-            <p class="song-context-menu-text">Add as next</p>
+        {#each playlists as playlist}
+            {#if source == playlist.source}
+                <div
+                    class="song-context-menu-option"
+                    on:click={() => {addToPlaylist(playlist)}}
+                >
+                    <i class="song-context-menu-icon fa-solid fa-music"></i>
+                    <p class="song-context-menu-text">{playlist.name}</p>
+                </div>
+            {/if}
+        {/each}
+    {:else}
+        {#if queue}
+            <div
+                class="song-context-menu-option"
+                on:click={removeFromQueueCallback}
+            >
+                <i class="song-context-menu-icon fa-solid fa-xmark"></i>
+                <p class="song-context-menu-text">Remove from queue</p>
+            </div>
+        {/if}
+        {#if !queue}
+            <div class="song-context-menu-option" on:click={addToQueueCallback}>
+                <i class="song-context-menu-icon fa-solid fa-plus"></i>
+                <p class="song-context-menu-text">Add to queue</p>
+            </div>
+            <div class="song-context-menu-option" on:click={addAsNextCallback}>
+                <i class="song-context-menu-icon fa-solid fa-plus"></i>
+                <p class="song-context-menu-text">Add as next</p>
+            </div>
+            <div class="song-context-menu-option">
+                <i class="song-context-menu-icon fa-solid fa-music"></i>
+                <p class="song-context-menu-text">Play now</p>
+            </div>
+        {/if}
+        {#if playlist}
+            <div
+                class="song-context-menu-option"
+                on:click={removeFromPlaylistCallback}
+            >
+                <i class="song-context-menu-icon fa-solid fa-minus"></i>
+                <p class="song-context-menu-text">Remove from playlist</p>
+            </div>
+        {/if}
+        <div class="song-context-menu-option" on:click={setAddingToPlaylist}>
+            <i class="song-context-menu-icon fa-solid fa-bars"></i>
+            <p class="song-context-menu-text">Add to playlist</p>
         </div>
         <div class="song-context-menu-option">
-            <i class="song-context-menu-icon fa-solid fa-music"></i>
-            <p class="song-context-menu-text">Play now</p>
+            <i class="song-context-menu-icon fa-solid fa-star"></i>
+            <p class="song-context-menu-text">Add to favorites</p>
         </div>
     {/if}
-    <div class="song-context-menu-option">
-        <i class="song-context-menu-icon fa-solid fa-bars"></i>
-        <p class="song-context-menu-text">Add to playlist</p>
-    </div>
-    <div class="song-context-menu-option">
-        <i class="song-context-menu-icon fa-solid fa-star"></i>
-        <p class="song-context-menu-text">Add to favorites</p>
-    </div>
 </div>
 
 <style>
@@ -84,6 +136,9 @@
         flex-direction: column;
         width: 12rem;
         height: auto;
+        max-height: 24rem;
+        overflow-x: hidden;
+        overflow-y: auto;
         padding: 0.5rem 0rem;
         z-index: 50;
         background-color: #33333333;
@@ -92,6 +147,7 @@
         backdrop-filter: saturate(150%) blur(50px);
         opacity: 0;
         transition: 0.1s ease-in;
+        gap: 0.3rem;
     }
 
     .song-context-menu-option {
@@ -99,7 +155,9 @@
         position: relative;
         display: block;
         width: 100%;
-        height: 1.5rem;
+        height: 1.2rem;
+        min-height: 1.2rem;
+        max-height: 1.2rem;
         background-color: #77777700;
         transition: 0.09s ease-in-out;
         border-radius: 0.25rem;

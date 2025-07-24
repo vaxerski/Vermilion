@@ -210,6 +210,23 @@ app.whenReady().then(async () => {
     }
   });
 
+  ipcMain.on('removeFromPlaylist', (ev, data) => {
+    // data is {song, playlist}
+    player.removeFromPlaylist(data.song, data.playlist).then(() => {
+      console.log("e");
+      player.uncachePlaylist(data.playlist)
+      mainWindow.webContents.send('reloadPlaylist', data.playlist);
+    });
+  });
+
+  ipcMain.on('addToPlaylist', (ev, data) => {
+    // data is {song, playlist}
+    player.addToPlaylist(data.song, data.playlist).then(() => {
+      player.uncachePlaylist(data.playlist)
+    });
+  });
+
+
   ipcMain.on('mpdGetSongs', (ev, data) => {
     mpd.listSongs(data).then((res) => {
       mainWindow.webContents.send('updateMpdSongList', res);

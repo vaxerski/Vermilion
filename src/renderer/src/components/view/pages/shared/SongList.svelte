@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { currentPage } from "../../../state/sharedState.svelte";
     import SongEntry from "./SongEntry.svelte";
     import SongEntryBreaker from "./songEntry/SongEntryBreaker.svelte";
 
@@ -15,13 +16,29 @@
         window.electron.ipcRenderer.send("getPlaylistData", { ...playlist });
 
         propagateSongs = true;
-
-        window.electronAPI.playlistData((res) => {
-            if (res.name != playlist.name) return;
-
-            songs = res.songs;
-        });
     }
+
+    window.electronAPI.reloadPlaylist((res) => {
+        if (playlist == null) return;
+
+        if (res.identifier != playlist.identifier) return;
+
+        if (
+            currentPage.page !=
+            "/playlists/playlist/" + playlist.source + "_" + playlist.identifier
+        )
+            return;
+
+        window.electron.ipcRenderer.send("getPlaylistData", { ...playlist });
+
+        propagateSongs = true;
+    });
+
+    window.electronAPI.playlistData((res) => {
+        if (playlist != null && res.name != playlist.name) return;
+
+        songs = res.songs;
+    });
 </script>
 
 <div class="song-list-container">
@@ -37,20 +54,23 @@
         {#if queueBreaker != -1 && queueBreaker == i}
             <SongEntryBreaker text="More from the playlist..." />
         {/if}
-        <SongEntry
-            title={song.title}
-            artistString={song.artistString}
-            album={song.album}
-            artistList={song.artists ? song.artists : []}
-            albumId={song.albumId ? song.albumId : ""}
-            duration={song.duration}
-            alternate={i % 2 == 1 ? true : false}
-            identifier={song.identifier}
-            source={song.source}
-            index={i + 1}
-            songs={propagateSongs ? songs : []}
-            {queue}
-        />
+        {#if song != null}
+            <SongEntry
+                title={song.title}
+                artistString={song.artistString}
+                album={song.album}
+                artistList={song.artists ? song.artists : []}
+                albumId={song.albumId ? song.albumId : ""}
+                duration={song.duration}
+                alternate={i % 2 == 1 ? true : false}
+                identifier={song.identifier}
+                source={song.source}
+                index={i + 1}
+                songs={propagateSongs ? songs : []}
+                {playlist}
+                {queue}
+            />
+        {/if}
     {/each}
     {#if songs.length == 0}
         <div class="song-placeholder-container">

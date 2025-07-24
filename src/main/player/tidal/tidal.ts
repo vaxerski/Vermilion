@@ -530,6 +530,10 @@ async function getPlaylistData(data: PlaylistDataShort): Promise<PlaylistData> {
                 );
 
                 response2.then((x) => {
+
+                    if (x.headers.has("etag"))
+                        pd.etag = x.headers.get("etag");
+
                     x.json().then((itemJson) => {
                         if (!itemJson.items)
                             return;
@@ -941,6 +945,89 @@ async function getLyrics(identifier: string): Promise<LyricData> {
     });
 }
 
+async function removeFromPlaylist(song: SongDataShort, playlist: PlaylistDataShort): Promise<boolean> {
+    return new Promise<boolean>(
+        async (res) => {
+            if (!(song.index >= 0)) {
+                console.log("tidal: removeFromPlaylist: invalid idx");
+                res(false);
+            }
+
+            getPlaylistData(playlist).then(async (x) => {
+                if (x.etag == null) {
+                    console.log("playlist: no etag");
+                    res(false);
+                    return;
+                }
+
+                const response =
+                    await fetch(
+                        TIDAL_URL + TIDAL_PLAYLISTS_API_ENDPOINT + "/" + playlist.identifier + "/items/" + song.index + "?order=INDEX&orderDirection=ASC&countryCode=" + TIDAL_COUNTRY_CODE + "&locale=en_US&deviceType=BROWSER",
+                        {
+                            method: 'DELETE',
+                            headers: {
+                                "Accept": "*/*",
+                                "authorization": "Bearer " + TIDAL_SESSION_TOKEN,
+                                "Host": "listen.tidal.com",
+                                "if-none-match": "" + x.etag,
+                            }
+                        }
+                    );
+
+                res(true);
+            }).catch((e) => {
+                console.log(e);
+                res(false);
+            });
+        }
+    )
+}
+
+async function addToPlaylist(song: SongDataShort, playlist: PlaylistDataShort): Promise<boolean> {
+    return new Promise<boolean>(
+        async (res) => {
+            getPlaylistData(playlist).then(async (x) => {
+                if (x.etag == null) {
+                    console.log("playlist: no etag");
+                    res(false);
+                    return;
+                }
+
+                const bodey = new URLSearchParams();
+                bodey.append("onArtifactNotFound", "FAIL");
+                bodey.append("onDupes", "FAIL");
+                bodey.append("trackIds", "" + song.identifier);
+
+                const response =
+                    await fetch(
+                        TIDAL_URL + TIDAL_PLAYLISTS_API_ENDPOINT + "/" + playlist.identifier + "/items?countryCode=" + TIDAL_COUNTRY_CODE + "&locale=en_US&deviceType=BROWSER",
+                        {
+                            method: 'POST',
+                            headers: {
+                                "Accept": "*/*",
+                                "authorization": "Bearer " + TIDAL_SESSION_TOKEN,
+                                "Host": "listen.tidal.com",
+                                "if-none-match": x.etag,
+                            },
+                            body: bodey,
+                        }
+                    );
+
+                response.json().then((data) => {
+                    console.log(data);
+                    res(true);
+                }).catch((e) => {
+                    console.log(e);
+                    res(false);
+                });
+            }).catch(e => {
+                console.log(e);
+                res(false);
+            });
+        }
+    )
+}
+
 export default {
     performSearch,
     play,
@@ -956,4 +1043,6 @@ export default {
     getArtistData,
     getAlbumData,
     getLyrics,
+    removeFromPlaylist,
+    addToPlaylist,
 }

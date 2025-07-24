@@ -8,4 +8,5 @@ export interface PlaylistData {
     identifier: string;
     albumUrl?: string;
     gatheredAt?: number;
+    etag?: string;
 };

@@ -2,7 +2,7 @@
     import PageTitle from "./shared/PageTitle.svelte";
     import { type PlaylistDataShort } from "../../../../../main/types/playlistDataShort";
     import PlaylistList from "./shared/PlaylistList.svelte";
-    import { currentPage } from "../../state/sharedState.svelte";
+    import { changePageTo, currentPage } from "../../state/sharedState.svelte";
     import SongList from "./shared/SongList.svelte";
 
     let playlists: Array<PlaylistDataShort> = $state([]);

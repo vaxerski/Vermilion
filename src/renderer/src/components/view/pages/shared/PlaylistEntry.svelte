@@ -1,6 +1,9 @@
 <script lang="ts">
     import { type PlaylistDataShort } from "../../../../../../main/types/playlistDataShort";
-    import { changePageTo } from "../../../state/sharedState.svelte";
+    import {
+        changePageTo,
+        currentPage,
+    } from "../../../state/sharedState.svelte";
 
     let { playlist /* PlaylistDataShort */, alternate, index } = $props();
 

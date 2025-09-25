@@ -8,7 +8,7 @@
     }
 </script>
 
-<div class="artist-icon-container" on:click={goToArtist}>
+<div class="artist-icon-container" onclick={goToArtist}>
     {#if iconURL != ""}
         <img class="artist-icon-image" src={iconURL} />
     {:else}

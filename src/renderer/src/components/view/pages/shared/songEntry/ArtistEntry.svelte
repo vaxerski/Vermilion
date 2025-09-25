@@ -14,7 +14,7 @@
     }
 </script>
 
-<span class="artist-entry-clickable" on:click={onClicked}>{name}</span>
+<span class="artist-entry-clickable" onclick={onClicked}>{name}</span>
 
 <style>
     .artist-entry-clickable {

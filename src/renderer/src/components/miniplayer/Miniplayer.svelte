@@ -263,17 +263,17 @@
     }
 </script>
 
-<div class="miniplayer-container" on:dblclick={miniplayerDoubleClickHandler}>
+<div class="miniplayer-container" ondblclick={miniplayerDoubleClickHandler}>
     <!-- Auxiliary icons (more, fullscreen, volume, like) -->
 
     <div
         class="miniplayer-player-icon-container miniplayer-player-volume-container"
     >
-        <i class="miniplayer-icon fa-solid {volumeIcon}" on:mousedown={onClickOnVolumeIcon} />
+        <i class="miniplayer-icon fa-solid {volumeIcon}" onmousedown={onClickOnVolumeIcon} />
         <div class="miniplayer-volume-bar-container" id="volume-container">
             <div
                 class="miniplayer-volume-bar-container-inner"
-                on:mousedown={onClickOnVolumeBar}
+                onmousedown={onClickOnVolumeBar}
             >
                 <div class="miniplayer-volume-bar-container-inner-2">
                     <div
@@ -292,7 +292,7 @@
     <div
         class="miniplayer-player-icon-container miniplayer-player-fullscreen-container"
         style="transform:scale(92%) translateY(-7%)"
-        on:click={toggleFullscreen}
+        onclick={toggleFullscreen}
     >
         <i
             class="miniplayer-icon fa-solid fa{fullscreen
@@ -309,7 +309,7 @@
 
     <div
         class="miniplayer-player-icon-container miniplayer-player-more-container"
-        on:click={openMenu}
+        onclick={openMenu}
     >
         <i
             class="miniplayer-icon fa-solid fa-angles-{fullscreen
@@ -333,7 +333,7 @@
 
     <div
         class="miniplayer-player-icon-container miniplayer-player-clear-mode-container"
-        on:click={setViewClear}
+        onclick={setViewClear}
         style="opacity: {fullscreen ? '1' : '0'}; visibility: {fullscreen
             ? 'visible'
             : 'hidden'};"
@@ -343,7 +343,7 @@
 
     <div
         class="miniplayer-player-icon-container miniplayer-player-lyrics-mode-container"
-        on:click={setViewLyrics}
+        onclick={setViewLyrics}
         style="opacity: {fullscreen ? '1' : '0'}; visibility: {fullscreen
             ? 'visible'
             : 'hidden'};"
@@ -423,7 +423,7 @@
                 ></div>
             </div>
             <div class="miniplayer-nav-container">
-                <div class="miniplayer-icon-container" on:click={playPrevious}>
+                <div class="miniplayer-icon-container" onclick={playPrevious}>
                     <i class="miniplayer-icon fa-solid fa-backward-step"></i>
                 </div>
                 <div class="miniplayer-icon-container">
@@ -436,7 +436,7 @@
                             : resumePlayback}
                     />
                 </div>
-                <div class="miniplayer-icon-container" on:click={playNext}>
+                <div class="miniplayer-icon-container" onclick={playNext}>
                     <i class="miniplayer-icon fa-solid fa-forward-step"></i>
                 </div>
             </div>

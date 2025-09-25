@@ -176,7 +176,7 @@
         currentStatePlaying
             ? 'fa-pause'
             : 'fa-play'}"
-        on:click={onPlay}
+        onclick={onPlay}
         style={currentlyPlaying ? "opacity:1;" : ""}
     >
     </i>
@@ -216,7 +216,7 @@
         class="song-entry-text song-entry-album {albumId != ''
             ? 'song-entry-clickable'
             : ''}"
-        on:click={clickedAlbum}
+        onclick={clickedAlbum}
     >
         {album}
     </p>
@@ -226,7 +226,7 @@
     <i
         class="song-entry-text song-entry-options fa-solid fa-ellipsis"
         id="songEntryIcon"
-        on:click={openMenu}
+        onclick={openMenu}
     >
     </i>
     {#if contextMenuOpen}

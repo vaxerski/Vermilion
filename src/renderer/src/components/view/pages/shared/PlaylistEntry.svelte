@@ -73,7 +73,7 @@
         currentStatePlaying
             ? 'fa-pause'
             : 'fa-play'}"
-        on:click={onPlay}
+        onclick={onPlay}
         style={currentlyPlaying ? "opacity:1;" : ""}
     >
     </i>
@@ -87,7 +87,7 @@
         class="playlist-entry-text playlist-entry-title {currentlyPlaying
             ? 'playlist-entry-playing'
             : ''}"
-        on:click={onEnter}
+        onclick={onEnter}
     >
         {playlist.name}
     </p>
@@ -98,10 +98,7 @@
         {#if playlist.source == "mpd"}
             <i class="fa-solid fa-music" />
         {:else if playlist.source == "tidal"}
-            <img
-                class="playlist-entry-text-svg"
-                src="../../resources/tidalWhite.svg"
-            />
+            <i class="fa-brands fa-tidal" />            
         {:else if playlist.source == "spotify"}
             <i class="fa-brands fa-spotify" />
         {/if}

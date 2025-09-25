@@ -6,7 +6,7 @@
     }
 </script>
 
-<div class="big-link-container" on:click={openLink}>
+<div class="big-link-container" onclick={openLink}>
     <div class="big-link-icon-container">
         <i class="big-link-icon fa-solid {icon}" />
     </div>

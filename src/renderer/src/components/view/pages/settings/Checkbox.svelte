@@ -30,7 +30,7 @@
     <p class="option-name">
         {text}
     </p>
-    <div class="checkbox-container" style="{value ? "background-color: #FF9B99" : ""}" on:click={onClick}>
+    <div class="checkbox-container" style="{value ? "background-color: #FF9B99" : ""}" onclick={onClick}>
         <i class="checkbox-check fa-solid fa-check" style="visibility: {value ? "visible" : "hidden"}; opacity: {value ? "1" : "0"};"/>
     </div>
 </div>

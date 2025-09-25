@@ -17,10 +17,10 @@
 </script>
 
 <div class="search-container">
-    <input type="text" id="search-box-{ID}" class="search-input" placeholder={placeholder} on:keydown={onKeyDown} />
+    <input type="text" id="search-box-{ID}" class="search-input" placeholder={placeholder} onkeydown={onKeyDown} />
     <i
         class="search-search-icon fa-solid fa-magnifying-glass"
-        on:click={sendCallback}
+        onclick={sendCallback}
     ></i>
 </div>
 

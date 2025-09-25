@@ -18,7 +18,7 @@
         It's meant to be <i>simple</i>, so don't expect crazy features. It has all you need from
         a modern music player, and nothing more.<br/><br/>
         If you want to help with the development, <span class="vermilion-grad">Vermilion</span> is made in Electron and Svelte. See 
-        <a target="_blank" class="home-link" href="" on:click={openRepo}>the repo</a>.
+        <a target="_blank" class="home-link" href="" onclick={openRepo}>the repo</a>.
         <br/><br/>
         The name <span class="vermilion-grad">Vermilion</span> comes from the same word, defined as a vivid red to reddish-orange color.
     </p>

@@ -43,8 +43,8 @@
             id="input-box-{valueName}"
             class="input-input"
             {placeholder}
-            on:keydown={onKeyDown}
-            on:focusout={onLostFocus}
+            onkeydown={onKeyDown}
+            onfocusout={onLostFocus}
             {value}
         />
     </div>

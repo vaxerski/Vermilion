@@ -4,7 +4,7 @@
 
 <div
     class="miniplayer-play-pause-container"
-    on:click={callback}
+    onclick={callback}
 >
     <i class="miniplayer-play-pause-icon {icon}"></i>
 </div>

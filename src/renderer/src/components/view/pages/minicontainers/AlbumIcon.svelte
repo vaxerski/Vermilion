@@ -20,7 +20,7 @@
     }
 </script>
 
-<div class="album-icon-container" on:click={goToAlbum}>
+<div class="album-icon-container" onclick={goToAlbum}>
     {#if iconURL != ""}
         <img class="album-icon-image" src={iconURL} />
     {:else}

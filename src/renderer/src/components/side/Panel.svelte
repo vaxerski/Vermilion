@@ -57,7 +57,7 @@
         active={currentPage.page == "/mpd" ? true : false}
     />
     <Button
-        icon="tidal"
+        icon="fa-brands fa-tidal"
         text="Tidal"
         href="/tidal"
         active={currentPage.page.indexOf('/tidal') == 0 ? true : false}

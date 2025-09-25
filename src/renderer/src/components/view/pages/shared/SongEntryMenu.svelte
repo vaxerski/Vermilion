@@ -70,7 +70,7 @@
         : 'left'}: 1.5rem;"
 >
     {#if addingToPlaylist}
-        <div class="song-context-menu-option" on:click={setAddingToPlaylist}>
+        <div class="song-context-menu-option" onclick={setAddingToPlaylist}>
             <i class="song-context-menu-icon fa-solid fa-arrow-left"></i>
             <p class="song-context-menu-text">Back</p>
         </div>
@@ -78,7 +78,7 @@
             {#if source == playlist.source}
                 <div
                     class="song-context-menu-option"
-                    on:click={() => {addToPlaylist(playlist)}}
+                    onclick={() => {addToPlaylist(playlist)}}
                 >
                     <i class="song-context-menu-icon fa-solid fa-music"></i>
                     <p class="song-context-menu-text">{playlist.name}</p>
@@ -89,18 +89,18 @@
         {#if queue}
             <div
                 class="song-context-menu-option"
-                on:click={removeFromQueueCallback}
+                onclick={removeFromQueueCallback}
             >
                 <i class="song-context-menu-icon fa-solid fa-xmark"></i>
                 <p class="song-context-menu-text">Remove from queue</p>
             </div>
         {/if}
         {#if !queue}
-            <div class="song-context-menu-option" on:click={addToQueueCallback}>
+            <div class="song-context-menu-option" onclick={addToQueueCallback}>
                 <i class="song-context-menu-icon fa-solid fa-plus"></i>
                 <p class="song-context-menu-text">Add to queue</p>
             </div>
-            <div class="song-context-menu-option" on:click={addAsNextCallback}>
+            <div class="song-context-menu-option" onclick={addAsNextCallback}>
                 <i class="song-context-menu-icon fa-solid fa-plus"></i>
                 <p class="song-context-menu-text">Add as next</p>
             </div>
@@ -112,13 +112,13 @@
         {#if playlist}
             <div
                 class="song-context-menu-option"
-                on:click={removeFromPlaylistCallback}
+                onclick={removeFromPlaylistCallback}
             >
                 <i class="song-context-menu-icon fa-solid fa-minus"></i>
                 <p class="song-context-menu-text">Remove from playlist</p>
             </div>
         {/if}
-        <div class="song-context-menu-option" on:click={setAddingToPlaylist}>
+        <div class="song-context-menu-option" onclick={setAddingToPlaylist}>
             <i class="song-context-menu-icon fa-solid fa-bars"></i>
             <p class="song-context-menu-text">Add to playlist</p>
         </div>

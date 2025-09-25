@@ -14,7 +14,7 @@
     {/if}
     <div
         class="setting-button-container"
-        on:click={sendCallback}
+        onclick={sendCallback}
         style={text == ""
             ? "left: 50%;transform: translateX(-50%);"
             : "right: 0.5rem;"}

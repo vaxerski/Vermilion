@@ -562,7 +562,7 @@ async function getPlaylistData(data: PlaylistDataShort): Promise<PlaylistData> {
                                     albumId: song.item.album ? "" + song.item.album.id : undefined,
                                     artists: artists,
                                     artistString: artistString.substring(0, artistString.length - 2),
-                                    albumCoverUrl: song.item.album ? TIDAL_RESOURCES_URL + "images/" + song.item.album.cover.replaceAll('-', '/') + "/750x750.jpg" : undefined,
+                                    albumCoverUrl: song.item.album && song.item.album.cover ? TIDAL_RESOURCES_URL + "images/" + song.item.album.cover.replaceAll('-', '/') + "/750x750.jpg" : undefined,
                                     playlist: "tidal_" + data.identifier,
                                     index: i,
                                 }
